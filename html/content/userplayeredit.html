@@ -1,0 +1,66 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <section id="player-editor">
+        <form action="{{.Editor.Action}}" method="post">
+            <input type="hidden" name="id" value="{{.Player.Id}}">
+            <table>
+                <caption>棋手编辑</caption>
+                <tr>
+                    <th>姓名</th><td><label><input name="name" type="text" class="input" value='{{.Player.Name }}'></label></td>
+                </tr>
+                <tr>
+                    <th>性别</th><td><label><input name="sex" type="text" class="input" value="{{.Player.StrSex}}"></label></td>
+                </tr>
+                <tr>
+                    <th>国籍</th><td><label><input name="country" type="text" class="input" value="{{.Player.Country}}"></label></td>
+                </tr>
+                <tr>
+                    <th>段位</th><td><label><input name="rank" type="text" class="input" value="{{.Player.Rank}}"></label></td>
+                </tr>
+                <tr>
+                    <th>生日</th><td><label><input name="birth" type="text" class="input" value='{{.Player.Birth.Format "2006-01-02"}}'></label></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button onclick="this.submit()">提交</button>
+                        <span class="redmsg">{{.Editor.Msg}}</span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </section>
+    <section id="player-list">
+        <table>
+            <caption>棋手列表</caption>
+            <thead>
+            <tr>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>国籍</th>
+                <th>段位</th>
+                <th>生日</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .Players}}
+            <tr>
+                <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+                <td>{{.StrSex}}</td>
+                <td>{{.Country}}</td>
+                <td>{{.Rank}}</td>
+                <td>{{.Birth.Format "2006-01-02"}}</td>
+                <td>
+                    <button onclick="location.href='/user/player/{{.Id}}'">编辑</button>
+                    <form action="/user/player/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </section>
+    {{end}}
+</div>
+{{end}}

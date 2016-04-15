@@ -1,0 +1,45 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <section id="posteditor">
+        <form action="{{.Editor.Action}}" method="post">
+            <input type="hidden" name="id" value="{{.Post.Id}}">
+            <table>
+                <caption>文章编辑</caption>
+                <tr>
+                    <th>标题</th><td><label><input name="title" type="text" class="input title" value="{{.Post.Title}}"></label></td>
+                </tr>
+                <tr>
+                    <th>内容</th><td><label><textarea name="text" class="input text">{{.Post.Text}}</textarea></label></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button onclick="this.submit()">提交</button>
+                        <span class="redmsg">{{.Editor.Msg}}</span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </section>
+    <section id="postlist">
+        <table>
+            <caption>文章列表</caption>
+            <thead>
+            <tr>
+                <th>标题</th><th>状态</th><th>更新</th><th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .Posts}}
+            <tr>
+                <td><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></td>
+                <td>{{.Pstatus}}</td><td>{{.Pupdate.Format "01-02 15:04"}}</td><td><button onclick="location.href='/user/post/{{.Id}}'">编辑</button><form action="/user/post/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form></td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </section>
+    {{end}}
+</div>
+{{end}}

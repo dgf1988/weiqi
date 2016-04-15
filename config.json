@@ -1,0 +1,20 @@
+{
+  "BasePath":"D:/project/src/weiqi/",
+
+  "SiteTitle":"围棋163",
+  "SiteDesc":"围棋综合网站",
+  "SiteKeywords":["围棋", "棋谱", "棋手", "新闻", "文章", "资料"],
+
+  "SiteAuthorName":"dgf",
+  "SiteAuthorUrl":"http://www.dingguofeng.com",
+  "SiteAuthorEmail":"dgf1988@qq.com",
+  "SiteICP":"闽ICP备14014166号-2",
+
+  "DbDriver":"mysql",
+  "DbUsername":"root",
+  "DbPassword":"guofeng001",
+  "DbHost":"localhost",
+  "DbPost":3306,
+  "DbName":"weiqi2",
+  "DbCharset":"utf8"
+}

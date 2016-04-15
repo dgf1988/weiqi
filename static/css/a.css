@@ -1,0 +1,378 @@
+
+/* body */
+body {
+    font-family: "Microsoft YaHei UI", sans-serif;
+    margin: 10px 10px;
+}
+/* header */
+body > header {
+    border-bottom: 1px solid;
+    margin: 10px;
+}
+body > header > h2 {
+    font-size: 32px;
+    margin: auto 20px ;
+}
+/* header nav */
+body > header > nav > ul {
+    list-style: none;
+    background: linear-gradient(to right, #03467a, #0579cb);
+    box-shadow: -1px 1px 3px #000000;
+    border-radius: 2px;
+}
+body > header > nav > ul > li {
+    display: inline-block;
+    margin: auto 10px;
+
+    height: 30px;
+    line-height: 30px;
+    vertical-align: middle;
+
+    font-size: 18px;
+}
+body > header > nav > ul > li > a {
+    color: #dfdfdf;
+    text-decoration: none;
+}
+body > header > nav > ul > li > a:hover {
+    color: #dfdfdf;
+    text-decoration: underline;
+}
+/* footer */
+body > footer {
+    text-align: center;
+    border-top: 1px solid;
+    margin: 10px;
+}
+body > footer > ul {
+    list-style: none;
+}
+body > footer > ul > li {
+    display: inline;
+    font-size: 12px;
+    margin: auto 5px;
+}
+body > footer > ul > li span{
+    margin: auto 5px;
+}
+
+/* content */
+body > #content {
+    text-align: center;
+}
+
+/* index posts */
+body > #content > #index-posts {
+    text-align: left;
+    margin: auto 10px;
+    width: 600px;
+    display: inline-block;
+    vertical-align: top;
+}
+body > #content >  #index-posts  > ol {
+    margin: 10px auto;
+    border: 1px solid #c6c6c6;
+    padding: 10px 10px;
+    border-radius: 2px;
+    list-style-type: none;
+}
+body > #content >  #index-posts  > ol li time {
+    margin: auto 10px;
+}
+body > #content >  #index-posts  > ol li {
+    margin: 3px auto;
+}
+
+/* old */
+body > #content > #index-posts > h6 {
+    padding:0;
+    margin:0;
+    font-size: 16px;
+}
+body > #content > #index-posts > section {
+    border: 1px solid #c6c6c6;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 2px;
+}
+body > #content > #index-posts > section > header {
+}
+body > #content > #index-posts > section > header > h4 {
+    padding:0;
+    margin:0;
+}
+body > #content > #index-posts > section > header > h4 > a {
+    color: #036ab1;
+    text-decoration: none;
+}
+body > #content > #index-posts > section > header > h4 > a:hover {
+    color: #d11200;
+    text-decoration: underline;
+}
+body > #content > #index-posts > section > p {
+    font-size: 14px;
+    margin: 10px auto;
+}
+
+/* content table */
+body > #content > table {
+    text-align: left;
+    margin: auto 10px;
+    display: inline-block;
+    vertical-align: top;
+
+    border-collapse: collapse;
+}
+
+body > #content > table caption {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+}
+body > #content > table tbody tr:hover {
+    background: #d1d1d1;
+}
+body > #content > table th {
+    border: 1px solid black;
+    background: #0397eb;
+    text-align: center;
+}
+body > #content > table td {
+    border: 1px solid black;
+    text-align: center;;
+    padding: 1px 4px;
+}
+body > #content > table td a {
+    text-decoration: none;
+}
+
+/* index side */
+body > #content > aside {
+    text-align: left;
+    margin: auto 10px;
+    width: 320px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+body > #content > aside > section > h6 {
+    padding: 0;
+    margin:0;
+    font-size: 16px;
+}
+
+body > #content > aside > section > ol {
+    margin: 10px auto;
+    border: 1px solid #c6c6c6;
+    padding: 10px 30px;
+    border-radius: 2px;
+}
+body > #content > aside > section a {
+    text-decoration: none;
+}
+body > #content > aside > section a:hover {
+    color: #d11200;
+    text-decoration: underline;
+}
+
+/* article */
+
+body > #content > #article {
+    text-align: left;
+    margin: auto 10px;
+    width: 600px;
+    display: inline-block;
+    padding: 10px;
+    border:1px solid #d5d5d5;
+    border-radius: 3px;
+}
+body > #content > #article > header > h1 {
+    font-size: 24px;
+}
+body > #content > #article> header {
+    border-bottom: 1px solid #a9a9a9;
+}
+body > #content > #article >header > h1{
+    text-align: center;
+}
+body > #content > #article > p {
+    text-indent: 2em;
+    font-size: 18px;
+}
+body > #content > #article img {
+    width: 500px;
+    display: block;
+    margin: auto;
+}
+
+/* player  */
+body > #content > #player > table {
+    text-align: left;
+    border-collapse: collapse;
+    width: auto;
+    margin:auto;
+}
+body > #content > #player > table td {
+    padding: 2px 3px;
+    border:1px solid black;
+}
+body > #content > #player > table th {
+    background: #0376c7;
+    padding: 2px;
+    border:1px solid black;
+}
+
+
+
+/* 用户登录界面 */
+body > #content > form >  table {
+    display: inline-block;
+}
+body > #content > form >  table input{
+    width: 200px;
+}
+body > #content > form >  table  td{
+    text-align: left;
+}
+body > #content > form > table button {
+    display: inline-block;
+}
+
+
+
+/* user admin */
+body > #content > #userinfo {
+    display: inline-block;
+
+}
+body > #content > #userinfo > table {
+    border:1px solid #bababa;
+    padding: 5px;
+    border-collapse: collapse;
+    border-radius: 3px;
+    box-shadow: 2px 2px 2px #8c8c8c;
+}
+body > #content > #userinfo > table th {
+    background: #046dba;
+}
+body > #content > #userinfo > table th,
+body > #content > #userinfo > table td {
+    border: 1px solid #424242;
+}
+
+
+/* user post editor */
+body > #content > #posteditor {
+    display: inline-block;
+    vertical-align: top;
+    padding: 10px;
+}
+body > #content > #posteditor caption {
+    font-size: 18px;
+    font-weight:bold;
+    margin: 5px;
+}
+body > #content > #posteditor .input {
+    width: 500px;
+}
+body > #content > #posteditor .title {
+    font-size: 18px;
+}
+body > #content > #posteditor .text {
+    font-size: 16px;
+    height: 500px;
+
+    resize: none;
+}
+body > #content > #posteditor button {
+    display: inline-block;
+}
+
+body >#content >#postlist {
+    display: inline-block;
+    vertical-align: top;
+    padding: 10px;
+}
+body > #content > #postlist caption {
+    font-size: 18px;
+    font-weight:bold;
+    margin: 5px;
+}
+body >#content >#postlist >table {
+    border-collapse: collapse;
+}
+body >#content >#postlist >table th {
+    background: #0387d9;
+    border:1px solid black;
+    padding: auto 3px;
+}
+body >#content >#postlist >table td {
+    border:1px solid black;
+    padding: auto 3px;
+    text-align: center;
+}
+body >#content >#postlist >table form {
+    display: inline-block;
+    margin: auto 1px;
+}
+
+/* user sgfs  */
+body > #content > #sgf-editor {
+    display: inline-block;
+    vertical-align: top;
+}
+body > #content > #sgf-list {
+    display: inline-block;
+    vertical-align: top;
+}
+body > #content > #sgf-editor  table .input {
+    width: 450px;
+}
+body > #content > #sgf-editor  table .steps {
+    height: 500px;
+    resize: none;
+}
+body > #content >#sgf-list table {
+    border-collapse: collapse;
+}
+
+body > #content >#sgf-list table th {
+    border: 1px solid black ;
+    background: #0387d9;
+}
+body > #content >#sgf-list table td {
+    border:1px solid black;
+}
+body >#content >#sgf-list >table form {
+    display: inline-block;
+    margin: auto 1px;
+}
+
+
+/* user player eidtor and list  */
+body > #content > #player-editor {
+    display: inline-block;
+    vertical-align: top;
+}
+body > #content > #player-list {
+    display: inline-block;
+    vertical-align: top;
+}
+body > #content > #player-editor  table .input {
+    width: 200px;
+}
+body > #content >#player-list table {
+    border-collapse: collapse;
+}
+
+body > #content >#player-list table th {
+    border: 1px solid black ;
+    background: #0387d9;
+}
+body > #content > #player-list table td {
+    border:1px solid black;
+}
+body >#content > #player-list >table form {
+    display: inline-block;
+    margin: auto 1px;
+}

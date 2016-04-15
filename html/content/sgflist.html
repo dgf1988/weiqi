@@ -1,0 +1,29 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <table>
+        <caption>棋谱列表</caption>
+        <thead>
+        <tr>
+            <th>比赛</th>
+            <th>黑棋</th>
+            <th>白棋</th>
+            <th>结果</th>
+            <th>日期</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Sgfs}}
+        <tr>
+            <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
+            <td>{{.Black}}</td>
+            <td>{{.White}}</td>
+            <td>{{.Result}}</td>
+            <td>{{.Time.Format "2006-01-02"}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+    {{end}}
+</div>
+{{end}}

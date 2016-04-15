@@ -1,0 +1,36 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <h4>登录</h4>
+    <form method="post" action="/login" id="login">
+        <table>
+            <tr><td>用户名:</td><td><label><input type="text" name="username"></label></td></tr>
+            <tr><td>密码:</td><td><label><input type="password" name="password"></label></td></tr>
+            <tr>
+                <td></td>
+                <td >
+                    <button onclick="this.submit()">登录</button>
+                    <span class="redmsg">{{.LoginMsg}}</span>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <h4>注册</h4>
+    <form method="post" action="/register" id="register">
+        <table>
+            <tr><td>用户名:</td><td><label><input type="text" name="username"></label></td></tr>
+            <tr><td>密码:</td><td><label><input type="password" name="password"></label></td></tr>
+            <tr><td>密码确认:</td><td><label><input type="password" name="password2"></label></td></tr>
+            <tr><td>Email:</td><td><label><input type="email" name="email"></label></td></tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button onclick="this.submit()">注册</button>
+                    <span class="redmsg">{{.RegisterMsg}}</span>
+                </td>
+            </tr>
+        </table>
+    </form>
+    {{end}}
+</div>
+{{end}}

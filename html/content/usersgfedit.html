@@ -1,0 +1,73 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <section id="sgf-editor">
+        <form action="{{.Editor.Action}}" method="post">
+            <input type="hidden" name="id" value="{{.Sgf.Id}}">
+            <table>
+                <caption>棋谱编辑</caption>
+                <tr>
+                    <th>时间</th><td><label><input name="time" type="text" class="input" value='{{.Sgf.Time.Format "2006-01-02" }}'></label></td>
+                </tr>
+                <tr>
+                    <th>事件</th><td><label><input name="event" type="text" class="input" value="{{.Sgf.Event}}"></label></td>
+                </tr>
+                <tr>
+                    <th>地点</th><td><label><input name="place" type="text" class="input" value="{{.Sgf.Place}}"></label></td>
+                </tr>
+                <tr>
+                    <th>黑棋</th><td><label><input name="black" type="text" class="input" value="{{.Sgf.Black}}"></label></td>
+                </tr>
+                <tr>
+                    <th>白棋</th><td><label><input name="white" type="text" class="input" value="{{.Sgf.White}}"></label></td>
+                </tr>
+                <tr>
+                    <th>规则</th><td><label><input name="rule" type="text" class="input" value="{{.Sgf.Rule}}"></label></td>
+                </tr>
+                <tr>
+                    <th>结果</th><td><label><input name="result" type="text" class="input" value="{{.Sgf.Result}}"></label></td>
+                </tr>
+                <tr>
+                    <th>棋谱</th><td><label><textarea name="steps" class="input steps">{{.Sgf.Steps}}</textarea></label></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td>
+                        <button onclick="this.submit()">提交</button>
+                        <span class="redmsg">{{.Editor.Msg}}</span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </section>
+    <section id="sgf-list">
+        <table>
+            <caption>棋谱列表</caption>
+            <thead>
+            <tr>
+                <th>事件</th>
+                <th>黑棋</th>
+                <th>白棋</th>
+                <th>时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .Sgfs}}
+            <tr>
+                <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
+                <td>{{.Black}}</td>
+                <td>{{.White}}</td>
+                <td>{{.Time.Format "2006-01-02"}}</td>
+                <td>
+                    <button onclick="location.href='/user/sgf/{{.Id}}'">编辑</button>
+                    <form action="/user/sgf/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </section>
+    {{end}}
+</div>
+{{end}}

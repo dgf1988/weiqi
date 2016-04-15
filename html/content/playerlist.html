@@ -1,0 +1,29 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <table>
+        <caption>棋手列表</caption>
+        <thead>
+        <tr>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>国籍</th>
+            <th>段位</th>
+            <th>生日</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range .Players}}
+        <tr>
+            <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+            <td>{{.StrSex}}</td>
+            <td>{{.Country}}</td>
+            <td>{{.Rank}}</td>
+            <td>{{.Birth.Format "2006-01-02"}}</td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+    {{end}}
+</div>
+{{end}}

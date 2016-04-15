@@ -1,0 +1,18 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <div id="index-posts">
+        <h6>最新文章</h6>
+        {{range .Posts}}
+        <section>
+            <header>
+                <h4><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></h4>
+                <time>{{.Pposted.Format "2006-01-02 15:04:05"}}</time>
+            </header>
+            <p>{{.Text}}</p>
+        </section>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+{{end}}

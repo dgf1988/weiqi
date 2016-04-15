@@ -1,0 +1,13 @@
+{{define "content"}}
+<div id="content">
+    <section id="userinfo">
+        <table>
+            <caption>用户资料</caption>
+            <tr><th>用户名</th><td>{{.User.Name}}</td></tr>
+            <tr><th>Email</th><td>{{.User.Email}}</td></tr>
+            <tr><th>注册地址</th><td>{{.User.Ip}}</td></tr>
+            <tr><th>注册时间</th><td>{{.User.Register.Format "2006-01-02 15:04:05"}}</td></tr>
+        </table>
+    </section>
+</div>
+{{end}}

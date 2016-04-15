@@ -1,0 +1,15 @@
+{{define "layout"}}<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/css/a.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/b.css" rel="stylesheet" type="text/css">
+    {{template "head" .}}
+</head>
+<body>
+{{template "header" .}}
+{{template "content" .}}
+{{template "footer" .}}
+</body>
+</html>
+{{end}}

@@ -1,0 +1,32 @@
+{{define "content"}}
+<div id="content">
+    {{with .Content}}
+    <div id="index-posts">
+        <h6>最新文章</h6>
+        <ol>
+            {{range .Posts}}
+            <li><time>{{.Pposted.Format "2006-01-02"}}</time><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
+            {{end}}
+        </ol>
+    </div>
+    <aside id="index-side">
+        <section id="side-players">
+            <h6>热门棋手</h6>
+            <ol>
+                {{range .Players}}
+                <li><a href="/player/{{.Id}}">{{.Name}}</a></li>
+                {{end}}
+            </ol>
+        </section>
+        <section id="side-sgfs">
+            <h6>热门棋谱</h6>
+            <ol>
+                {{range .Sgfs}}
+                <li><a href="/sgf/{{.Id}}" title="{{.Black}} VS {{.White}}">{{.Event}}</a></li>
+                {{end}}
+            </ol>
+        </section>
+    </aside>
+    {{end}}
+</div>
+{{end}}
