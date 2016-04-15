@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"database/sql"
@@ -24,25 +24,21 @@ func (this HandlerFunc) ServeHTTP(h *Http) {
 }
 
 func defaultHandler(h *Http) {
-	var u *U
-	s := getSession(h.R)
-	if s != nil {
-		u = s.User
-	}
+	u := getSessionUser(h.R)
 
-	posts, err := dbListPostByPage(10, 0)
+	posts, err := dbListPostByPage(40, 0)
 	if err != nil && err != sql.ErrNoRows {
 		h.ServerError(err.Error())
 		return
 	}
 
-	players, err := dbListPlayer(10, 0)
+	players, err := dbListPlayer(40, 0)
 	if err != nil && err != sql.ErrNoRows {
 		h.ServerError(err.Error())
 		return
 	}
 
-	sgfs, err := dbListSgf(10, 0)
+	sgfs, err := dbListSgf(40, 0)
 	if err != nil && err != sql.ErrNoRows {
 		h.ServerError(err.Error())
 		return

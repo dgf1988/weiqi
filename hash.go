@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"crypto/md5"

@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"flag"
@@ -10,7 +10,9 @@ const (
 	Time_Def_Format = "2006-01-02 15:04:05"
 )
 
-func main() {
+
+//程序的入口
+func Run() {
 
 	//
 	port := flag.String("p", ":8080", "http server port")

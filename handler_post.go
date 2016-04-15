@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"database/sql"
@@ -13,7 +13,7 @@ func postListHandler(h *Http) {
 		u = s.User
 	}
 
-	posts, err := dbListPostByPage(10, 0)
+	posts, err := dbListPostByPage(40, 0)
 	if err != nil {
 		h.ServerError(err.Error())
 		return
@@ -126,7 +126,7 @@ func userPostEidtHandler(h *Http) {
 		post = new(P)
 	}
 
-	posts, err := dbListPostByPage(10, 0)
+	posts, err := dbListPostByPage(40, 0)
 	if err == sql.ErrNoRows {
 		posts = make([]P, 0)
 	} else if err != nil {

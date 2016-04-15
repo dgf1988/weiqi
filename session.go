@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"math/rand"
@@ -106,4 +106,15 @@ func (s *Session) Add(w http.ResponseWriter) {
 
 	http.SetCookie(w, &http.Cookie{Name: SessionCookieName, Value: s.Id, Expires: s.Timeout})
 	Sessions[s.Id] = s
+}
+
+
+//快速获取会话中的用户。
+//并不是什么时候都需要持有一个会话对象。
+func getSessionUser(r *http.Request) *U {
+	s := getSession(r)
+	if s != nil {
+		return s.User
+	}
+	return nil
 }

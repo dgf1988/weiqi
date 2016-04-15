@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"database/sql"
@@ -22,7 +22,7 @@ func (p *P) HtmlText() template.HTML {
 }
 
 func dbListPostByPage(pagesize int, page int) ([]P, error) {
-	rows, err := db.Query("select * from post order by pposted desc limit ?,?", pagesize*page, pagesize)
+	rows, err := db.Query("select * from post order by id desc limit ?,?", pagesize*page, pagesize)
 	if err != nil {
 		return nil, err
 	}

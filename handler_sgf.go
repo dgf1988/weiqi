@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"database/sql"
@@ -15,7 +15,7 @@ func sgfListHandler(h *Http) {
 		u = s.User
 	}
 
-	sgfs, err := dbListSgf(10, 0)
+	sgfs, err := dbListSgf(40, 0)
 	if err == sql.ErrNoRows {
 		h.RequestError("page not found").NotFound()
 		return
@@ -127,7 +127,7 @@ func userSgfEditHandler(h *Http) {
 		sgf = new(Sgf)
 	}
 
-	sgfs, err := dbListSgf(10, 0)
+	sgfs, err := dbListSgf(40, 0)
 	if err != nil {
 		h.ServerError(err.Error())
 		return

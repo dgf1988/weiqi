@@ -1,4 +1,4 @@
-package main
+package weiqi
 
 import (
 	"database/sql"
@@ -15,7 +15,7 @@ func playerListHandler(h *Http) {
 		u = s.User
 	}
 
-	ps, err := dbListPlayer(10, 0)
+	ps, err := dbListPlayer(40, 0)
 	if err != nil && err != sql.ErrNoRows {
 		h.ServerError(err.Error())
 		return
@@ -126,7 +126,7 @@ func userPlayerEditHandler(h *Http) {
 		player = new(Player)
 	}
 
-	ps, err := dbListPlayer(10, 0)
+	ps, err := dbListPlayer(40, 0)
 	if err != nil {
 		h.ServerError(err.Error())
 		return
