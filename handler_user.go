@@ -29,6 +29,7 @@ func loginHandler(h *Http) {
 			h.ServerError(err.Error())
 		}
 	} else if h.R.Method == GET {
+		clearSessionMany()
 		h.R.ParseForm()
 		loginMsg := h.R.FormValue("loginmsg")
 		registerMsg := h.R.FormValue("registermsg")

@@ -90,12 +90,14 @@
         <input type="hidden" id="sgfstring" value="{{.Sgf.ToSgf}}"/>
         <footer id="weiqi-footer">
             <p>
-                <button onclick="weiqi_mode(this)">试下</button>
-                <button onclick="weiqi_forward()">前进</button>
-                <button onclick="weiqi_back()">后退</button>
+                <button onclick="weiqi_goto(1)">第一手</button>
+                <button onclick="weiqi_back()">向前</button>
+                <button onclick="weiqi_forward()">向后</button>
+                <button onclick="weiqi_goto(1000)">最后一手</button>
                 <button onclick="weiqi_goto()">跳转</button>
                 第<input id="stepnumber" type="number" onkeydown="weiqi_checkKeyDown(event)" onkeyup="weiqi_checkKeyUp()"/>手
                 <input id="setshow" name="Fruit" type="checkbox" value="" onchange="weiqi_numbershow(this)" />显示手数
+                <button onclick="weiqi_mode(this)">试下</button>
             </p>
         </footer>
     </article>
@@ -107,7 +109,7 @@
         for(var i = 0 ; i< sgf.steps.length ; i++){
             weiqi_step(sgf.steps[i].point,sgf.steps[i].player);
         }
-        weiqi_goto();
+        weiqi_goto(1);
         //初始化棋盘事件。
         handlermap.onmousedown = function(event){
             if( event.button != 2 ){
