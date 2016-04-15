@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	_ "mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"strings"
 	"fmt"

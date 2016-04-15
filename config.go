@@ -12,7 +12,7 @@ const (
 
 	C_DEF_CONFIG_JSON   = `
 {
-  "BasePath":"d:/Project/src/weiqi/",
+  "BasePath":"d:/Project/src/github.com/dgf1988/weiqi/",
   "SiteTitle":"围棋163",
   "SiteDesc":"围棋综合网站",
   "SiteKeywords": ["围棋", "棋谱", "棋手", "新闻", "文章", "资料"],
