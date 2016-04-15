@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	Log_File_Error = "err.log"
+	Log_File_Error  = "err.log"
 	Log_File_Access = "access.log"
-	Log_File_Debug = "debug.log"
+	Log_File_Debug  = "debug.log"
 )
 
 func logError(h *Http, msg string) {
@@ -39,5 +39,5 @@ func logDebug(a ...interface{}) {
 		return
 	}
 	defer fout.Close()
-	log.New(fout, "", log.LstdFlags).Println(a ...)
+	log.New(fout, "", log.LstdFlags).Println(a...)
 }

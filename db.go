@@ -2,16 +2,16 @@ package main
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"strings"
-	"fmt"
 	"reflect"
-	"errors"
+	"strings"
 )
 
 var (
-	db *sql.DB
+	db            *sql.DB
 	ErrPrimaryKey = errors.New("primary key error")
 )
 
@@ -46,8 +46,6 @@ func dbCountBy(tablename string, where string) (int64, error) {
 	}
 	return num, nil
 }
-
-
 
 func dbDesc(tablename string) ([][6]string, error) {
 	rows, err := db.Query(fmt.Sprint("desc ", tablename))
@@ -109,8 +107,6 @@ func dbClear(tablename string) (int64, error) {
 	}
 	return res.RowsAffected()
 }
-
-
 
 func scanRowToStruct(row sql.Row, object interface{}) error {
 	vp := reflect.ValueOf(object)

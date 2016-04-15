@@ -2,7 +2,6 @@ package main
 
 import "strings"
 
-
 //导航结构
 type NavItem struct {
 	Title string
@@ -74,7 +73,7 @@ type Editor struct {
 	Msg    string
 }
 
-func newEditor(action, msg string) *Editor{
+func newEditor(action, msg string) *Editor {
 	return &Editor{
 		action, msg,
 	}
@@ -83,12 +82,12 @@ func newEditor(action, msg string) *Editor{
 //内容数据结构
 type Content map[string]interface{}
 
-type Data struct{
-	User *U
-	Head *Head
-	Header *Header
+type Data struct {
+	User    *U
+	Head    *Head
+	Header  *Header
 	Content Content
-	Footer *Footer
+	Footer  *Footer
 }
 
 func defData() *Data {

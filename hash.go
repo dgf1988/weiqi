@@ -2,8 +2,8 @@ package main
 
 import (
 	"crypto/md5"
-	"io"
 	"fmt"
+	"io"
 )
 
 func getMd5(data string) string {

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
-	"os"
+	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 const (
 	C_FILENAME = "config.json"
 
-	C_DEF_CONFIG_JSON   = `
+	C_DEF_CONFIG_JSON = `
 {
   "BasePath":"d:/Project/src/github.com/dgf1988/weiqi/",
   "SiteTitle":"围棋163",
@@ -34,24 +34,24 @@ const (
 )
 
 type Config struct {
-	BasePath		string
+	BasePath string
 
-	SiteTitle       string
-	SiteDesc        string
-	SiteKeywords    []string
+	SiteTitle    string
+	SiteDesc     string
+	SiteKeywords []string
 
 	SiteAuthorName  string
 	SiteAuthorUrl   string
 	SiteAuthorEmail string
 	SiteICP         string
 
-	DbDriver        string
-	DbUsername      string
-	DbPassword      string
-	DbHost          string
-	DbPost          int
-	DbName          string
-	DbCharset       string
+	DbDriver   string
+	DbUsername string
+	DbPassword string
+	DbHost     string
+	DbPost     int
+	DbName     string
+	DbCharset  string
 }
 
 var (

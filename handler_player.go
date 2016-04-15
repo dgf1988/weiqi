@@ -1,14 +1,15 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
-	"fmt"
-	"database/sql"
 )
 
 //player list
-func playerListHandler(h *Http) {var u *U
+func playerListHandler(h *Http) {
+	var u *U
 	s := getSession(h.R)
 	if s != nil {
 		u = s.User
@@ -47,7 +48,7 @@ func playerListData(u *U, playerlist []Player) *Data {
 }
 
 //player id
-func playerIdHandler(h *Http){
+func playerIdHandler(h *Http) {
 	var u *U
 	s := getSession(h.R)
 	if s != nil {
@@ -103,11 +104,11 @@ func userPlayerEditHandler(h *Http) {
 		return
 	}
 	h.R.ParseForm()
-	var(
-		action = "/user/player/add"
-		msg = h.R.FormValue("editormsg")
+	var (
+		action         = "/user/player/add"
+		msg            = h.R.FormValue("editormsg")
 		player *Player = nil
-		err error
+		err    error
 	)
 
 	if len(h.P) > 0 {
@@ -178,7 +179,6 @@ func checkPlayerFieldInput(p *Player) error {
 	}
 	return nil
 }
-
 
 //player post
 func handlerUserPlayerAdd(h *Http) {

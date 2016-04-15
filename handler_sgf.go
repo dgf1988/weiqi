@@ -2,9 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
-	"fmt"
 )
 
 //sgf list
@@ -71,7 +71,7 @@ func sgfIdHandler(h *Http) {
 		h.ServerError(err.Error())
 		return
 	}
-	if err = sgfIdHtml().Execute(h.W, sgfIdData(u, sgf), defFuncMap) ; err != nil {
+	if err = sgfIdHtml().Execute(h.W, sgfIdData(u, sgf), defFuncMap); err != nil {
 		h.ServerError(err.Error())
 		return
 	}
@@ -104,13 +104,12 @@ func userSgfEditHandler(h *Http) {
 		return
 	}
 
-
 	h.R.ParseForm()
-	var(
-		action = "/user/sgf/add"
-		msg = h.R.FormValue("editormsg")
-		sgf *Sgf = nil
-		err error
+	var (
+		action      = "/user/sgf/add"
+		msg         = h.R.FormValue("editormsg")
+		sgf    *Sgf = nil
+		err    error
 	)
 
 	if len(h.P) > 0 {
@@ -128,8 +127,7 @@ func userSgfEditHandler(h *Http) {
 		sgf = new(Sgf)
 	}
 
-
-	sgfs, err := dbListSgf(10,  0)
+	sgfs, err := dbListSgf(10, 0)
 	if err != nil {
 		h.ServerError(err.Error())
 		return

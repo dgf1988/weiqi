@@ -1,11 +1,12 @@
 package main
 
 import (
-	"time"
+	"database/sql"
 	"fmt"
 	"strings"
-	"database/sql"
+	"time"
 )
+
 /*
 CREATE TABLE `sgf` (
 `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -27,19 +28,19 @@ ENGINE=InnoDB
 
 const (
 	SGF_TABLENAME = "sgf"
-	SGF_CHARSET = "utf-8"
+	SGF_CHARSET   = "utf-8"
 )
 
 type Sgf struct {
-	Id int64
-	Time time.Time
-	Place string
-	Event string
-	Black string
-	White string
-	Rule string
+	Id     int64
+	Time   time.Time
+	Place  string
+	Event  string
+	Black  string
+	White  string
+	Rule   string
 	Result string
-	Steps string
+	Steps  string
 	Update time.Time
 }
 
@@ -108,7 +109,7 @@ func dbGetSgf(id int64) (*Sgf, error) {
 func dbDelSgf(id int64) (int64, error) {
 	res, err := db.Exec("delete from sgf where id = ? limit 1", id)
 	if err != nil {
-		return -1,  err
+		return -1, err
 	}
 	return res.RowsAffected()
 }
@@ -132,7 +133,7 @@ func dbListSgf(take, skip int) ([]Sgf, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	sgflist := make([]Sgf,0)
+	sgflist := make([]Sgf, 0)
 	for rows.Next() {
 		var s Sgf
 		err := rows.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
@@ -143,5 +144,3 @@ func dbListSgf(take, skip int) ([]Sgf, error) {
 	}
 	return sgflist, rows.Err()
 }
-
-

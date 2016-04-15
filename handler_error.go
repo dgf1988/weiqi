@@ -11,7 +11,7 @@ func parseStatuLine(code int) string {
 }
 
 type ErrorHandler struct {
-	w http.ResponseWriter
+	w   http.ResponseWriter
 	Msg string
 }
 
@@ -44,7 +44,7 @@ func (e ErrorHandler) NotFound() {
 }
 
 //405
-func (e ErrorHandler) MethodNotAllowed(methods []string){
+func (e ErrorHandler) MethodNotAllowed(methods []string) {
 	allows := strings.Join(methods, ",")
 	e.Msg = fmt.Sprint(e.Msg, "\n", "Allow:", allows)
 	e.w.Header().Add("Allow", allows)

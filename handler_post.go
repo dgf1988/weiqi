@@ -13,7 +13,7 @@ func postListHandler(h *Http) {
 		u = s.User
 	}
 
-	posts, err := dbListPostByPage( 10, 0)
+	posts, err := dbListPostByPage(10, 0)
 	if err != nil {
 		h.ServerError(err.Error())
 		return
@@ -61,7 +61,7 @@ func postIdHandler(h *Http) {
 	}
 
 	p, err := dbGetPost(id)
-	if err == sql.ErrNoRows{
+	if err == sql.ErrNoRows {
 		h.RequestError("找不到文章").NotFound()
 	} else if err != nil {
 		h.ServerError(err.Error())
@@ -93,7 +93,6 @@ func postIdData(u *U, post *P) *Data {
 	return data
 }
 
-
 //post edit
 func userPostEidtHandler(h *Http) {
 
@@ -105,11 +104,11 @@ func userPostEidtHandler(h *Http) {
 	}
 
 	h.R.ParseForm()
-	var(
-		action = "/user/post/add"
-		msg = h.R.FormValue("editormsg")
-		post *P = nil
-		err error
+	var (
+		action    = "/user/post/add"
+		msg       = h.R.FormValue("editormsg")
+		post   *P = nil
+		err    error
 	)
 
 	if len(h.P) > 0 {
@@ -179,7 +178,7 @@ func handlerUserPostAdd(h *Http) {
 		if err == nil {
 			h.SeeOther(fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
-			h.SeeOther("/user/post/?editormsg="+err.Error())
+			h.SeeOther("/user/post/?editormsg=" + err.Error())
 		}
 	} else {
 		h.SeeOther("/user/post/?editormsg=标题或内容为空")

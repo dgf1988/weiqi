@@ -1,8 +1,8 @@
 package main
 
 import (
-	"time"
 	"database/sql"
+	"time"
 )
 
 /*
@@ -33,8 +33,8 @@ func (p Player) StrSex() string {
 	return formatSex(p.Sex)
 }
 
-const(
-	C_SEX_BOY = 1
+const (
+	C_SEX_BOY  = 1
 	C_SEX_GIRL = 2
 )
 
@@ -108,7 +108,7 @@ func dbWherePlayer(where string) (*Player, error) {
 
 func dbListPlayer(take, skip int) ([]Player, error) {
 	rows, err := db.Query("select * from player order by id desc limit ?,?", skip, take)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()

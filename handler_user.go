@@ -2,7 +2,6 @@ package main
 
 import "fmt"
 
-
 //登录页面
 func loginHandler(h *Http) {
 
@@ -25,11 +24,11 @@ func loginHandler(h *Http) {
 			return
 		}
 		if werr, ok := err.(*WeiqiError); ok {
-			h.SeeOther(fmt.Sprint("/login?loginmsg=",werr.Msg))
+			h.SeeOther(fmt.Sprint("/login?loginmsg=", werr.Msg))
 		} else {
 			h.ServerError(err.Error())
 		}
-	} else 	if h.R.Method == GET {
+	} else if h.R.Method == GET {
 		h.R.ParseForm()
 		loginMsg := h.R.FormValue("loginmsg")
 		registerMsg := h.R.FormValue("registermsg")
@@ -89,8 +88,6 @@ func handlerRegister(h *Http) {
 	}
 }
 
-
-
 func userHandler(h *Http) {
 
 	//会话验证
@@ -106,7 +103,7 @@ func userHandler(h *Http) {
 	}
 }
 
-func userHtml() *Html{
+func userHtml() *Html {
 	return defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),

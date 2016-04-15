@@ -1,11 +1,11 @@
 package main
 
 import (
-	"sync"
-	"time"
-	"strconv"
 	"math/rand"
 	"net/http"
+	"strconv"
+	"sync"
+	"time"
 )
 
 const (
@@ -16,12 +16,12 @@ var (
 	//锁
 	SessionLocker sync.RWMutex
 	//会话存储
-	Sessions      map[string]*Session = make(map[string]*Session)
+	Sessions map[string]*Session = make(map[string]*Session)
 )
 
 type Session struct {
-	Id string
-	User *U
+	Id      string
+	User    *U
 	Timeout time.Time
 }
 
@@ -100,11 +100,10 @@ func sessionId() string {
 	return getMd5(strconv.FormatInt(nano, 10) + strconv.FormatInt(rndNum, 10))
 }
 
-
 func (s *Session) Add(w http.ResponseWriter) {
 	SessionLocker.Lock()
 	defer SessionLocker.Unlock()
 
-	http.SetCookie(w,  &http.Cookie{Name:SessionCookieName, Value:s.Id, Expires: s.Timeout})
+	http.SetCookie(w, &http.Cookie{Name: SessionCookieName, Value: s.Id, Expires: s.Timeout})
 	Sessions[s.Id] = s
 }

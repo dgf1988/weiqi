@@ -6,14 +6,14 @@ import (
 	"io"
 )
 
-const(
-	HtmlBasePath = "html/"
-	HtmlSuffix = "html"
-	HtmlDefClsname = "layout"
+const (
+	HtmlBasePath    = "html/"
+	HtmlSuffix      = "html"
+	HtmlDefClsname  = "layout"
 	HtmlDefFilename = "default"
 )
 
-func getHtmlFullname(clsname, filename string) string{
+func getHtmlFullname(clsname, filename string) string {
 	return fmt.Sprintf("%s%s%s/%s.%s", config.BasePath, HtmlBasePath, clsname, filename, HtmlSuffix)
 }
 
@@ -43,7 +43,7 @@ func (h *Html) AllFullname() []string {
 
 func (h *Html) Execute(out io.Writer, datamap interface{}, funcmap template.FuncMap) error {
 	var (
-		t = template.New("")
+		t   = template.New("")
 		err error
 	)
 	if funcmap != nil {
@@ -112,8 +112,3 @@ func newHtmlContent(filename string) *Html {
 func defHtmlContent() *Html {
 	return newHtmlContent("")
 }
-
-
-
-
-

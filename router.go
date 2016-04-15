@@ -6,18 +6,18 @@ import (
 
 const (
 	ROUTER_DEFAULT_PATTERN = ""
-	ROUTER_PARAM_PATTERN = "*"
+	ROUTER_PARAM_PATTERN   = "*"
 )
 
 const (
 	POST = "POST"
-	GET = "GET"
+	GET  = "GET"
 )
 
 type Route struct {
-	Pattern    string
-	Methods    []string
-	Handler    Handler
+	Pattern string
+	Methods []string
+	Handler Handler
 
 	DefRoute   *Route
 	ParamRoute *Route

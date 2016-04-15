@@ -1,12 +1,12 @@
 package main
 
 import (
-	"net/http"
 	"flag"
+	"net/http"
 )
 
 const (
-	Time_Format = "2006年01月02日 15:04"
+	Time_Format     = "2006年01月02日 15:04"
 	Time_Def_Format = "2006-01-02 15:04:05"
 )
 
@@ -39,7 +39,6 @@ func main() {
 	mux.HandleFunc(handlerUserSgfAdd, "/user/sgf/add", POST)
 	mux.HandleFunc(handlerUserSgfDelete, "/user/sgf/del", POST)
 	mux.HandleFunc(handlerUserSgfUpdate, "/user/sgf/update", POST)
-
 
 	mux.HandleFunc(playerListHandler, "/player/", GET)
 	mux.HandleFunc(playerIdHandler, "/player/*", GET)

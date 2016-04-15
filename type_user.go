@@ -14,7 +14,7 @@ type U struct {
 	Id       int64
 	Name     string
 	Email    string
-	Ip 		string
+	Ip       string
 	Status   int64
 	Register time.Time
 }
@@ -33,7 +33,7 @@ var (
 )
 
 func getPasswordMd5(password, ip string) string {
-	return getMd5(password+ip)
+	return getMd5(password + ip)
 }
 
 //注册用户

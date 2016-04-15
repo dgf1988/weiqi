@@ -1,17 +1,17 @@
 package main
 
 import (
-	"time"
 	"database/sql"
+	"fmt"
 	"html/template"
 	"strings"
-	"fmt"
+	"time"
 )
 
 type P struct {
-	Id int64
-	Title string
-	Text string
+	Id      int64
+	Title   string
+	Text    string
 	Pstatus int64
 	Pposted time.Time
 	Pupdate time.Time
@@ -56,7 +56,7 @@ func dbGetPost(id int64) (*P, error) {
 	var p P
 	err := row.Scan(&p.Id, &p.Title, &p.Text, &p.Pstatus, &p.Pposted, &p.Pupdate)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return &p, nil
 }
@@ -71,7 +71,7 @@ func dbUpdatePost(p *P) error {
 
 func dbDeletePost(id int64) error {
 	_, err := db.Exec("delete from post where id = ? limit 1", id)
-	if err != nil && err != sql.ErrNoRows{
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 	return nil
@@ -115,4 +115,3 @@ func parseTextToHtml(text string) string {
 	}
 	return strings.Join(ret, "\n")
 }
-
