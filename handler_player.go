@@ -170,7 +170,10 @@ func getPlayerFromRequest(r *http.Request) *Player {
 	if err != nil {
 		p.Birth, err = time.Parse("2006年01月02日", r.FormValue("birth"))
 		if err != nil {
-			p.Birth = time.Time{}
+			p.Birth, err = time.Parse("2006年1月2日", r.FormValue("birth"))
+			if err != nil {
+				p.Birth = time.Time{}
+			}
 		}
 	}
 	return &p
