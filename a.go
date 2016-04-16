@@ -10,6 +10,7 @@ const (
 	Time_Def_Format = "2006-01-02 15:04:05"
 )
 
+//Run ...
 //程序的入口
 func Run() {
 
