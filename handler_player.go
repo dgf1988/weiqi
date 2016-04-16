@@ -160,22 +160,12 @@ func userPlayerEditData(u *U, action, msg string, player *Player, players []Play
 
 func getPlayerFromRequest(r *http.Request) *Player {
 	var p Player
-	var err error
 	p.Id = atoi64(r.FormValue("id"))
 	p.Name = r.FormValue("name")
 	p.Sex = parseSex(r.FormValue("sex"))
 	p.Country = r.FormValue("country")
 	p.Rank = r.FormValue("rank")
-	p.Birth, err = time.Parse("2006-01-02", r.FormValue("birth"))
-	if err != nil {
-		p.Birth, err = time.Parse("2006年01月02日", r.FormValue("birth"))
-		if err != nil {
-			p.Birth, err = time.Parse("2006年1月2日", r.FormValue("birth"))
-			if err != nil {
-				p.Birth = time.Time{}
-			}
-		}
-	}
+	p.Birth, _ = ParseDate(r.FormValue("birth"))
 	return &p
 }
 

@@ -18,14 +18,15 @@ func userNavItems() []NavItem {
 	return []NavItem{NavItem{"首页", "/"}, NavItem{"用户", "/user"}, NavItem{"文章", "/user/post/"}, NavItem{"棋谱", "/user/sgf/"}, NavItem{"棋手", "/user/player/"}}
 }
 
-//Html头结构
+//Head 页面布局使用的Html头数据结构
 type Head struct {
 	Title    string
 	Desc     string
 	Keywords []string
 }
 
-func (h *Head) StrKeywords() string {
+//StrKeywords 用来在模板上直接输出字符串
+func (h Head) StrKeywords() string {
 	return strings.Join(h.Keywords, ",")
 }
 
@@ -53,7 +54,7 @@ func defHeader() *Header {
 //页面脚结构
 type Footer struct {
 	AuthorName  string
-	AuthorUrl   string
+	AuthorURL   string
 	AuthorEmail string
 	ICP         string
 }

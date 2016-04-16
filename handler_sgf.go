@@ -160,12 +160,8 @@ func userSgfEditData(u *U, action, msg string, sgf *Sgf, sgfs []Sgf) *Data {
 
 func getSgfFromRequest(r *http.Request) *Sgf {
 	var s Sgf
-	var err error
 	s.Id = atoi64(r.FormValue("id"))
-	s.Time, err = time.Parse("2006-01-02", r.FormValue("time"))
-	if err != nil {
-		s.Time, _ = time.Parse("2006-01-02", "0000-00-00")
-	}
+	s.Time, _ = ParseDate(r.FormValue("time"))
 	s.Event = r.FormValue("event")
 	s.Place = r.FormValue("place")
 	s.Black = r.FormValue("black")

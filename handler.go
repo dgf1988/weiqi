@@ -2,15 +2,6 @@ package weiqi
 
 import (
 	"database/sql"
-	"html/template"
-)
-
-var (
-	defFuncMap = template.FuncMap{
-		"HasLogin": func(u *U) bool {
-			return u != nil && u.Name != ""
-		},
-	}
 )
 
 type Handler interface {

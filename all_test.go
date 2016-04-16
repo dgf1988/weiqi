@@ -6,10 +6,9 @@ import (
 )
 
 func TestDbDesc(t *testing.T) {
-	html_head := defHtmlHead()
-	err := html_head.Execute(os.Stdout, map[string]interface{}{
-		"a": Head{"title", "desc", "keywords"},
-	})
+	htmlHead := defHtmlHead()
+	err := htmlHead.Execute(os.Stdout, map[string]interface{}{
+		"Head": Head{"title", "desc", []string{"1", "2"}}}, nil)
 	if err != nil {
 		t.Error(err.Error())
 	}
