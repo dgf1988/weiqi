@@ -2,6 +2,8 @@ package weiqi
 
 import (
 	"database/sql"
+	"net/http"
+	"github.com/dgf1988/weiqi/h"
 )
 
 type Handler interface {
@@ -14,31 +16,31 @@ func (this HandlerFunc) ServeHTTP(h *Http) {
 	this(h)
 }
 
-func defaultHandler(h *Http) {
-	u := getSessionUser(h.R)
+func defaultHandler(w http.ResponseWriter, r *http.Request, p []string) {
+	u := getSessionUser(r)
 
 	posts, err := dbListPostByPage(40, 0)
 	if err != nil && err != sql.ErrNoRows {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
 	players, err := dbListPlayer(40, 0)
 	if err != nil && err != sql.ErrNoRows {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
 	sgfs, err := dbListSgf(40, 0)
 	if err != nil && err != sql.ErrNoRows {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
 	datamap := defaultData(u, posts, players, sgfs)
-	err = defaultHtml().Execute(h.W, datamap, defFuncMap)
+	err = defaultHtml().Execute(w, datamap, defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 }
