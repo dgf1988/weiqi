@@ -2,8 +2,8 @@ package weiqi
 
 import (
 	"fmt"
-	"net/http"
 	"github.com/dgf1988/weiqi/h"
+	"net/http"
 )
 
 //登录页面

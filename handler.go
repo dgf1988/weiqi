@@ -1,28 +1,32 @@
 package weiqi
 
 import (
-	"database/sql"
-	"net/http"
 	"github.com/dgf1988/weiqi/h"
+	"net/http"
 )
 
-func defaultHandler(w http.ResponseWriter, r *http.Request, p []string) {
+//默认处理器。处理首页访问
+func defaultHandler(w http.ResponseWriter, r *http.Request, args []string) {
+	//从会话中获取用户信息，如果没登录，则为nil。
 	u := getSessionUser(r)
 
+	//
 	posts, err := dbListPostByPage(40, 0)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
+	//
 	players, err := dbListPlayer(40, 0)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
+	//
 	sgfs, err := dbListSgf(40, 0)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		h.ServerError(w, err)
 		return
 	}

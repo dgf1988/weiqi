@@ -4,8 +4,9 @@ import "strings"
 
 const (
 	matchDefault = ""
-	matchParam = "*"
-	pathSplit = "/"
+	matchParam   = "+"
+	matchAll 	 = "*"
+	pathSplit    = "/"
 )
 
 type route struct {
@@ -15,6 +16,7 @@ type route struct {
 
 	DefRoute   *route
 	ParamRoute *route
+	AllRoute   *route
 	Routes     map[string]*route
 }
 
@@ -39,6 +41,11 @@ func (this *route) Handle(handler Handler, pattern string, methods ...string) {
 				cr.ParamRoute = newRoute()
 			}
 			cr = cr.ParamRoute
+		case matchAll:
+			if cr.AllRoute == nil {
+				cr.AllRoute = newRoute()
+			}
+			cr = cr.AllRoute
 		//静态
 		default:
 			r, ok := cr.Routes[listPath[i]]
@@ -61,14 +68,15 @@ func (this *route) Match(pattern string) (*route, []string) {
 	for i := range listPath {
 		if listPath[i] == matchDefault {
 			cr = cr.DefRoute
+		} else if r, ok := cr.Routes[listPath[i]]; ok {
+			cr = r
+		} else if cr.ParamRoute != nil {
+			listParam = append(listParam, listPath[i])
+			cr = cr.ParamRoute
+		} else if cr.AllRoute != nil {
+			return cr.AllRoute, listParam
 		} else {
-			r, ok := cr.Routes[listPath[i]]
-			if ok {
-				cr = r
-			} else {
-				listParam = append(listParam, listPath[i])
-				cr = cr.ParamRoute
-			}
+			return nil, nil
 		}
 		if cr == nil {
 			return nil, nil

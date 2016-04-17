@@ -108,7 +108,6 @@ func (s *Session) Add(w http.ResponseWriter) {
 	Sessions[s.Id] = s
 }
 
-
 //快速获取会话中的用户。
 //并不是什么时候都需要持有一个会话对象。
 func getSessionUser(r *http.Request) *U {

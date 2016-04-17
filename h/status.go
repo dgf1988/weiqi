@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-
 //SeeOther 303 跳转页面
 func SeeOther(w http.ResponseWriter, r *http.Request, urlStr string) {
 	http.Redirect(w, r, urlStr, http.StatusSeeOther)
@@ -30,7 +29,7 @@ func NotFound(w http.ResponseWriter, msg string) {
 func MethodNotAllowed(w http.ResponseWriter, msg string, allows []string) {
 	allow := strings.Join(allows, ",")
 	w.Header().Set("Allow", allow)
-	textStatus(w, allow + "\n" + msg, http.StatusMethodNotAllowed)
+	textStatus(w, allow+"\n"+msg, http.StatusMethodNotAllowed)
 }
 
 //ServerError 500 服务器错误

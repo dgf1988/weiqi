@@ -2,8 +2,8 @@ package weiqi
 
 import (
 	"log"
-	"os"
 	"net/http"
+	"os"
 )
 
 const (

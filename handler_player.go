@@ -3,12 +3,12 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"github.com/dgf1988/weiqi/h"
+	"net/http"
 )
 
 //player list
-func playerListHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func playerListHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	var u *U
 	s := getSession(r)
 	if s != nil {

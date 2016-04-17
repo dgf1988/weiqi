@@ -3,8 +3,8 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"github.com/dgf1988/weiqi/h"
+	"net/http"
 )
 
 //sgf list
@@ -59,12 +59,12 @@ func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	id := atoi64(p[0])
 	if id <= 0 {
-		h.NotFound(w, p[0] + " sgf not found")
+		h.NotFound(w, p[0]+" sgf not found")
 		return
 	}
 	sgf, err := dbGetSgf(id)
 	if err == sql.ErrNoRows {
-		h.NotFound(w, p[0] + " sgf not found")
+		h.NotFound(w, p[0]+" sgf not found")
 		return
 	}
 	if err != nil {
@@ -218,7 +218,7 @@ func handlerUserSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", s.Id, "?editormsg=修改成功"))
 }
 
-func handlerUserSgfDelete(w http.ResponseWriter, r *http.Request, p []string){
+func handlerUserSgfDelete(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")
 		return

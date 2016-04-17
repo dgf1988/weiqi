@@ -3,8 +3,8 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"net/http"
 	"github.com/dgf1988/weiqi/h"
+	"net/http"
 )
 
 //post list
@@ -179,7 +179,7 @@ func handlerUserPostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 		if err == nil {
 			h.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
-			h.SeeOther(w, r, "/user/post/?editormsg=" + err.Error())
+			h.SeeOther(w, r, "/user/post/?editormsg="+err.Error())
 		}
 	} else {
 		h.SeeOther(w, r, "/user/post/?editormsg=标题或内容为空")
@@ -221,7 +221,7 @@ func handlerUserPostDelete(w http.ResponseWriter, r *http.Request, args []string
 	//登录验证
 
 	if getSession(r) == nil {
-		h.SeeOther(w, r ,"/login")
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
