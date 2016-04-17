@@ -3,27 +3,29 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
+	"github.com/dgf1988/weiqi/h"
 )
 
 //post list
-func postListHandler(h *Http) {
+func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var u *U
-	s := getSession(h.R)
+	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
 	posts, err := dbListPostByPage(40, 0)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
 	cutPostTextMany(posts)
 
-	err = postListHtml().Execute(h.W, postListData(u, posts), defFuncMap)
+	err = postListHtml().Execute(w, postListData(u, posts), defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 	}
 }
 
@@ -47,28 +49,28 @@ func postListData(u *U, posts []P) *Data {
 }
 
 //post id
-func postIdHandler(h *Http) {
+func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	var u *U
-	s := getSession(h.R)
+	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
-	id := atoi64(h.P[0])
+	id := atoi64(args[0])
 	if id <= 0 {
-		h.RequestError("page not found").NotFound()
+		h.NotFound(w, "找不到文章")
 		return
 	}
 
 	p, err := dbGetPost(id)
 	if err == sql.ErrNoRows {
-		h.RequestError("找不到文章").NotFound()
+		h.NotFound(w, "找不到文章")
 	} else if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 	} else {
-		err = postIdHtml().Execute(h.W, postIdData(u, p), defFuncMap)
+		err = postIdHtml().Execute(w, postIdData(u, p), defFuncMap)
 		if err != nil {
-			h.ServerError(err.Error())
+			h.ServerError(w, err)
 		}
 	}
 }
@@ -94,32 +96,32 @@ func postIdData(u *U, post *P) *Data {
 }
 
 //post edit
-func userPostEidtHandler(h *Http) {
+func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
-	s := getSession(h.R)
+	s := getSession(r)
 	if s == nil {
-		h.SeeOther("/login")
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	h.R.ParseForm()
+	r.ParseForm()
 	var (
 		action    = "/user/post/add"
-		msg       = h.R.FormValue("editormsg")
+		msg       = r.FormValue("editormsg")
 		post   *P = nil
 		err    error
 	)
 
-	if len(h.P) > 0 {
+	if len(args) > 0 {
 		action = "/user/post/update"
-		post, err = dbGetPost(atoi64(h.P[0]))
+		post, err = dbGetPost(atoi64(args[0]))
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
-			h.RequestError("找不到文章").NotFound()
+			h.NotFound(w, "找不到文章")
 			return
 		}
 		if err != nil {
-			h.ServerError(err.Error())
+			h.ServerError(w, err)
 			return
 		}
 	} else {
@@ -130,12 +132,12 @@ func userPostEidtHandler(h *Http) {
 	if err == sql.ErrNoRows {
 		posts = make([]P, 0)
 	} else if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
-	err = userPostEditHtml().Execute(h.W, userPostEditData(s.User, action, msg, post, posts), defFuncMap)
+	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts), defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 }
@@ -159,81 +161,80 @@ func userPostEditData(u *U, action, msg string, post *P, posts []P) *Data {
 	return data
 }
 
-func handlerUserPostAdd(h *Http) {
-
+func handlerUserPostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
 	var p P
-	h.R.ParseForm()
-	p.Title = h.R.FormValue("title")
-	p.Text = h.R.FormValue("text")
+	r.ParseForm()
+	p.Title = r.FormValue("title")
+	p.Text = r.FormValue("text")
 
 	if len(p.Title) > 0 && len(p.Text) > 0 {
 		_, err := dbAddPost(&p)
 		if err == nil {
-			h.SeeOther(fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
+			h.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
-			h.SeeOther("/user/post/?editormsg=" + err.Error())
+			h.SeeOther(w, r, "/user/post/?editormsg=" + err.Error())
 		}
 	} else {
-		h.SeeOther("/user/post/?editormsg=标题或内容为空")
+		h.SeeOther(w, r, "/user/post/?editormsg=标题或内容为空")
 	}
 }
 
-func handlerUserPostUpdate(h *Http) {
+func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	h.R.ParseForm()
+	r.ParseForm()
 	var p P
-	p.Id = atoi64(h.R.FormValue("id"))
-	p.Title = h.R.FormValue("title")
-	p.Text = h.R.FormValue("text")
+	p.Id = atoi64(r.FormValue("id"))
+	p.Title = r.FormValue("title")
+	p.Text = r.FormValue("text")
 	if p.Id <= 0 {
-		h.RequestError("提交了错误参数").Forbidden()
+		h.Forbidden(w, "错误的参数")
 		return
 	}
 	if len(p.Title) == 0 || len(p.Text) == 0 {
-		h.SeeOther(fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
+		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
 	err := dbUpdatePost(&p)
 	if err != nil {
-		h.SeeOther(fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
+		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return
 	}
-	h.SeeOther(fmt.Sprint("/user/post/", p.Id, "?editormsg=提交成功"))
+	h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=提交成功"))
 }
 
-func handlerUserPostDelete(h *Http) {
+func handlerUserPostDelete(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r ,"/login")
 		return
 	}
 
-	h.R.ParseForm()
-	var id int64 = atoi64(h.R.FormValue("id"))
+	r.ParseForm()
+	var id int64 = atoi64(r.FormValue("id"))
 	if id <= 0 {
-		h.RequestError("提交了错误参数").Forbidden()
+		h.NotFound(w, "找不找文章")
 		return
 	}
 	err := dbDeletePost(id)
 	if err != nil {
-		h.RequestError(fmt.Sprint(id, "删除失败", err.Error())).Forbidden()
+		h.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
 	} else {
-		h.SeeOther("/user/post/")
+		h.SeeOther(w, r, "/user/post/")
 	}
 }

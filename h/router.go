@@ -3,9 +3,9 @@ package h
 import "strings"
 
 const (
-	MatchDefault = ""
-	MatchParam = "*"
-	PathSplit = "/"
+	matchDefault = ""
+	matchParam = "*"
+	pathSplit = "/"
 )
 
 type route struct {
@@ -22,19 +22,19 @@ func newRoute() *route {
 	return &route{Routes: make(map[string]*route)}
 }
 
-func (this *route) Set(handler Handler, pattern string, methods ...string) {
-	listPath := strings.Split(pattern, PathSplit)
+func (this *route) Handle(handler Handler, pattern string, methods ...string) {
+	listPath := strings.Split(pattern, pathSplit)
 	cr := this
 	for i := range listPath {
 		switch listPath[i] {
 		//默认
-		case MatchDefault:
+		case matchDefault:
 			if cr.DefRoute == nil {
 				cr.DefRoute = newRoute()
 			}
 			cr = cr.DefRoute
 		//参数
-		case MatchParam:
+		case matchParam:
 			if cr.ParamRoute == nil {
 				cr.ParamRoute = newRoute()
 			}
@@ -55,11 +55,11 @@ func (this *route) Set(handler Handler, pattern string, methods ...string) {
 }
 
 func (this *route) Match(pattern string) (*route, []string) {
-	listPath := strings.Split(pattern, PathSplit)
+	listPath := strings.Split(pattern, pathSplit)
 	listParam := make([]string, 0)
 	cr := this
 	for i := range listPath {
-		if listPath[i] == MatchDefault {
+		if listPath[i] == matchDefault {
 			cr = cr.DefRoute
 		} else {
 			r, ok := cr.Routes[listPath[i]]

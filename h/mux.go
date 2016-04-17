@@ -2,6 +2,7 @@ package h
 
 import "net/http"
 
+//Mux
 type Mux struct {
 	Router *route
 }
@@ -10,16 +11,28 @@ func NewMux() *Mux {
 	return &Mux{Router: newRoute()}
 }
 
-func (this Mux) Handle(handler Handler, pattern string, methods ...string) {
-	this.Router.Set(handler, pattern, methods...)
+func (mux *Mux) Handle(h Handler, pattern string, methods ...string) {
+	mux.Router.Handle(h, pattern, methods...)
 }
 
-func (this Mux) HandleFunc(handler HandlerFunc, pattern string, methods ...string) {
-	this.Router.Set(HandlerFunc(handler), pattern, methods...)
+func (mux *Mux) HandleFunc(f HandlerFunc, pattern string, methods ...string) {
+	mux.Router.Handle(HandlerFunc(f), pattern, methods...)
 }
 
-func (this Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	route, params := this.Router.Match(r.URL.Path)
+func (mux *Mux) HandleStd(h http.Handler, pattern string, methods ...string) {
+	mux.Router.Handle(HandlerFunc(func(w http.ResponseWriter, r *http.Request, p []string) {
+		h.ServeHTTP(w, r)
+	}), pattern, methods...)
+}
+
+func (mux *Mux) HandleFuncStd(f http.HandlerFunc, pattern string, methods ...string) {
+	mux.Router.Handle(HandlerFunc(func(w http.ResponseWriter, r *http.Request, p []string) {
+		f(w, r)
+	}), pattern, methods...)
+}
+
+func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	route, params := mux.Router.Match(r.URL.Path)
 
 	if route == nil || route.Handler == nil || route.Methods == nil || len(route.Methods) == 0 {
 		NotFound(w, "page not found")

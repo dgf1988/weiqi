@@ -4,25 +4,26 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"github.com/dgf1988/weiqi/h"
 )
 
 //player list
-func playerListHandler(h *Http) {
+func playerListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var u *U
-	s := getSession(h.R)
+	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
 	ps, err := dbListPlayer(40, 0)
 	if err != nil && err != sql.ErrNoRows {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
-	err = playerListHtml().Execute(h.W, playerListData(u, ps), defFuncMap)
+	err = playerListHtml().Execute(w, playerListData(u, ps), defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 }
@@ -47,28 +48,28 @@ func playerListData(u *U, playerlist []Player) *Data {
 }
 
 //player id
-func playerIdHandler(h *Http) {
+func playerIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	var u *U
-	s := getSession(h.R)
+	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
-	id := atoi64(h.P[0])
+	id := atoi64(args[0])
 	if id <= 0 {
-		h.RequestError("参数错误").NotFound()
+		h.NotFound(w, "找不到棋手")
 		return
 	}
 
 	p, err := dbGetPlayer(id)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
-	err = playerIdHtml().Execute(h.W, playerIdData(u, p), defFuncMap)
+	err = playerIdHtml().Execute(w, playerIdData(u, p), defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 }
@@ -93,32 +94,32 @@ func playerIdData(u *U, player *Player) *Data {
 }
 
 //plaeyr edit
-func userPlayerEditHandler(h *Http) {
+func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var u *U
-	s := getSession(h.R)
+	s := getSession(r)
 	if s != nil {
 		u = s.User
 	} else {
-		h.SeeOther("/login")
+		h.SeeOther(w, r, "/login")
 		return
 	}
-	h.R.ParseForm()
+	r.ParseForm()
 	var (
 		action         = "/user/player/add"
-		msg            = h.R.FormValue("editormsg")
+		msg            = r.FormValue("editormsg")
 		player *Player = nil
 		err    error
 	)
 
-	if len(h.P) > 0 {
+	if len(p) > 0 {
 		action = "/user/player/update"
-		player, err = dbGetPlayer(atoi64(h.P[0]))
+		player, err = dbGetPlayer(atoi64(p[0]))
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
-			h.RequestError("找不到棋手").NotFound()
+			h.NotFound(w, "找不到棋手")
 			return
 		}
 		if err != nil {
-			h.ServerError(err.Error())
+			h.ServerError(w, err)
 			return
 		}
 	} else {
@@ -127,13 +128,13 @@ func userPlayerEditHandler(h *Http) {
 
 	ps, err := dbListPlayer(40, 0)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 
-	err = userPlayerEditHtml().Execute(h.W, userPlayerEditData(u, action, msg, player, ps), defFuncMap)
+	err = userPlayerEditHtml().Execute(w, userPlayerEditData(u, action, msg, player, ps), defFuncMap)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
 }
@@ -176,77 +177,77 @@ func checkPlayerFieldInput(p *Player) error {
 }
 
 //player post
-func handlerUserPlayerAdd(h *Http) {
+func handlerUserPlayerAdd(w http.ResponseWriter, r *http.Request, args []string) {
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	h.R.ParseForm()
-	p := getPlayerFromRequest(h.R)
+	r.ParseForm()
+	p := getPlayerFromRequest(r)
 
 	if checkPlayerFieldInput(p) != nil {
-		h.SeeOther("/user/player/?editormsg=输入不能为空")
+		h.SeeOther(w, r, "/user/player/?editormsg=输入不能为空")
 		return
 	}
 
 	id, err := dbAddPlayer(p)
 	if err == ErrPrimaryKey {
-		h.RequestError("找不到棋手").NotFound()
+		h.NotFound(w, "找不到棋手")
 		return
 	}
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
-	h.SeeOther(fmt.Sprintf("/user/player/%d?editormsg=提交成功", id))
+	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=提交成功", id))
 }
 
-func handlerUserPlayerDel(h *Http) {
+func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	h.R.ParseForm()
-	id := atoi64(h.R.FormValue("id"))
+	r.ParseForm()
+	id := atoi64(r.FormValue("id"))
 	if id <= 0 {
-		h.RequestError("找不到棋手").NotFound()
+		h.NotFound(w, "找不到棋手")
 		return
 	}
 	_, err := dbDeletePlayer(id)
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
-	h.SeeOther(fmt.Sprint("/user/player/?editormsg=删除成功"))
+	h.SeeOther(w, r, fmt.Sprint("/user/player/?editormsg=删除成功"))
 }
 
-func handlerUserPlayerUpdate(h *Http) {
+func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 
-	if getSession(h.R) == nil {
-		h.SeeOther("/login")
+	if getSession(r) == nil {
+		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	h.R.ParseForm()
-	p := getPlayerFromRequest(h.R)
+	r.ParseForm()
+	p := getPlayerFromRequest(r)
 
 	if checkPlayerFieldInput(p) != nil {
-		h.SeeOther(fmt.Sprintf("/user/player/%d?editormsg=输入不能为空", p.Id))
+		h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=输入不能为空", p.Id))
 		return
 	}
 
 	_, err := dbUpdatePlayer(p)
 	if err == ErrPrimaryKey {
-		h.RequestError("找不到棋手").NotFound()
+		h.NotFound(w, "找不到棋手")
 		return
 	}
 	if err != nil {
-		h.ServerError(err.Error())
+		h.ServerError(w, err)
 		return
 	}
-	h.SeeOther(fmt.Sprintf("/user/player/%d?editormsg=修改成功", p.Id))
+	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=修改成功", p.Id))
 }

@@ -6,16 +6,6 @@ import (
 	"github.com/dgf1988/weiqi/h"
 )
 
-type Handler interface {
-	ServeHTTP(h *Http)
-}
-
-type HandlerFunc func(h *Http)
-
-func (this HandlerFunc) ServeHTTP(h *Http) {
-	this(h)
-}
-
 func defaultHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	u := getSessionUser(r)
 
