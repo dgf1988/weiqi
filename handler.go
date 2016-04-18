@@ -6,7 +6,7 @@ import (
 )
 
 //默认处理器。处理首页访问
-func defaultHandler(w http.ResponseWriter, r *http.Request, args []string) {
+func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	//从会话中获取用户信息，如果没登录，则为nil。
 	u := getSessionUser(r)
 

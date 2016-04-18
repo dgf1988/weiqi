@@ -23,7 +23,7 @@ func Run() {
 
 	//
 	m := h.NewMux()
-	m.HandleFunc(defaultHandler, "/", GET)
+	m.HandleFunc(handleDefault, "/", GET)
 	m.HandleFunc(loginHandler, "/login", GET, POST)
 	m.HandleFunc(handlerLogout, "/logout", GET)
 	m.HandleFunc(handlerRegister, "/register", POST)
