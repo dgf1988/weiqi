@@ -10,6 +10,9 @@
         {{if HasLogin .User }}<li><strong>管理</strong>:<span><a href="/user" title="后台管理">{{.User.Name}}</a></span><span><a href="/logout" title="退出">退出</a></span></li>
         {{else}}<li><strong>管理</strong>:<span><a href="/login" title="用户登录">登录</a></span></li>
         {{end}}
+        <div style="width:300px;margin:0 auto; padding:20px 0;">
+            <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35098202000006" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/static/beian/gongan.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">闽公网安备 35098202000006号</p></a>
+        </div>
     </ul>
 </footer>
 {{end}}
