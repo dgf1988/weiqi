@@ -5,27 +5,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"database/sql"
-	"time"
 )
 
-type NullTime struct {
-	Time  time.Time
-	Valid bool // Valid is true if Time is not NULL
-}
-// Scan implements the Scanner interface.
-func (nt *NullTime) Scan(value interface{}) error {
-	nt.Time, nt.Valid = value.(time.Time)
-	return nil
-}
-// Value implements the driver Valuer interface.
-func (nt NullTime) Value() (driver.Value, error) {
-	if !nt.Valid {
-		return nil, nil
-	}
-	return nt.Time, nil
-}
-
+// Type 保存数据库里的类型信息
 type Type struct {
 	Name   string
 	Length int
@@ -69,6 +51,7 @@ func (t Type) Value() (driver.Value, error) {
 	return t.ToSql(), nil
 }
 
+// Default 保存数据库里的默认值信息
 type Default struct {
 	Null             bool
 	V                string
@@ -108,6 +91,7 @@ func (d Default) Value() (driver.Value, error) {
 	}
 }
 
+// Column 保存行结构信息
 type Column struct {
 	DatabaseName string
 	TableName    string
@@ -125,6 +109,7 @@ type Column struct {
 	Comment string
 }
 
+// ToSql 输出行结构
 func (c Column) ToSql() string {
 	stritems := make([]string, 0)
 	stritems = append(stritems, fmt.Sprintf("`%s`", c.Name), c.Type.ToSql())
@@ -140,6 +125,7 @@ func (c Column) ToSql() string {
 	return strings.Join(stritems, " ")
 }
 
+// GetColumns 取某表的行结构
 func GetColumns(databasename, tablename string) ([]Column, error) {
 	sqlquery := `
 	SELECT
@@ -176,159 +162,4 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 		cols = append(cols, col)
 	}
 	return cols, rows.Err()
-}
-
-type Table struct {
-	DatabaseName string
-	Name         string
-	Columns      []Column
-	Length 		 int
-	Primarykey   string
-	UniqueIndex  []string
-}
-
-func (t Table) ToSql() string {
-	stritems := make([]string, 0)
-	stritems = append(stritems, fmt.Sprintf("CREATE TABLE `%s` (", t.Name))
-	colitems :=  make([]string, 0)
-	for i := range t.Columns {
-		colitems = append(colitems, "\t" + t.Columns[i].ToSql())
-	}
-	if t.Primarykey != "" {
-		colitems = append(colitems, fmt.Sprintf("\tPRIMARY KEY (`%s`)", t.Primarykey))
-	}
-	for i := range t.UniqueIndex {
-		colitems = append(colitems, fmt.Sprintf("\tUNIQUE KEY `%s_%d` (`%s`)", t.UniqueIndex[i], i, t.UniqueIndex[i]))
-	}
-	stritems = append(stritems, strings.Join(colitems, ",\n"), ") ENGINE=InnoDB DEFAULT CHARSET=utf8")
-	return strings.Join(stritems, "\n")
-}
-
-func (t Table) Get(key interface{}) ([]interface{}, error) {
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	dest := make([]interface{}, t.Length)
-	for i := range t.Columns {
-		switch t.Columns[i].Type.Name {
-		case "int":
-			dest[i] = new(sql.NullInt64)
-		case "date", "year", "datetime", "time", "timestamp":
-			dest[i] = new(NullTime)
-		default:
-			dest[i] = new(sql.NullString)
-		}
-	}
-	err := row.Scan(dest...)
-	if err != nil {
-		return nil, err
-	}
-	data := make([]interface{}, 0)
-	for i := range dest {
-		switch dest[i].(type) {
-		case *sql.NullString:
-			nullstr := dest[i].(*sql.NullString)
-			if nullstr.Valid {
-				data = append(data, nullstr.String)
-			} else {
-				data = append(data, nil)
-			}
-		case *sql.NullInt64:
-			nullint := dest[i].(*sql.NullInt64)
-			if nullint.Valid {
-				data = append(data, nullint.Int64)
-			} else {
-				data = append(data, nil)
-			}
-		case *NullTime:
-			nulltime := dest[i].(*NullTime)
-			if nulltime.Valid {
-				data = append(data, nulltime.Time)
-			} else {
-				data = append(data, nil)
-			}
-		}
-	}
-	return data, nil
-}
-
-func (t Table) List(take, skip int) ([][]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	dest := make([]interface{}, t.Length)
-	for i := range t.Columns {
-		switch t.Columns[i].Type.Name {
-		case "int":
-			dest[i] = new(sql.NullInt64)
-		case "date", "year", "datetime", "time", "timestamp":
-			dest[i] = new(NullTime)
-		default:
-			dest[i] = new(sql.NullString)
-		}
-	}
-	results := make([][]interface{}, 0)
-	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			return nil, err
-		}
-		data := make([]interface{}, 0)
-		for i := range dest {
-			switch dest[i].(type) {
-			case *sql.NullString:
-				nullstr := dest[i].(*sql.NullString)
-				if nullstr.Valid {
-					data = append(data, nullstr.String)
-				} else {
-					data = append(data, nil)
-				}
-			case *sql.NullInt64:
-				nullint := dest[i].(*sql.NullInt64)
-				if nullint.Valid {
-					data = append(data, nullint.Int64)
-				} else {
-					data = append(data, nil)
-				}
-			case *NullTime:
-				nulltime := dest[i].(*NullTime)
-				if nulltime.Valid {
-					data = append(data, nulltime.Time)
-				} else {
-					data = append(data, nil)
-				}
-			}
-		}
-		results = append(results, data)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	return results, nil
-}
-
-func newTable() *Table {
-	return &Table{
-		Columns:make([]Column, 0), UniqueIndex:make([]string, 0),
-	}
-}
-
-func GetTable(databasename, tablename string) (*Table, error) {
-	cols, err := GetColumns(databasename, tablename)
-	if err != nil {
-		return nil, err
-	}
-	var table = newTable()
-	table.DatabaseName = databasename
-	table.Name = tablename
-	table.Columns = cols
-	table.Length = len(cols)
-	for _, col := range cols {
-		if col.Key == "PRI" {
-			table.Primarykey = col.Name
-		} else if col.Key == "UNI" {
-			table.UniqueIndex = append(table.UniqueIndex, col.Name)
-		}
-	}
-	return table, nil
 }

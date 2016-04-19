@@ -15,17 +15,9 @@ func TestCount(t *testing.T) {
 }
 
 func TestDesc(t *testing.T) {
-	table, err := GetTable("hoetom", "player")
+	players, err := GetTable("weiqi2", "player")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(table.ToSql())
-	t.Log(table.Get(2))
-	list, err := table.List(50, 0)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	for i := range list {
-		t.Log(list[i])
-	}
+	t.Log(players.Add(map[string]interface{}{"pname": "我是谁。。。。。。。。。。。?"}))
 }
