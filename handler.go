@@ -10,29 +10,7 @@ func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	//从会话中获取用户信息，如果没登录，则为nil。
 	u := getSessionUser(r)
 
-	//
-	posts, err := dbListPostByPage(40, 0)
-	if err != nil {
-		h.ServerError(w, err)
-		return
-	}
-
-	//
-	players, err := dbListPlayer(40, 0)
-	if err != nil {
-		h.ServerError(w, err)
-		return
-	}
-
-	//
-	sgfs, err := dbListSgf(40, 0)
-	if err != nil {
-		h.ServerError(w, err)
-		return
-	}
-
-	datamap := defaultData(u, posts, players, sgfs)
-	err = defaultHtml().Execute(w, datamap, defFuncMap)
+	err := render_default(w, u)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -55,4 +33,28 @@ func defaultData(u *U, posts []P, players []Player, sgfs []Sgf) *Data {
 	data.Content["Sgfs"] = sgfs
 	data.Content["Players"] = players
 	return data
+}
+
+func render_default(w http.ResponseWriter, u *U) error {
+	html := defaultHtml()
+
+	posts, err := Posts.List(40, 0)
+	if err != nil {
+		return err
+	}
+
+	//
+	players, err := Posts.List(40, 0)
+	if err != nil {
+		return err
+	}
+
+	//
+	sgfs, err := Sgfs.List(40, 0)
+	if err != nil {
+		return err
+	}
+
+	data := defaultData(u, posts, players, sgfs)
+	return html.Execute(w, data, defFuncMap)
 }

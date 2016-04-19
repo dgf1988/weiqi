@@ -16,7 +16,7 @@ func init() {
 }
 
 //Config 配置数据库
-func Config(driver, user, password, host string, database string, port int, charset string) {
+func Config(driver, user, password, database string, host string, port int, charset string) {
 	config["driver"] = driver
 	config["user"] = user
 	config["password"] = password

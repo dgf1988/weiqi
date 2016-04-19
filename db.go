@@ -8,11 +8,16 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"github.com/dgf1988/weiqi/db"
 )
 
 var (
-	db            *sql.DB
+	databases            *sql.DB
 	ErrPrimaryKey = errors.New("primary key error")
+	Players *db.Table
+	User	*db.Table
+	Posts	*db.Table
+	Sgfs	*db.Table
 )
 
 func init() {
@@ -24,12 +29,34 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	db = conn
+	databases = conn
+
+	db.Config(config.DbDriver, config.DbUsername, config.DbPassword, config.DbName, config.DbHost, config.DbPost, config.DbCharset)
+	err = db.Connect()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	Players, err = db.GetTable(config.DbName, "player")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	User, err = db.GetTable(config.DbName, "user")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	Posts, err = db.GetTable(config.DbName, "post")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	Sgfs, err = db.GetTable(config.DbName,  "sgf")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
 
 func dbCount(tablename string) (int64, error) {
 	var num int64
-	row := db.QueryRow("select count(*) as num from " + tablename)
+	row := databases.QueryRow("select count(*) as num from " + tablename)
 	err := row.Scan(&num)
 	if err != nil {
 		return -1, err
@@ -38,7 +65,7 @@ func dbCount(tablename string) (int64, error) {
 }
 
 func dbCountBy(tablename string, where string) (int64, error) {
-	row := db.QueryRow("select count(*) as num from " + tablename + " where " + where)
+	row := databases.QueryRow("select count(*) as num from " + tablename + " where " + where)
 	var num int64
 	err := row.Scan(&num)
 	if err != nil {
@@ -48,7 +75,7 @@ func dbCountBy(tablename string, where string) (int64, error) {
 }
 
 func dbDesc(tablename string) ([][6]string, error) {
-	rows, err := db.Query(fmt.Sprint("desc ", tablename))
+	rows, err := databases.Query(fmt.Sprint("desc ", tablename))
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +118,7 @@ func dbUpdate(tablename string, id int64, datas map[string]interface{}) (int64, 
 	sqlitems = append(sqlitems, "where id = ? limit 1")
 	args = append(args, id)
 	updatesql := strings.Join(sqlitems, " ")
-	res, err := db.Exec(updatesql, args...)
+	res, err := databases.Exec(updatesql, args...)
 	if err != nil {
 		return 0, err
 	} else {
@@ -101,7 +128,7 @@ func dbUpdate(tablename string, id int64, datas map[string]interface{}) (int64, 
 
 //
 func dbClear(tablename string) (int64, error) {
-	res, err := db.Exec(fmt.Sprint("TRUNCATE table ", tablename))
+	res, err := databases.Exec(fmt.Sprint("TRUNCATE table ", tablename))
 	if err != nil {
 		return -1, err
 	}

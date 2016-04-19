@@ -48,10 +48,10 @@ func RegisterUser(username, password, password2, email, ip string) (int64, error
 		return 0, ErrUserPasswordNotTheSame
 	}
 	var id int64
-	row := db.QueryRow("select user.id from user where uname = ? limit 1", username)
+	row := databases.QueryRow("select user.id from user where uname = ? limit 1", username)
 	err := row.Scan(&id)
 	if err == sql.ErrNoRows {
-		res, err := db.Exec("insert into user (uname, upassword, uemail, uip) values(?,?,?, ?)", username, getPasswordMd5(password, ip), email, ip)
+		res, err := databases.Exec("insert into user (uname, upassword, uemail, uip) values(?,?,?, ?)", username, getPasswordMd5(password, ip), email, ip)
 		if err != nil {
 			return 0, err
 		}
@@ -72,7 +72,7 @@ func loginUser(username, password string) (*U, error) {
 		return nil, ErrUserPasswordTooShort
 	}
 
-	row := db.QueryRow("select user.id, user.uname, user.upassword, user.uemail, user.uip, user.ustatus, user.uregister from user where user.uname=? limit 1", username)
+	row := databases.QueryRow("select user.id, user.uname, user.upassword, user.uemail, user.uip, user.ustatus, user.uregister from user where user.uname=? limit 1", username)
 	var u U
 	var upassword string
 	err := row.Scan(&u.Id, &u.Name, &upassword, &u.Email, &u.Ip, &u.Status, &u.Register)

@@ -75,7 +75,7 @@ func dbGetPlayer(id int64) (*Player, error) {
 		return nil, ErrPrimaryKey
 	}
 	var p Player
-	row := db.QueryRow("select * from player where id = ? limit 1", id)
+	row := databases.QueryRow("select * from player where id = ? limit 1", id)
 	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func dbGetPlayer(id int64) (*Player, error) {
 
 func dbFindPlayer(name string) (*Player, error) {
 	var p Player
-	row := db.QueryRow("select * from player where pname = ? limit 1", name)
+	row := databases.QueryRow("select * from player where pname = ? limit 1", name)
 	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func dbWherePlayer(where string) (*Player, error) {
 		return nil, sql.ErrNoRows
 	}
 	var p Player
-	row := db.QueryRow("select * from player where " + where + " limit 1")
+	row := databases.QueryRow("select * from player where " + where + " limit 1")
 	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func dbWherePlayer(where string) (*Player, error) {
 }
 
 func dbListPlayer(take, skip int) ([]Player, error) {
-	rows, err := db.Query("select * from player order by id desc limit ?,?", skip, take)
+	rows, err := databases.Query("select * from player order by id desc limit ?,?", skip, take)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func dbAddPlayer(p *Player) (int64, error) {
 	if p.Id > 0 {
 		return -1, ErrPrimaryKey
 	}
-	res, err := db.Exec("insert into player (pname, psex, pcountry, prank, pbirth) values (?,?,?,?,?)", p.Name, p.Sex, p.Country, p.Rank, p.Birth)
+	res, err := databases.Exec("insert into player (pname, psex, pcountry, prank, pbirth) values (?,?,?,?,?)", p.Name, p.Sex, p.Country, p.Rank, p.Birth)
 	if err != nil {
 		return -1, err
 	}
@@ -139,7 +139,7 @@ func dbUpdatePlayer(p *Player) (int64, error) {
 	if p.Id <= 0 {
 		return -1, ErrPrimaryKey
 	}
-	res, err := db.Exec("update player set pname=?,psex=?,pcountry=?,prank=?,pbirth=? where id = ? limit 1", p.Name, p.Sex, p.Country, p.Rank, p.Birth, p.Id)
+	res, err := databases.Exec("update player set pname=?,psex=?,pcountry=?,prank=?,pbirth=? where id = ? limit 1", p.Name, p.Sex, p.Country, p.Rank, p.Birth, p.Id)
 	if err != nil {
 		return -1, err
 	}
@@ -150,7 +150,7 @@ func dbDeletePlayer(id int64) (int64, error) {
 	if id <= 0 {
 		return -1, ErrPrimaryKey
 	}
-	res, err := db.Exec("delete from player where id = ? limit 1", id)
+	res, err := databases.Exec("delete from player where id = ? limit 1", id)
 	if err != nil {
 		return -1, err
 	}

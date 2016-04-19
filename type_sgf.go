@@ -76,7 +76,7 @@ func dbCountSgf(where string) (int64, error) {
 
 func dbAddSgf(s *Sgf) (int64, error) {
 	insertsql := "insert into sgf (stime, splace, sevent, sblack, swhite, srule, sresult, ssteps) values (?,?,?,?,?,?,?,?)"
-	res, err := db.Exec(insertsql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	res, err := databases.Exec(insertsql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		return -1, err
 	}
@@ -88,7 +88,7 @@ func dbUpdateSgf(s *Sgf) (int64, error) {
 		return -1, ErrPrimaryKey
 	}
 	updatesql := "update sgf set stime=?, splace=?, sevent=?, sblack=?, swhite=?, srule=?, sresult=?, ssteps=? where id = ?  limit 1"
-	res, err := db.Exec(updatesql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps, s.Id)
+	res, err := databases.Exec(updatesql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps, s.Id)
 	if err != nil {
 		return -1, err
 	}
@@ -97,7 +97,7 @@ func dbUpdateSgf(s *Sgf) (int64, error) {
 
 func dbGetSgf(id int64) (*Sgf, error) {
 	getsql := "select * from sgf where id = ? limit 1"
-	row := db.QueryRow(getsql, id)
+	row := databases.QueryRow(getsql, id)
 	var s Sgf
 	err := row.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
 	if err != nil {
@@ -107,7 +107,7 @@ func dbGetSgf(id int64) (*Sgf, error) {
 }
 
 func dbDelSgf(id int64) (int64, error) {
-	res, err := db.Exec("delete from sgf where id = ? limit 1", id)
+	res, err := databases.Exec("delete from sgf where id = ? limit 1", id)
 	if err != nil {
 		return -1, err
 	}
@@ -119,7 +119,7 @@ func dbFindSgf(where string) (*Sgf, error) {
 		return nil, sql.ErrNoRows
 	}
 	var s Sgf
-	row := db.QueryRow("select * from sgf where " + where + " limit 1")
+	row := databases.QueryRow("select * from sgf where " + where + " limit 1")
 	err := row.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func dbFindSgf(where string) (*Sgf, error) {
 }
 
 func dbListSgf(take, skip int) ([]Sgf, error) {
-	rows, err := db.Query("select * from sgf  order by sgf.id desc limit ?,?", skip, take)
+	rows, err := databases.Query("select * from sgf  order by sgf.id desc limit ?,?", skip, take)
 	if err != nil {
 		return nil, err
 	}

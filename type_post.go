@@ -22,7 +22,7 @@ func (p *P) HtmlText() template.HTML {
 }
 
 func dbListPostByPage(pagesize int, page int) ([]P, error) {
-	rows, err := db.Query("select * from post order by id desc limit ?,?", pagesize*page, pagesize)
+	rows, err := databases.Query("select * from post order by id desc limit ?,?", pagesize*page, pagesize)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func dbListPostByPage(pagesize int, page int) ([]P, error) {
 }
 
 func dbAddPost(p *P) (int64, error) {
-	res, err := db.Exec("insert into post (ptitle, ptext) values (?,?)", p.Title, p.Text)
+	res, err := databases.Exec("insert into post (ptitle, ptext) values (?,?)", p.Title, p.Text)
 	if err != nil {
 		return 0, err
 	}
@@ -52,7 +52,7 @@ func dbAddPost(p *P) (int64, error) {
 }
 
 func dbGetPost(id int64) (*P, error) {
-	row := db.QueryRow("select * from post where id = ?  limit 1", id)
+	row := databases.QueryRow("select * from post where id = ?  limit 1", id)
 	var p P
 	err := row.Scan(&p.Id, &p.Title, &p.Text, &p.Pstatus, &p.Pposted, &p.Pupdate)
 	if err != nil {
@@ -62,7 +62,7 @@ func dbGetPost(id int64) (*P, error) {
 }
 
 func dbUpdatePost(p *P) error {
-	_, err := db.Exec("update post set ptitle = ?, ptext = ? where id = ? limit 1", p.Title, p.Text, p.Id)
+	_, err := databases.Exec("update post set ptitle = ?, ptext = ? where id = ? limit 1", p.Title, p.Text, p.Id)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
@@ -70,7 +70,7 @@ func dbUpdatePost(p *P) error {
 }
 
 func dbDeletePost(id int64) error {
-	_, err := db.Exec("delete from post where id = ? limit 1", id)
+	_, err := databases.Exec("delete from post where id = ? limit 1", id)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
