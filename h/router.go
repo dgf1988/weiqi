@@ -5,7 +5,7 @@ import "strings"
 const (
 	matchDefault = ""
 	matchParam   = "+"
-	matchAll 	 = "*"
+	matchAll     = "*"
 	pathSplit    = "/"
 )
 

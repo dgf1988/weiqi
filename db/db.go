@@ -2,12 +2,12 @@ package db
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
-	db *sql.DB
+	db     *sql.DB
 	config map[string]interface{}
 )
 
@@ -16,7 +16,7 @@ func init() {
 }
 
 //Config 配置数据库
-func Config(driver, user, password, host string, database string, port int, charset string ) {
+func Config(driver, user, password, host string, database string, port int, charset string) {
 	config["driver"] = driver
 	config["user"] = user
 	config["password"] = password
@@ -41,7 +41,7 @@ func Connect() error {
 
 func getConnect(driver, user, password, host string, port int, database, charset string) (*sql.DB, error) {
 	conn, err := sql.Open(driver, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true",
-		user, password,host, port, database, charset))
+		user, password, host, port, database, charset))
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func query(sql string, args ...interface{}) (*sql.Rows, error) {
 }
 
 func queryRow(sql string, args ...interface{}) *sql.Row {
-	return db.QueryRow(sql, args... )
+	return db.QueryRow(sql, args...)
 }
 
 func exec(sql string, args ...interface{}) (sql.Result, error) {

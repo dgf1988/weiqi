@@ -1,9 +1,9 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
-	"database/sql"
 )
 
 // Table 保存表信息
@@ -11,7 +11,7 @@ type Table struct {
 	DatabaseName string
 	Name         string
 	Columns      []Column
-	Length 		 int
+	Length       int
 	Primarykey   string
 	UniqueIndex  []string
 }
@@ -20,9 +20,9 @@ type Table struct {
 func (t Table) ToSql() string {
 	stritems := make([]string, 0)
 	stritems = append(stritems, fmt.Sprintf("CREATE TABLE `%s` (", t.Name))
-	colitems :=  make([]string, 0)
+	colitems := make([]string, 0)
 	for i := range t.Columns {
-		colitems = append(colitems, "\t" + t.Columns[i].ToSql())
+		colitems = append(colitems, "\t"+t.Columns[i].ToSql())
 	}
 	if t.Primarykey != "" {
 		colitems = append(colitems, fmt.Sprintf("\tPRIMARY KEY (`%s`)", t.Primarykey))
@@ -317,7 +317,7 @@ func (t Table) CountBy(where string, args ...interface{}) int64 {
 
 func newTable() *Table {
 	return &Table{
-		Columns:make([]Column, 0), UniqueIndex:make([]string, 0),
+		Columns: make([]Column, 0), UniqueIndex: make([]string, 0),
 	}
 }
 
@@ -340,4 +340,3 @@ func GetTable(databasename, tablename string) (*Table, error) {
 	}
 	return table, nil
 }
-

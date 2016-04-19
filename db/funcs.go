@@ -13,7 +13,7 @@ func copyMap(src map[string]interface{}) (dest map[string]interface{}) {
 	return
 }
 
-func formatMapToInsert(kvs  map[string]interface{}) (string, []interface{}) {
+func formatMapToInsert(kvs map[string]interface{}) (string, []interface{}) {
 	keys := make([]string, 0)
 	args := make([]string, 0)
 	values := make([]interface{}, 0)
