@@ -155,7 +155,7 @@ func (t Table) FindMap(where string, args ...interface{}) (map[string]interface{
 
 // List 列出数据
 func (t Table) List(take, skip int) ([][]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
+	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (t Table) List(take, skip int) ([][]interface{}, error) {
 
 // List 列出数据，输出字典
 func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
+	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
 	}
@@ -198,8 +198,8 @@ func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
 }
 
 // Query 查询数据
-func (t Table) Query(take, skip int, where string, v ...interface{}) ([][]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), v...)
+func (t Table) Query(take, skip int, where string, args ...interface{}) ([][]interface{}, error) {
+	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s desc limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -220,8 +220,8 @@ func (t Table) Query(take, skip int, where string, v ...interface{}) ([][]interf
 }
 
 // QueryMap 查询数据，输出字典
-func (t Table) QueryMap(take, skip int, where string, v ...interface{}) ([]map[string]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), v...)
+func (t Table) QueryMap(take, skip int, where string, args ...interface{}) ([]map[string]interface{}, error) {
+	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s desc limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -243,8 +243,8 @@ func (t Table) QueryMap(take, skip int, where string, v ...interface{}) ([]map[s
 
 // Set 按主键修改数据
 func (t Table) Set(key interface{}, kvs map[string]interface{}) (int64, error) {
-	sets, values := formatMapToSets(kvs)
-	res, err := exec(fmt.Sprintf("update %s.%s set %s where %s='%v' limit 1", t.DatabaseName, t.Name, sets, t.Primarykey, key), values...)
+	setsql, values := formatMapToSet(kvs)
+	res, err := exec(fmt.Sprintf("update %s.%s set %s where %s=? limit 1", t.DatabaseName, t.Name, setsql, t.Primarykey), append(values, key)...)
 	if err != nil {
 		return -1, err
 	}
@@ -252,12 +252,12 @@ func (t Table) Set(key interface{}, kvs map[string]interface{}) (int64, error) {
 }
 
 // SetMany 批量修改数据
-func (t Table) SetMany(where string, items []interface{}, kvs map[string]interface{}) (int64, error) {
-	sets, values := formatMapToSets(kvs)
-	for i := range items {
-		values = append(values, items[i])
+func (t Table) SetMany(kvs map[string]interface{}, where string, args ...interface{}) (int64, error) {
+	setsql, values := formatMapToSet(kvs)
+	for i := range args {
+		values = append(values, args[i])
 	}
-	res, err := exec(fmt.Sprintf("update %s.%s set %s where %s", t.DatabaseName, t.Name, sets, where), values...)
+	res, err := exec(fmt.Sprintf("update %s.%s set %s where %s", t.DatabaseName, t.Name, setsql, where), values...)
 	if err != nil {
 		return -1, err
 	}
@@ -274,26 +274,45 @@ func (t Table) Add(kvs map[string]interface{}) (int64, error) {
 	return res.LastInsertId()
 }
 
-func formatMapToInsert(kvs  map[string]interface{}) (string, []interface{}) {
-	keys := make([]string, 0)
-	args := make([]string, 0)
-	values := make([]interface{}, 0)
-	for k, v := range kvs {
-		keys = append(keys, k)
-		args = append(args, "?")
-		values = append(values, v)
+// Del 按主键删除数据
+func (t Table) Del(key interface{}) (int64, error) {
+	res, err := exec(fmt.Sprintf("delete from %s.%s where %s=? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
+	if err != nil {
+		return -1, err
 	}
-	return fmt.Sprintf("(%s) VALUES (%s)", strings.Join(keys, ","), strings.Join(args, ",")), values
+	return res.RowsAffected()
 }
 
-func formatMapToSets(kvs map[string]interface{}) (string, []interface{}) {
-	sqlitems := make([]string, 0)
-	values := make([]interface{}, 0)
-	for k, v := range kvs {
-		sqlitems = append(sqlitems, fmt.Sprint(k, "=?"))
-		values = append(values, v)
+// Save 保存数据
+func (t Table) Save(kvs map[string]interface{}) (int64, error) {
+	key, ok := kvs[t.Primarykey]
+	if ok {
+		sets := copyMap(kvs)
+		delete(sets, t.Primarykey)
+		return t.Set(key, sets)
+	} else {
+		return t.Add(kvs)
 	}
-	return strings.Join(sqlitems, ","), values
+}
+
+// Remove 移除数据
+func (t Table) Remove(kvs map[string]interface{}) (int64, error) {
+	wheresql, values := formatMapToWhere(kvs)
+	res, err := exec(fmt.Sprintf("delete from %s.%s where %s limit 1", t.DatabaseName, t.Name, wheresql), values...)
+	if err != nil {
+		return -1, err
+	}
+	return res.RowsAffected()
+}
+
+// Count 统计
+func (t Table) Count() int64 {
+	return count(fmt.Sprintf("%s.%s", t.DatabaseName, t.Name))
+}
+
+// Count 条件统计
+func (t Table) CountBy(where string, args ...interface{}) int64 {
+	return countBy(fmt.Sprintf("%s.%s", t.DatabaseName, t.Name), where, args...)
 }
 
 func newTable() *Table {

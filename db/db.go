@@ -73,3 +73,13 @@ func count(table string) int64 {
 	}
 	return n
 }
+
+func countBy(table string, where string, args ...interface{}) int64 {
+	row := queryRow(fmt.Sprintf("select count(*) as num from %s where %s", table, where), args...)
+	var n int64
+	err := row.Scan(&n)
+	if err != nil {
+		return -1
+	}
+	return n
+}

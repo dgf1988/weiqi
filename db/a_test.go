@@ -1,6 +1,8 @@
 package db
 
-import "testing"
+import (
+	"testing"
+)
 
 //Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2", "utf8")
 
@@ -15,9 +17,17 @@ func TestCount(t *testing.T) {
 }
 
 func TestDesc(t *testing.T) {
-	players, err := GetTable("weiqi2", "player")
+	players, err := GetTable("hoetom", "player")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	t.Log(players.Add(map[string]interface{}{"pname": "我是谁。。。。。。。。。。。?"}))
+	t.Log("count=", players.CountBy("p_name like ?", "%李世石%"))
+	querys, err := players.Query(100, 0, "p_name like ?", "%柯洁%")
+	if err != nil {
+		t.Fatal(err.Error())
+	} else {
+		for i, v := range querys {
+			t.Log(i, v)
+		}
+	}
 }
