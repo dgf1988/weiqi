@@ -17,44 +17,34 @@ func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 }
 
-func defaultHtml() *Html {
-	return defHtmlLayout().Append(
+func render_default(w http.ResponseWriter, u *U) error {
+	html := defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),
 		defHtmlContent(),
 		defHtmlFooter(),
 	)
-}
-
-func defaultData(u *U, posts []P, players []Player, sgfs []Sgf) *Data {
 	data := defData()
 	data.User = u
+
+	posts, err := Posts.ListMap(40, 0)
+	if err != nil {
+		return err
+	}
+
+	//
+	players, err := Players.ListMap(40, 0)
+	if err != nil {
+		return err
+	}
+
+	//
+	sgfs, err := Sgfs.ListMap(40, 0)
+	if err != nil {
+		return err
+	}
 	data.Content["Posts"] = posts
 	data.Content["Sgfs"] = sgfs
 	data.Content["Players"] = players
-	return data
-}
-
-func render_default(w http.ResponseWriter, u *U) error {
-	html := defaultHtml()
-
-	posts, err := Posts.List(40, 0)
-	if err != nil {
-		return err
-	}
-
-	//
-	players, err := Posts.List(40, 0)
-	if err != nil {
-		return err
-	}
-
-	//
-	sgfs, err := Sgfs.List(40, 0)
-	if err != nil {
-		return err
-	}
-
-	data := defaultData(u, posts, players, sgfs)
 	return html.Execute(w, data, defFuncMap)
 }

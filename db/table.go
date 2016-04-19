@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"reflect"
+	"errors"
 )
 
 // Table 保存表信息
@@ -34,7 +36,7 @@ func (t Table) ToSql() string {
 	return strings.Join(stritems, "\n")
 }
 
-func (t Table) getScans() []interface{} {
+func (t Table) getScanner() []interface{} {
 	scans := make([]interface{}, t.Length)
 	for i := range t.Columns {
 		switch t.Columns[i].Type.Name {
@@ -47,6 +49,36 @@ func (t Table) getScans() []interface{} {
 		}
 	}
 	return scans
+}
+
+func (t Table) getStructScanner(obj interface{}) ([]interface{}, error) {
+	v := reflect.ValueOf(obj)
+	if v.Kind() != reflect.Ptr {
+		return nil, errors.New("db: the object must be a struct point")
+	}
+	v = v.Elem()
+	if v.Kind() != reflect.Struct {
+		return nil, errors.New("db: the object must be a struct point")
+	}
+	scans := make([]interface{}, t.Length)
+	for i := range scans {
+		scans[i] = v.Field(i).Addr().Interface()
+	}
+	return scans, nil
+}
+
+func (t Table) setScanner(dest []interface{}, obj interface{}) error {
+	v := reflect.ValueOf(obj)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+		if v.Kind() == reflect.Struct {
+			for i := range dest {
+				dest[i] = v.Field(i).Addr().Interface()
+			}
+			return nil
+		}
+	}
+	return errors.New("db: object is not a struct ptr")
 }
 
 func (t Table) parseScansArray(scans []interface{}) []interface{} {
@@ -109,10 +141,24 @@ func (t Table) parseScansMap(scans []interface{}) map[string]interface{} {
 	return data
 }
 
-// Get 按主键取数据
-func (t Table) Get(key interface{}) ([]interface{}, error) {
+func (t Table) Get(key interface{}, obj interface{}) error {
+	dest := make([]interface{}, t.Length)
+	err := t.setScanner(dest, obj)
+	if err != nil {
+		return err
+	}
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	dest := t.getScans()
+	err = row.Scan(dest...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Get 按主键取数据
+func (t Table) GetArray(key interface{}) ([]interface{}, error) {
+	dest := t.getScanner()
+	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
 	err := row.Scan(dest...)
 	if err != nil {
 		return nil, err
@@ -123,7 +169,7 @@ func (t Table) Get(key interface{}) ([]interface{}, error) {
 // GetMap	按主键取数据，输出字典
 func (t Table) GetMap(key interface{}) (map[string]interface{}, error) {
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	dest := t.getScans()
+	dest := t.getScanner()
 	err := row.Scan(dest...)
 	if err != nil {
 		return nil, err
@@ -134,7 +180,7 @@ func (t Table) GetMap(key interface{}) (map[string]interface{}, error) {
 // Find 查找数据
 func (t Table) Find(where string, args ...interface{}) ([]interface{}, error) {
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
-	scans := t.getScans()
+	scans := t.getScanner()
 	err := row.Scan(scans...)
 	if err != nil {
 		return nil, err
@@ -145,7 +191,7 @@ func (t Table) Find(where string, args ...interface{}) ([]interface{}, error) {
 // FindMap	查找数据，输出字典
 func (t Table) FindMap(where string, args ...interface{}) (map[string]interface{}, error) {
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
-	scans := t.getScans()
+	scans := t.getScanner()
 	err := row.Scan(scans...)
 	if err != nil {
 		return nil, err
@@ -160,7 +206,7 @@ func (t Table) List(take, skip int) ([][]interface{}, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScans()
+	dest := t.getScanner()
 	results := make([][]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
@@ -175,6 +221,27 @@ func (t Table) List(take, skip int) ([][]interface{}, error) {
 	return results, nil
 }
 
+func (t Table) ListBy(skip int, objs interface{}) error {
+	vs := reflect.ValueOf(objs)
+	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, vs.Len())
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	dest := make([]interface{}, t.Length)
+	for i:=0; rows.Next(); i++ {
+		err = t.setScanner(dest, vs.Index(i).Interface())
+		if err != nil {
+			return err
+		}
+		err = rows.Scan(dest...)
+		if err != nil {
+			return err
+		}
+	}
+	return rows.Err()
+}
+
 // List 列出数据，输出字典
 func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
 	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
@@ -182,7 +249,7 @@ func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScans()
+	dest := t.getScanner()
 	results := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
@@ -204,7 +271,7 @@ func (t Table) Query(take, skip int, where string, args ...interface{}) ([][]int
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScans()
+	dest := t.getScanner()
 	results := make([][]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
@@ -226,7 +293,7 @@ func (t Table) QueryMap(take, skip int, where string, args ...interface{}) ([]ma
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScans()
+	dest := t.getScanner()
 	results := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
