@@ -22,7 +22,7 @@ func TestDesc(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	ops, err := options.List(10, 0)
+	ops, err := options.ListArray(10, 0)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -37,21 +37,19 @@ func TestDesc(t *testing.T) {
 		Status int
 	}
 	var op Option
-	err = options.Get(80, &op)
+	err = options.Get(&op, 80)
 	if err != nil {
 		t.Error(err.Error())
 	} else {
 		t.Log(op)
 	}
-	listop := make([]Option, 10)
-	for i := range listop {
-		listop[i] = Option{}
-	}
-	err = options.ListBy(0, listop)
+
+	var arrop = [10]Option{}
+	err = options.List(&arrop, 0)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	for i := range listop {
-		t.Log(i, listop[i])
+	for i := range arrop {
+		t.Log(i, arrop[i])
 	}
 }

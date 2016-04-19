@@ -68,9 +68,8 @@ func (t Table) getStructScanner(obj interface{}) ([]interface{}, error) {
 }
 
 func (t Table) setScanner(dest []interface{}, obj interface{}) error {
-	v := reflect.ValueOf(obj)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
+	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
+		v := reflect.ValueOf(obj).Elem()
 		if v.Kind() == reflect.Struct {
 			for i := range dest {
 				dest[i] = v.Field(i).Addr().Interface()
@@ -78,7 +77,7 @@ func (t Table) setScanner(dest []interface{}, obj interface{}) error {
 			return nil
 		}
 	}
-	return errors.New("db: object is not a struct ptr")
+	return errors.New("db: the object can't point to a struct interface")
 }
 
 func (t Table) parseScansArray(scans []interface{}) []interface{} {
@@ -141,21 +140,28 @@ func (t Table) parseScansMap(scans []interface{}) map[string]interface{} {
 	return data
 }
 
-func (t Table) Get(key interface{}, obj interface{}) error {
+func (t Table) Get(obj interface{}, key interface{}) error {
+	v := reflect.ValueOf(obj)
+	if v.Kind() != reflect.Ptr {
+		return errors.New("db: the object must be a pointer which point to a struct")
+	}
+	v = v.Elem()
+	if v.Kind() != reflect.Struct {
+		return errors.New("db: the object must be a pointer which point to a struct")
+	}
 	dest := make([]interface{}, t.Length)
-	err := t.setScanner(dest, obj)
-	if err != nil {
-		return err
+	for i := range dest {
+		dest[i] = v.Field(i).Addr().Interface()
 	}
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	err = row.Scan(dest...)
+	err := row.Scan(dest...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// Get 按主键取数据
+// GetArray 按主键取数据
 func (t Table) GetArray(key interface{}) ([]interface{}, error) {
 	dest := t.getScanner()
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
@@ -177,8 +183,29 @@ func (t Table) GetMap(key interface{}) (map[string]interface{}, error) {
 	return t.parseScansMap(dest), nil
 }
 
-// Find 查找数据
-func (t Table) Find(where string, args ...interface{}) ([]interface{}, error) {
+func (t Table) Find(obj interface{}, where string, args ...interface{}) error {
+	v := reflect.ValueOf(obj)
+	if v.Kind() != reflect.Ptr {
+		return errors.New("db: the object must be a pointer which point to a struct")
+	}
+	v = v.Elem()
+	if v.Kind() != reflect.Struct {
+		return errors.New("db: the object must be a pointer which point to a struct")
+	}
+	dest := make([]interface{}, t.Length)
+	for i := range dest {
+		dest[i] = v.Field(i).Addr().Interface()
+	}
+	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
+	err := row.Scan(dest...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// FindArray 查找数据
+func (t Table) FindArray(where string, args ...interface{}) ([]interface{}, error) {
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
 	scans := t.getScanner()
 	err := row.Scan(scans...)
@@ -199,8 +226,50 @@ func (t Table) FindMap(where string, args ...interface{}) (map[string]interface{
 	return t.parseScansMap(scans), nil
 }
 
-// List 列出数据
-func (t Table) List(take, skip int) ([][]interface{}, error) {
+func (t Table) List(objs interface{}, skip int) error {
+	vs := reflect.ValueOf(objs)
+	if vs.Kind() == reflect.Ptr{
+		vs = vs.Elem()
+		if vs.Kind() != reflect.Array {
+			return errors.New("db: the object must be a pointer which point to array of struct")
+		}
+	} else if vs.Kind() != reflect.Slice {
+		return errors.New("db: the object must be a pointer which point to array of struct")
+	}
+	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, vs.Len())
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	dest := make([]interface{}, t.Length)
+	for i := 0; i < vs.Len(); i ++ {
+		v := vs.Index(i)
+		if v.Kind() == reflect.Struct {
+			v = v.Addr().Elem()
+		} else if v.Kind() == reflect.Ptr {
+			v = v.Elem()
+			if v.Kind() != reflect.Struct {
+				return errors.New("db: the object must be a pointer which point to array of struct")
+			}
+		} else {
+			return errors.New("db: the object must be a pointer which point to array of struct")
+		}
+		for i := 0; i < v.NumField(); i ++ {
+			dest[i] = v.Field(i).Addr().Interface()
+		}
+		if !rows.Next() {
+			break
+		}
+		err = rows.Scan(dest...)
+		if err != nil {
+			return err
+		}
+	}
+	return rows.Err()
+}
+
+// ListArray 列出数据
+func (t Table) ListArray(take, skip int) ([][]interface{}, error) {
 	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
@@ -219,27 +288,6 @@ func (t Table) List(take, skip int) ([][]interface{}, error) {
 		return nil, err
 	}
 	return results, nil
-}
-
-func (t Table) ListBy(skip int, objs interface{}) error {
-	vs := reflect.ValueOf(objs)
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, vs.Len())
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-	dest := make([]interface{}, t.Length)
-	for i:=0; rows.Next(); i++ {
-		err = t.setScanner(dest, vs.Index(i).Interface())
-		if err != nil {
-			return err
-		}
-		err = rows.Scan(dest...)
-		if err != nil {
-			return err
-		}
-	}
-	return rows.Err()
 }
 
 // List 列出数据，输出字典
@@ -265,7 +313,7 @@ func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
 }
 
 // Query 查询数据
-func (t Table) Query(take, skip int, where string, args ...interface{}) ([][]interface{}, error) {
+func (t Table) QueryArray(take, skip int, where string, args ...interface{}) ([][]interface{}, error) {
 	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s desc limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), args...)
 	if err != nil {
 		return nil, err

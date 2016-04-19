@@ -5,7 +5,7 @@ import (
 )
 
 func TestDbDesc(t *testing.T) {
-	players, err := Players.List(100, 0)
+	players, err := Players.ListArray(100, 0)
 	if err != nil {
 		t.Error(err.Error())
 		return
@@ -14,7 +14,7 @@ func TestDbDesc(t *testing.T) {
 		t.Log(i, players[i])
 	}
 
-	posts, err := Posts.List(100, 0)
+	posts, err := Posts.ListArray(100, 0)
 	if err != nil {
 		t.Error(err.Error())
 		return
