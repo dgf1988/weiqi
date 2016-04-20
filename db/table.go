@@ -6,7 +6,7 @@ import (
 	"strings"
 	"reflect"
 	"errors"
-	"time"
+
 )
 
 // Table 保存表信息
@@ -51,248 +51,156 @@ func (t Table) ToSql() string {
 	return strings.Join(stritems, "\n")
 }
 
-func (t Table) getScanner() []interface{} {
+func (t Table) makeScans() []interface{} {
+	return make([]interface{}, t.ColumnNumbers)
+}
+
+func (t Table) makeNullableScans() []interface{} {
 	scans := make([]interface{}, t.ColumnNumbers)
 	for i := range t.Columns {
-		switch t.Columns[i].Type.Name {
-		case "int":
+		switch t.Columns[i].Type.Value {
+		case typeInt:
 			scans[i] = new(sql.NullInt64)
-		case "date", "year", "datetime", "time", "timestamp":
+		case typeDate, typeDatetime, typeYear, typeTimestamp, typeTime:
 			scans[i] = new(NullTime)
-		default:
+		case typeChar, typeVarchar, typeText, typeMediumTtext, typeLongtext:
 			scans[i] = new(sql.NullString)
+		case typeFloat:
+			scans[i] = new(sql.NullBool)
+		default:
+			scans[i] = new(NullBytes)
 		}
 	}
 	return scans
 }
 
-func (t Table) getScanner2() []interface{} {
-	scanner := make([]interface{}, t.ColumnNumbers)
-	for i := range t.Columns {
-		scanner[i] = reflect.New(t.Columns[i].Type.Type).Interface()
+func (t Table) makeStructScans(object interface{}) ([]interface{}, error) {
+	scans := t.makeScans()
+	rv := reflect.ValueOf(object)
+	if rv.Kind() != reflect.Ptr {
+		return nil, errors.New("db: the object must be a pointer which point to a struct 1")
 	}
-	return scanner
-}
-
-func (t Table) getStructScanner(obj interface{}) ([]interface{}, error) {
-	v := reflect.ValueOf(obj)
-	if v.Kind() != reflect.Ptr {
-		return nil, errors.New("db: the object must be a struct point")
+	rv = rv.Elem()
+	if rv.Kind() != reflect.Struct {
+		return nil, errors.New("db: the object must be a pointer which point to a struct 2")
 	}
-	v = v.Elem()
-	if v.Kind() != reflect.Struct {
-		return nil, errors.New("db: the object must be a struct point")
+	if rv.NumField() != t.ColumnNumbers {
+		return nil, errors.New("db: the object field numbers not eq table column numbers !")
 	}
-	scans := make([]interface{}, t.ColumnNumbers)
 	for i := range scans {
-		scans[i] = v.Field(i).Addr().Interface()
+		scans[i] = rv.Field(i).Addr().Interface()
 	}
 	return scans, nil
 }
 
-func (t Table) setScanner(dest []interface{}, obj interface{}) error {
-	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
-		v := reflect.ValueOf(obj).Elem()
-		if v.Kind() == reflect.Struct {
-			for i := range dest {
-				dest[i] = v.Field(i).Addr().Interface()
-			}
-			return nil
-		}
-	}
-	return errors.New("db: the object can't point to a struct interface")
-}
-
-func (t Table) parseScansArray(scans []interface{}) []interface{} {
-	data := make([]interface{}, 0)
+func (t Table) parseSlice(scans []interface{}) ([]interface{}, error) {
+	var err error
+	data := make([]interface{}, t.ColumnNumbers)
 	for i := range scans {
-		switch scans[i].(type) {
-		case *sql.NullString:
-			nullstr := scans[i].(*sql.NullString)
-			if nullstr.Valid {
-				data = append(data, nullstr.String)
-			} else {
-				data = append(data, nil)
-			}
-		case *sql.NullInt64:
-			nullint := scans[i].(*sql.NullInt64)
-			if nullint.Valid {
-				data = append(data, nullint.Int64)
-			} else {
-				data = append(data, nil)
-			}
-		case *NullTime:
-			nulltime := scans[i].(*NullTime)
-			if nulltime.Valid {
-				data = append(data, nulltime.Time)
-			} else {
-				data = append(data, nil)
-			}
-		case *string:
-			data = append(data, *scans[i].(*string))
-		case *int:
-			data = append(data, *scans[i].(*int))
-		case *time.Time:
-			data = append(data, *scans[i].(*time.Time))
-		default:
-			data = append(data, nil)
-
+		data[i], err = parseValue(scans[i])
+		if err != nil {
+			return nil, err
 		}
 	}
-	return data
+	return data, nil
 }
 
-func (t Table) parseScansMap(scans []interface{}) map[string]interface{} {
+func (t Table) parseMap(scans []interface{}) (map[string]interface{}, error) {
+	var err error
 	data := make(map[string]interface{})
 	for i := range t.Columns {
-		switch scans[i].(type) {
-		case *sql.NullString:
-			nullstr := scans[i].(*sql.NullString)
-			if nullstr.Valid {
-				data[t.Columns[i].Name] = nullstr.String
-			} else {
-				data[t.Columns[i].Name] = nil
-			}
-		case *sql.NullInt64:
-			nullint := scans[i].(*sql.NullInt64)
-			if nullint.Valid {
-				data[t.Columns[i].Name] = nullint.Int64
-			} else {
-				data[t.Columns[i].Name] = nil
-			}
-		case *NullTime:
-			nulltime := scans[i].(*NullTime)
-			if nulltime.Valid {
-				data[t.Columns[i].Name] = nulltime.Time
-			} else {
-				data[t.Columns[i].Name] = nil
-			}
+		data[t.Columns[i].Name], err = parseValue(scans[i])
+		if err != nil {
+			return nil, err
 		}
 	}
-	return data
+	return data, nil
 }
 
-func (t Table) Get(obj interface{}, key interface{}) error {
-	v := reflect.ValueOf(obj)
-	if v.Kind() != reflect.Ptr {
-		return errors.New("db: the object must be a pointer which point to a struct")
-	}
-	v = v.Elem()
-	if v.Kind() != reflect.Struct {
-		return errors.New("db: the object must be a pointer which point to a struct")
-	}
-	dest := make([]interface{}, t.ColumnNumbers)
-	for i := range dest {
-		dest[i] = v.Field(i).Addr().Interface()
-	}
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	err := row.Scan(dest...)
+func (t Table) GetBy(obj interface{}, key interface{}) error {
+	scans, err := t.makeStructScans(obj)
 	if err != nil {
 		return err
 	}
-	return nil
+	row := queryRow(fmt.Sprintf("%s where %s = ? limit 1", t.sqlSelect, t.Primarykey), key)
+	return row.Scan(scans...)
 }
 
 // GetArray 按主键取数据
-func (t Table) GetArray(key interface{}) ([]interface{}, error) {
-	dest := t.getScanner2()
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	err := row.Scan(dest...)
+func (t Table) GetSlice(key interface{}) ([]interface{}, error) {
+	scans := t.makeNullableScans()
+	row := queryRow(fmt.Sprintf("%s where %s = ? limit 1", t.sqlSelect, t.Primarykey), key)
+	err := row.Scan(scans...)
 	if err != nil {
 		return nil, err
 	}
-	return t.parseScansArray(dest), nil
+	return t.parseSlice(scans)
 }
 
 // GetMap	按主键取数据，输出字典
 func (t Table) GetMap(key interface{}) (map[string]interface{}, error) {
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
-	dest := t.getScanner()
-	err := row.Scan(dest...)
-	if err != nil {
-		return nil, err
-	}
-	return t.parseScansMap(dest), nil
-}
-
-func (t Table) Find(obj interface{}, where string, args ...interface{}) error {
-	v := reflect.ValueOf(obj)
-	if v.Kind() != reflect.Ptr {
-		return errors.New("db: the object must be a pointer which point to a struct")
-	}
-	v = v.Elem()
-	if v.Kind() != reflect.Struct {
-		return errors.New("db: the object must be a pointer which point to a struct")
-	}
-	dest := make([]interface{}, t.ColumnNumbers)
-	for i := range dest {
-		dest[i] = v.Field(i).Addr().Interface()
-	}
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
-	err := row.Scan(dest...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// FindArray 查找数据
-func (t Table) FindArray(where string, args ...interface{}) ([]interface{}, error) {
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
-	scans := t.getScanner()
+	scans := t.makeNullableScans()
+	row := queryRow(fmt.Sprintf("%s where %s = ? limit 1", t.sqlSelect, t.Primarykey), key)
 	err := row.Scan(scans...)
 	if err != nil {
 		return nil, err
 	}
-	return t.parseScansArray(scans), nil
+	return t.parseMap(scans)
+}
+
+func (t Table) FindBy(obj interface{}, where string, args ...interface{}) error {
+	scans, err := t.makeStructScans(obj)
+	if err != nil {
+		return err
+	}
+	row := queryRow(fmt.Sprintf("%s where %s limit 1", t.sqlSelect, where), args...)
+	return row.Scan(scans...)
+}
+
+// FindArray 查找数据
+func (t Table) FindSlice(where string, args ...interface{}) ([]interface{}, error) {
+	row := queryRow(fmt.Sprintf("%s where %s limit 1", t.sqlSelect, where), args...)
+	scans := t.makeNullableScans()
+	err := row.Scan(scans...)
+	if err != nil {
+		return nil, err
+	}
+	return t.parseSlice(scans)
 }
 
 // FindMap	查找数据，输出字典
 func (t Table) FindMap(where string, args ...interface{}) (map[string]interface{}, error) {
-	row := queryRow(fmt.Sprintf("select * from %s.%s where %s limit 1", t.DatabaseName, t.Name, where), args...)
-	scans := t.getScanner()
+	row := queryRow(fmt.Sprintf("%s where %s limit 1", t.sqlSelect, where), args...)
+	scans := t.makeNullableScans()
 	err := row.Scan(scans...)
 	if err != nil {
 		return nil, err
 	}
-	return t.parseScansMap(scans), nil
+	return t.parseMap(scans)
 }
 
-func (t Table) List(objs interface{}, skip int) error {
-	vs := reflect.ValueOf(objs)
-	if vs.Kind() == reflect.Ptr{
-		vs = vs.Elem()
-		if vs.Kind() != reflect.Array {
-			return errors.New("db: the object must be a pointer which point to array of struct")
-		}
-	} else if vs.Kind() != reflect.Slice {
-		return errors.New("db: the object must be a pointer which point to array of struct")
+func (t Table) ListBy(objs interface{}, skip int) error {
+	rv_objs := reflect.Indirect(reflect.ValueOf(objs))
+	if rv_objs.Kind() != reflect.Slice && rv_objs.Kind() != reflect.Array {
+		return errors.New(fmt.Sprintf("db: the object must be a slice or array %v", rv_objs.Kind()))
 	}
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, vs.Len())
+
+	take := rv_objs.Len()
+	rows, err := query(fmt.Sprintf("%s order by %s desc limit ?,?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
-	dest := make([]interface{}, t.ColumnNumbers)
-	for i := 0; i < vs.Len(); i ++ {
-		v := vs.Index(i)
-		if v.Kind() == reflect.Struct {
-			v = v.Addr().Elem()
-		} else if v.Kind() == reflect.Ptr {
-			v = v.Elem()
-			if v.Kind() != reflect.Struct {
-				return errors.New("db: the object must be a pointer which point to array of struct")
-			}
-		} else {
-			return errors.New("db: the object must be a pointer which point to array of struct")
-		}
-		for i := 0; i < v.NumField(); i ++ {
-			dest[i] = v.Field(i).Addr().Interface()
+
+	scans := t.makeScans()
+	for i:=0;i<take; i++{
+		for j := range scans {
+			scans[j] = rv_objs.Index(i).Field(j).Addr().Interface()
 		}
 		if !rows.Next() {
 			break
 		}
-		err = rows.Scan(dest...)
+		err = rows.Scan(scans...)
 		if err != nil {
 			return err
 		}
@@ -302,19 +210,24 @@ func (t Table) List(objs interface{}, skip int) error {
 
 // ListArray 列出数据
 func (t Table) ListArray(take, skip int) ([][]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
+	rows, err := query(fmt.Sprintf("%s order by %s desc limit ?,?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScanner()
+
+	scans := t.makeNullableScans()
 	results := make([][]interface{}, 0)
 	for rows.Next() {
-		err = rows.Scan(dest...)
+		err = rows.Scan(scans...)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, t.parseScansArray(dest))
+		a, err := t.parseSlice(scans)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, a)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
@@ -324,19 +237,24 @@ func (t Table) ListArray(take, skip int) ([][]interface{}, error) {
 
 // List 列出数据，输出字典
 func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s order by %s desc limit ?,?", t.DatabaseName, t.Name, t.Primarykey), skip, take)
+	rows, err := query(fmt.Sprintf("%s order by %s desc limit ?,?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScanner()
+
+	dest := t.makeNullableScans()
 	results := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, t.parseScansMap(dest))
+		a, err := t.parseMap(dest)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, a)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
@@ -346,19 +264,23 @@ func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
 
 // Query 查询数据
 func (t Table) QueryArray(take, skip int, where string, args ...interface{}) ([][]interface{}, error) {
-	rows, err := query(fmt.Sprintf("select * from %s.%s where %s order by %s desc limit %d,%d", t.DatabaseName, t.Name, where, t.Primarykey, skip, take), args...)
+	rows, err := query(fmt.Sprintf("%s WHERE %s ORDER BY %s DESC LIMIT ?,?", t.sqlSelect, where, t.Primarykey), append(args, skip, take)...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScanner()
+	dest := t.makeNullableScans()
 	results := make([][]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, t.parseScansArray(dest))
+		a, err := t.parseSlice(dest)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, a)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
@@ -373,14 +295,18 @@ func (t Table) QueryMap(take, skip int, where string, args ...interface{}) ([]ma
 		return nil, err
 	}
 	defer rows.Close()
-	dest := t.getScanner()
+	dest := t.makeNullableScans()
 	results := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		err = rows.Scan(dest...)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, t.parseScansMap(dest))
+		a, err := t.parseMap(dest)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, a)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err

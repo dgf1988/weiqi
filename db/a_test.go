@@ -2,6 +2,7 @@ package db
 
 import (
 	"testing"
+	"time"
 )
 
 //Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2", "utf8")
@@ -13,22 +14,31 @@ func TestCount(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	n := count("sgf")
-	t.Log("num=", n)
 }
 
 func TestDesc(t *testing.T) {
-	options, err := GetTable("weiqi", "sgf")
+	Players, err := GetTable("hoetom", "player")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	for i := range options.Columns {
-		t.Log(options.Columns[i])
+	type Player struct {
+		ID int64
+		PID int64
+		Name string
+		Sex int64
+		Country int64
+		Rank int64
+		Cate string
+		Birth time.Time
 	}
-	t.Log(options.sqlSelect)
-	t.Log(options.sqlInsert)
-	t.Log(options.sqlUpdate)
-	t.Log(options.sqlDelete)
 
-	t.Log(options.GetArray(3))
+	ps := make([]Player, 10)
+	err = Players.ListBy(&ps, 0)
+	if err != nil {
+		t.Error(err.Error())
+	} else {
+		for i := range ps {
+			t.Log(ps[i])
+		}
+	}
 }

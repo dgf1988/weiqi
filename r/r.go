@@ -7,10 +7,29 @@ import (
 )
 
 func main() {
-	us := []User{
-		User{1, "dgf"}, User{2, "lsl"},
+
+	type A struct {
+		Id int64
+		Key string
+		Value string
+		Status int64
 	}
-	TestArrayStruct(us)
+
+	as := [2]A{}
+
+	fmt.Println(as)
+	a(&as)
+	fmt.Println(as)
+}
+
+func a(as interface{}) {
+	rv_as := reflect.ValueOf(as)
+	rv_as = reflect.Indirect(rv_as)
+	fmt.Println(rv_as.Kind() ,rv_as.CanSet(), rv_as.CanAddr())
+	fmt.Println(rv_as.Index(0).Kind(), rv_as.Index(0).CanSet(), rv_as.Index(0).CanAddr())
+	//fmt.Println(rv_as.Index(0).Addr().Kind(), rv_as.Index(0).Addr().CanSet(), rv_as.Index(0).Addr().CanAddr())
+	//fmt.Println(rv_as.Index(0).Addr().Elem().Kind(), rv_as.Index(0).Addr().Elem().CanSet(), rv_as.Index(0).Addr().Elem().CanAddr())
+	//rv_as.Index(0).Addr().Elem().Field(0).Set(reflect.ValueOf(20))
 }
 
 type Ts struct {

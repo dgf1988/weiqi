@@ -3,16 +3,14 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-	"strconv"
 	"strings"
-	"reflect"
-	"time"
+	"errors"
 )
 
 // Type 保存数据库里的类型信息
 type Type struct {
 	Name   string
-	Type	reflect.Type
+	Value  int64
 	Length int
 }
 
@@ -25,43 +23,54 @@ func (t Type) ToSql() string {
 }
 
 func (t *Type) Scan(v interface{}) error {
-	str := string(v.([]uint8))
-	var (
-		strtype string
-		strnum  string
-		intnum  int
-		ii      int
-	)
-	for i, ch := range str {
-		if ch == '(' {
-			strtype = str[:i]
-			ii = i + 1
-		}
-		if ch == ')' {
-			strnum = str[ii:i]
+	typebuf, ok := v.([]byte)
+	if !ok {
+		typebuf, ok = v.([]uint8)
+		if !ok {
+			return errors.New(fmt.Sprintf("db: Type Scan Error: not accept type in %v", v))
 		}
 	}
-	intnum, _ = strconv.Atoi(strnum)
-	if strtype == "" {
-		t.Name, t.Length = str, 0
-	} else {
-		t.Name, t.Length = strtype, intnum
+	if len(typebuf) == 0 {
+		return errors.New("db: no type name from scanner")
 	}
+	t.Name = string(typebuf)
 	switch t.Name {
-	case "char", "varchar", "text", "mediumtext":
-		t.Type = reflect.TypeOf(t.Name)
-	case "date", "datetime", "year", "timestamp":
-		t.Type = reflect.TypeOf(time.Time{})
+	//int64
 	case "int":
-		t.Type = reflect.TypeOf(t.Length)
+		t.Value = typeInt
+
+	//string
+	case "char":
+		t.Value = typeChar
+	case "varchar":
+		t.Value = typeVarchar
+	case "text":
+		t.Value = typeText
+	case "mediumtext":
+		t.Value = typeMediumTtext
+	case "longtext":
+		t.Value = typeLongtext
+
+	//time.Time
+	case "date":
+		t.Value = typeDate
+	case "datetime":
+		t.Value = typeDatetime
+	case "year":
+		t.Value = typeYear
+	case "timestamp":
+		t.Value = typeTimestamp
+	case "time":
+		t.Value = typeTime
+
+	case "float":
+		t.Value = typeFloat
+
+	//Error
 	default:
-		panic("db: unknow column's type")
+		return errors.New(fmt.Sprintf("db: not supported type %v", t.Name))
 	}
 	return nil
-}
-
-func (t Type) Value() (driver.Value, error) {
-	return t.ToSql(), nil
 }
 
 // Default 保存数据库里的默认值信息
@@ -148,7 +157,7 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 	SELECT
 		TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION,
 		COLUMN_DEFAULT, IS_NULLABLE,
-		COLUMN_TYPE,
+		DATA_TYPE,
 		COLUMN_KEY,	EXTRA, COLUMN_COMMENT
 	FROM
 		information_schema.COLUMNS

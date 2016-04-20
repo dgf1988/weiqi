@@ -24,3 +24,20 @@ func (nt NullTime) Value() (driver.Value, error) {
 	}
 	return nt.Time, nil
 }
+
+type NullBytes struct {
+	Bytes []byte
+	Valid bool
+}
+
+func (nb *NullBytes) Scan(value interface{}) error {
+	nb.Bytes, nb.Valid = value.([]byte)
+	return nil
+}
+
+func (nb NullBytes) Value() (driver.Value, error) {
+	if !nb.Valid {
+		return nil, nil
+	}
+	return nb.Bytes, nil
+}
