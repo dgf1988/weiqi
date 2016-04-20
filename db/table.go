@@ -6,16 +6,31 @@ import (
 	"strings"
 	"reflect"
 	"errors"
+	"time"
 )
 
 // Table 保存表信息
 type Table struct {
-	DatabaseName string
-	Name         string
-	Columns      []Column
-	Length       int
-	Primarykey   string
-	UniqueIndex  []string
+	//数据库名
+	DatabaseName  string
+	//表名
+	Name          string
+	//字段结构信息
+	Columns       []Column
+	//字段数量
+	ColumnNumbers int
+	//主键
+	Primarykey    string
+	//唯一键
+	UniqueIndex   []string
+
+	fullName 	  string
+	// 预备Sql执行语句
+	sqlSelect     string
+	sqlInsert     string
+	sqlDelete	  string
+	sqlUpdate 	  string
+
 }
 
 // ToSql 输出表结构Sql语句。
@@ -37,7 +52,7 @@ func (t Table) ToSql() string {
 }
 
 func (t Table) getScanner() []interface{} {
-	scans := make([]interface{}, t.Length)
+	scans := make([]interface{}, t.ColumnNumbers)
 	for i := range t.Columns {
 		switch t.Columns[i].Type.Name {
 		case "int":
@@ -51,6 +66,14 @@ func (t Table) getScanner() []interface{} {
 	return scans
 }
 
+func (t Table) getScanner2() []interface{} {
+	scanner := make([]interface{}, t.ColumnNumbers)
+	for i := range t.Columns {
+		scanner[i] = reflect.New(t.Columns[i].Type.Type).Interface()
+	}
+	return scanner
+}
+
 func (t Table) getStructScanner(obj interface{}) ([]interface{}, error) {
 	v := reflect.ValueOf(obj)
 	if v.Kind() != reflect.Ptr {
@@ -60,7 +83,7 @@ func (t Table) getStructScanner(obj interface{}) ([]interface{}, error) {
 	if v.Kind() != reflect.Struct {
 		return nil, errors.New("db: the object must be a struct point")
 	}
-	scans := make([]interface{}, t.Length)
+	scans := make([]interface{}, t.ColumnNumbers)
 	for i := range scans {
 		scans[i] = v.Field(i).Addr().Interface()
 	}
@@ -105,6 +128,15 @@ func (t Table) parseScansArray(scans []interface{}) []interface{} {
 			} else {
 				data = append(data, nil)
 			}
+		case *string:
+			data = append(data, *scans[i].(*string))
+		case *int:
+			data = append(data, *scans[i].(*int))
+		case *time.Time:
+			data = append(data, *scans[i].(*time.Time))
+		default:
+			data = append(data, nil)
+
 		}
 	}
 	return data
@@ -149,7 +181,7 @@ func (t Table) Get(obj interface{}, key interface{}) error {
 	if v.Kind() != reflect.Struct {
 		return errors.New("db: the object must be a pointer which point to a struct")
 	}
-	dest := make([]interface{}, t.Length)
+	dest := make([]interface{}, t.ColumnNumbers)
 	for i := range dest {
 		dest[i] = v.Field(i).Addr().Interface()
 	}
@@ -163,7 +195,7 @@ func (t Table) Get(obj interface{}, key interface{}) error {
 
 // GetArray 按主键取数据
 func (t Table) GetArray(key interface{}) ([]interface{}, error) {
-	dest := t.getScanner()
+	dest := t.getScanner2()
 	row := queryRow(fmt.Sprintf("select * from %s.%s where %s = ? limit 1", t.DatabaseName, t.Name, t.Primarykey), key)
 	err := row.Scan(dest...)
 	if err != nil {
@@ -192,7 +224,7 @@ func (t Table) Find(obj interface{}, where string, args ...interface{}) error {
 	if v.Kind() != reflect.Struct {
 		return errors.New("db: the object must be a pointer which point to a struct")
 	}
-	dest := make([]interface{}, t.Length)
+	dest := make([]interface{}, t.ColumnNumbers)
 	for i := range dest {
 		dest[i] = v.Field(i).Addr().Interface()
 	}
@@ -241,7 +273,7 @@ func (t Table) List(objs interface{}, skip int) error {
 		return err
 	}
 	defer rows.Close()
-	dest := make([]interface{}, t.Length)
+	dest := make([]interface{}, t.ColumnNumbers)
 	for i := 0; i < vs.Len(); i ++ {
 		v := vs.Index(i)
 		if v.Kind() == reflect.Struct {
@@ -422,12 +454,12 @@ func (t Table) Remove(kvs map[string]interface{}) (int64, error) {
 
 // Count 统计
 func (t Table) Count() int64 {
-	return count(fmt.Sprintf("%s.%s", t.DatabaseName, t.Name))
+	return count(t.fullName)
 }
 
 // Count 条件统计
 func (t Table) CountBy(where string, args ...interface{}) int64 {
-	return countBy(fmt.Sprintf("%s.%s", t.DatabaseName, t.Name), where, args...)
+	return countBy(t.fullName, where, args...)
 }
 
 func newTable() *Table {
@@ -441,17 +473,37 @@ func GetTable(databasename, tablename string) (*Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	var table = newTable()
-	table.DatabaseName = databasename
-	table.Name = tablename
-	table.Columns = cols
-	table.Length = len(cols)
+	var t = newTable()
+	//设置表名
+	t.DatabaseName = databasename
+	t.Name = tablename
+	t.fullName = fmt.Sprint(t.DatabaseName, ".", t.Name)
+
+	//保存字段
+	t.Columns = cols
+	t.ColumnNumbers = len(cols)
+
+
+	//遍历字段，读取其它信息。
+	itemsSelect := make([]string, 0)
+	itemsInsertKey := make([]string, 0)
+	itemsInsertArgs := make([]string, 0)
 	for _, col := range cols {
+		itemsSelect = append(itemsSelect, col.FullName)
+		itemsInsertArgs = append(itemsInsertArgs, "?")
+		itemsInsertKey = append(itemsInsertKey, col.FullName)
 		if col.Key == "PRI" {
-			table.Primarykey = col.Name
+			t.Primarykey = col.Name
 		} else if col.Key == "UNI" {
-			table.UniqueIndex = append(table.UniqueIndex, col.Name)
+			t.UniqueIndex = append(t.UniqueIndex, col.Name)
 		}
 	}
-	return table, nil
+
+	//保存预备SQL语句。
+	t.sqlSelect = fmt.Sprintf("SELECT %s FROM %s ", strings.Join(itemsSelect, ", "), t.fullName)
+	t.sqlInsert = fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", t.fullName, strings.Join(itemsInsertKey, ", "), strings.Join(itemsInsertArgs, ", "))
+	t.sqlDelete = fmt.Sprintf("DELETE FROM %s WHERE %s = ?", t.fullName, t.Primarykey)
+	t.sqlUpdate = fmt.Sprintf("UPDATE %s ", t.fullName)
+
+	return t, nil
 }

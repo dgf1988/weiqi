@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"reflect"
+	"time"
 )
 
 // Type 保存数据库里的类型信息
 type Type struct {
 	Name   string
+	Type	reflect.Type
 	Length int
 }
 
@@ -43,6 +46,16 @@ func (t *Type) Scan(v interface{}) error {
 		t.Name, t.Length = str, 0
 	} else {
 		t.Name, t.Length = strtype, intnum
+	}
+	switch t.Name {
+	case "char", "varchar", "text", "mediumtext":
+		t.Type = reflect.TypeOf(t.Name)
+	case "date", "datetime", "year", "timestamp":
+		t.Type = reflect.TypeOf(time.Time{})
+	case "int":
+		t.Type = reflect.TypeOf(t.Length)
+	default:
+		panic("db: unknow column's type")
 	}
 	return nil
 }
@@ -96,17 +109,21 @@ type Column struct {
 	DatabaseName string
 	TableName    string
 	Name         string
+	FullName     string
+
 	Order        int
 
 	Default Default
 
 	Nullable bool
 
-	Type Type
+	Type 	Type
 
 	Key     string
 	Extra   string
 	Comment string
+
+	IsAuto  bool
 }
 
 // ToSql 输出行结构
@@ -158,7 +175,11 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 		if err != nil {
 			return nil, err
 		}
+		col.FullName = fmt.Sprint(col.TableName, ".", col.Name)
+
 		col.Nullable = scannullable == "YES"
+		col.IsAuto = col.Default.V == "CURRENT_TIMESTAMP" || col.Extra == "auto_increment"
+
 		cols = append(cols, col)
 	}
 	return cols, rows.Err()

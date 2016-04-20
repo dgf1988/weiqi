@@ -18,38 +18,17 @@ func TestCount(t *testing.T) {
 }
 
 func TestDesc(t *testing.T) {
-	options, err := GetTable("weiqi", "option")
+	options, err := GetTable("weiqi", "sgf")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	ops, err := options.ListArray(10, 0)
-	if err != nil {
-		t.Error(err.Error())
+	for i := range options.Columns {
+		t.Log(options.Columns[i])
 	}
-	for i := range ops {
-		t.Log(i, ops[i])
-	}
+	t.Log(options.sqlSelect)
+	t.Log(options.sqlInsert)
+	t.Log(options.sqlUpdate)
+	t.Log(options.sqlDelete)
 
-	type Option struct{
-		Id int
-		Key string
-		Value string
-		Status int
-	}
-	var op Option
-	err = options.Get(&op, 80)
-	if err != nil {
-		t.Error(err.Error())
-	} else {
-		t.Log(op)
-	}
-
-	var arrop = [10]Option{}
-	err = options.List(&arrop, 0)
-	if err != nil {
-		t.Error(err.Error())
-	}
-	for i := range arrop {
-		t.Log(i, arrop[i])
-	}
+	t.Log(options.GetArray(3))
 }
