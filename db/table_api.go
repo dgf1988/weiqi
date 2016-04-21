@@ -166,7 +166,7 @@ func (t Table) ListBy(objects interface{}, skip int) (int, error) {
 
 // ListArray 列出数据
 func (t Table) ListSlice(take, skip int) ([][]interface{}, error) {
-	rows, err := t.query("limit ?,?", skip, take)
+	rows, err := t.query(t.sqlOrderByPrimarykey+" desc limit ?,?", skip, take)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (t Table) ListSlice(take, skip int) ([][]interface{}, error) {
 
 // List 列出数据，输出字典
 func (t Table) ListMap(take, skip int) ([]map[string]interface{}, error) {
-	rows, err := t.query("limit ?,?", skip, take)
+	rows, err := t.query(t.sqlOrderByPrimarykey+" desc limit ?,?", skip, take)
 	if err != nil {
 		return nil, err
 	}
