@@ -11,7 +11,7 @@ type Error struct {
 }
 
 func NewErrorf(format string, args ...interface{}) Error {
-	return Error{msg:fmt.Sprintf(format, args...)}
+	return Error{msg: fmt.Sprintf(format, args...)}
 }
 
 func (e Error) Error() string {

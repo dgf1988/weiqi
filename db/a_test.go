@@ -15,7 +15,6 @@ func TestCount(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-
 	type Player struct {
 		Id      int64
 		Name    string
@@ -30,7 +29,7 @@ func TestCount(t *testing.T) {
 	for i := range Players.Columns {
 		t.Log(Players.Columns[i].FullName)
 	}
-	if err != nil{
+	if err != nil {
 		t.Error(err.Error())
 	} else {
 		var player = new(Player)

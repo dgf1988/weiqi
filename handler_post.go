@@ -107,8 +107,8 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 
 	r.ParseForm()
 	var (
-		action    = "/user/post/add"
-		msg       = r.FormValue("editormsg")
+		action = "/user/post/add"
+		msg    = r.FormValue("editormsg")
 		post   = new(Post)
 		err    error
 	)

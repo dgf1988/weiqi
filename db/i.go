@@ -12,7 +12,6 @@ type IRows interface {
 }
 
 type ITable interface {
-
 	Add(args ...interface{}) (int64, error)
 	Del(key interface{}) (int64, error)
 
@@ -21,5 +20,4 @@ type ITable interface {
 
 	Query(query string, args ...interface{}) (IRows, error)
 	Update(datas map[string]interface{}, query string, args ...interface{}) (int64, error)
-
 }

@@ -10,29 +10,29 @@ import (
 // Table 保存表信息
 type Table struct {
 	//数据库名
-	DatabaseName             string
+	DatabaseName string
 	//表名
-	Name                     string
+	Name string
 	//字段结构信息
-	Columns                  []Column
+	Columns []Column
 	//字段数量
-	ColumnNumbers            int
+	ColumnNumbers int
 	//主键
-	Primarykey               string
+	Primarykey string
 	//唯一键
-	UniqueIndex              []string
+	UniqueIndex []string
 
-	fullName                 string
+	fullName string
 	// 预备Sql执行语句
-	sqlInsert                string
-	sqlDeleteByPrimarykey    string
+	sqlInsert             string
+	sqlDeleteByPrimarykey string
 
-	sqlSelect                string
-	sqlSelectByPrimarykey    string
+	sqlSelect             string
+	sqlSelectByPrimarykey string
 
-	sqlUpdate                string
+	sqlUpdate string
 
-	sqlOrderByPrimarykey     string
+	sqlOrderByPrimarykey string
 }
 
 func newTable() *Table {
@@ -141,7 +141,7 @@ func (t Table) set(key interface{}, args ...interface{}) (int64, error) {
 		if args[i] == nil {
 			continue
 		}
-		items = append(items, t.Columns[i].FullName + "=?")
+		items = append(items, t.Columns[i].FullName+"=?")
 		values = append(values, args[i])
 	}
 	res, err := dbExec(fmt.Sprintf("%s SET %s WHERE %s = ? limit 1", t.sqlUpdate, strings.Join(items, ", "), t.Primarykey), append(values, key)...)
@@ -162,7 +162,7 @@ func (t Table) find(args ...interface{}) *sql.Row {
 		if args[i] == nil {
 			continue
 		}
-		wheres = append(wheres, t.Columns[i].FullName + "=?")
+		wheres = append(wheres, t.Columns[i].FullName+"=?")
 		values = append(values, args[i])
 	}
 	return dbQueryRow(fmt.Sprintf("%s WHERE %s limit 1", t.sqlSelect, strings.Join(wheres, " AND ")), values...)

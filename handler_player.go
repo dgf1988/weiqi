@@ -107,9 +107,9 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 	r.ParseForm()
 	var (
-		action         = "/user/player/add"
-		msg            = r.FormValue("editormsg")
-		player  = new(Player)
+		action = "/user/player/add"
+		msg    = r.FormValue("editormsg")
+		player = new(Player)
 		err    error
 	)
 

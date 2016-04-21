@@ -44,7 +44,6 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 	).Execute(w, data, defFuncMap)
 }
 
-
 //sgf id
 func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var u *User
@@ -103,8 +102,8 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	r.ParseForm()
 	var (
-		action      = "/user/sgf/add"
-		msg         = r.FormValue("editormsg")
+		action = "/user/sgf/add"
+		msg    = r.FormValue("editormsg")
 		sgf    = new(Sgf)
 		err    error
 	)

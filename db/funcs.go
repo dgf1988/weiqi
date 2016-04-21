@@ -1,11 +1,11 @@
 package db
 
 import (
-	"fmt"
-	"strings"
 	"database/sql"
-	"reflect"
 	"errors"
+	"fmt"
+	"reflect"
+	"strings"
 	"time"
 )
 
@@ -33,7 +33,7 @@ func formatMapToSet(kvs map[string]interface{}) (string, []interface{}) {
 	sqlitems := make([]string, 0)
 	values := make([]interface{}, 0)
 	for k, v := range kvs {
-		sqlitems = append(sqlitems, k + "=?")
+		sqlitems = append(sqlitems, k+"=?")
 		values = append(values, v)
 	}
 	return strings.Join(sqlitems, ", "), values
@@ -58,7 +58,7 @@ func makeScans(length int) []interface{} {
 }
 
 // 把源数据从指针提取出来，返回给使用的人。
-func parseValue(src interface{}) (value interface{},err error) {
+func parseValue(src interface{}) (value interface{}, err error) {
 	switch src.(type) {
 	case *sql.NullString:
 		src_value := src.(*sql.NullString)

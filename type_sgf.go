@@ -26,7 +26,7 @@ ENGINE=InnoDB
 */
 
 const (
-	SGF_CHARSET   = "utf-8"
+	SGF_CHARSET = "utf-8"
 )
 
 type Sgf struct {

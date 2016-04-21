@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 )
 
 // Type 保存数据库里的类型信息
@@ -120,19 +120,19 @@ type Column struct {
 	Name         string
 	FullName     string
 
-	Order        int
+	Order int
 
 	Default Default
 
 	Nullable bool
 
-	Type 	Type
+	Type Type
 
 	Key     string
 	Extra   string
 	Comment string
 
-	IsAuto  bool
+	IsAuto bool
 }
 
 // ToSql 输出行结构
@@ -184,7 +184,7 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 		if err != nil {
 			return nil, err
 		}
-		col.FullName = fmt.Sprintf("%s.`%s`" ,col.TableName, col.Name)
+		col.FullName = fmt.Sprintf("%s.`%s`", col.TableName, col.Name)
 
 		col.Nullable = scannullable == "YES"
 		col.IsAuto = col.Default.V == "CURRENT_TIMESTAMP" || col.Extra == "auto_increment"

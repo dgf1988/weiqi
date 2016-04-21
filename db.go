@@ -2,16 +2,16 @@ package weiqi
 
 import (
 	"errors"
-	"log"
 	"github.com/dgf1988/weiqi/db"
+	"log"
 )
 
 var (
 	ErrPrimaryKey = errors.New("primary key error")
-	Players *db.Table
-	Users	*db.Table
-	Posts	*db.Table
-	Sgfs	*db.Table
+	Players       *db.Table
+	Users         *db.Table
+	Posts         *db.Table
+	Sgfs          *db.Table
 )
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	Sgfs, err = db.GetTable(config.DbName,  "sgf")
+	Sgfs, err = db.GetTable(config.DbName, "sgf")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

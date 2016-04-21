@@ -1,10 +1,10 @@
 package h
 
 import (
-	"net/http"
-	"strings"
-	"os"
 	"log"
+	"net/http"
+	"os"
+	"strings"
 )
 
 //SeeOther 303 跳转页面
@@ -36,7 +36,7 @@ func MethodNotAllowed(w http.ResponseWriter, msg string, allows []string) {
 
 //ServerError 500 服务器错误
 func ServerError(w http.ResponseWriter, err error) {
-	f, ferr := os.OpenFile(errFileName, os.O_APPEND| os.O_CREATE| os.O_WRONLY, 0666)
+	f, ferr := os.OpenFile(errFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if ferr != nil {
 		panic(ferr.Error())
 	}

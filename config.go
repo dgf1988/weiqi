@@ -34,24 +34,24 @@ const (
 )
 
 type Config struct {
-	BasePath        string
+	BasePath string
 
-	SiteTitle       string
-	SiteDesc        string
-	SiteKeywords    []string
+	SiteTitle    string
+	SiteDesc     string
+	SiteKeywords []string
 
 	SiteAuthorName  string
 	SiteAuthorUrl   string
 	SiteAuthorEmail string
 	SiteICP         string
 
-	DbDriver        string
-	DbUsername      string
-	DbPassword      string
-	DbHost          string
-	DbPort          int
-	DbName          string
-	DbCharset       string
+	DbDriver   string
+	DbUsername string
+	DbPassword string
+	DbHost     string
+	DbPort     int
+	DbName     string
+	DbCharset  string
 }
 
 var (
