@@ -10,16 +10,17 @@ const (
 	MinLenPassword = 6
 )
 
-type U struct {
+type User struct {
 	Id       int64
 	Name     string
+	Password string
 	Email    string
 	Ip       string
 	Status   int64
 	Register time.Time
 }
 
-func (this U) RegisterTime() string {
+func (this User) RegisterTime() string {
 	return this.Register.Format(Time_Def_Format)
 }
 
@@ -39,32 +40,28 @@ func getPasswordMd5(password, ip string) string {
 //注册用户
 func RegisterUser(username, password, password2, email, ip string) (int64, error) {
 	if len(username) < MinLenUsername {
-		return 0, ErrUserNameTooShort
+		return -1, ErrUserNameTooShort
 	}
 	if len(password) < MinLenPassword {
-		return 0, ErrUserPasswordTooShort
+		return -1, ErrUserPasswordTooShort
 	}
 	if password != password2 {
-		return 0, ErrUserPasswordNotTheSame
+		return -1, ErrUserPasswordNotTheSame
 	}
-	var id int64
-	row := databases.QueryRow("select user.id from user where uname = ? limit 1", username)
-	err := row.Scan(&id)
+
+	user := User{}
+	err := Users.FindBy(&user, "uname = ?", username)
 	if err == sql.ErrNoRows {
-		res, err := databases.Exec("insert into user (uname, upassword, uemail, uip) values(?,?,?, ?)", username, getPasswordMd5(password, ip), email, ip)
-		if err != nil {
-			return 0, err
-		}
-		return res.LastInsertId()
+		return Users.Add(nil, username, getPasswordMd5(password, ip), email, ip)
 	} else if err != nil {
-		return 0, err
+		return -1, err
 	} else {
-		return id, ErrUserExisted
+		return user.Id, ErrUserExisted
 	}
 }
 
 //验证用户
-func loginUser(username, password string) (*U, error) {
+func loginUser(username, password string) (*User, error) {
 	if len(username) < MinLenUsername {
 		return nil, ErrUserNameTooShort
 	}
@@ -72,17 +69,15 @@ func loginUser(username, password string) (*U, error) {
 		return nil, ErrUserPasswordTooShort
 	}
 
-	row := databases.QueryRow("select user.id, user.uname, user.upassword, user.uemail, user.uip, user.ustatus, user.uregister from user where user.uname=? limit 1", username)
-	var u U
-	var upassword string
-	err := row.Scan(&u.Id, &u.Name, &upassword, &u.Email, &u.Ip, &u.Status, &u.Register)
+	var u User
+	err := Users.FindBy(&u, "uname=?", username)
 	if err == sql.ErrNoRows {
 		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	if upassword != getPasswordMd5(password, u.Ip) {
+	if u.Password != getPasswordMd5(password, u.Ip) {
 		return nil, ErrUserPassword
 	}
 	return &u, nil

@@ -38,28 +38,24 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		loginMsg := r.FormValue("loginmsg")
 		registerMsg := r.FormValue("registermsg")
 
-		err := loginHtml().Execute(w, loginData(loginMsg, registerMsg), defFuncMap)
-		if err != nil {
+		if err := renderLogin(w, loginMsg, registerMsg); err != nil {
 			h.ServerError(w, err)
 		}
 	}
 }
 
-func loginHtml() *Html {
+func renderLogin(w http.ResponseWriter, loginmsg, registermsg string) error {
+	data := defData()
+	data.Head.Title = "登录"
+	data.Content["LoginMsg"] = loginmsg
+	data.Content["RegisterMsg"] = registermsg
+
 	return defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("login"),
-	)
-}
-
-func loginData(loginmsg, registermsg string) *Data {
-	data := defData()
-	data.Head.Title = "登录"
-	data.Content["LoginMsg"] = loginmsg
-	data.Content["RegisterMsg"] = registermsg
-	return data
+	).Execute(w, data, defFuncMap)
 }
 
 func handlerLogout(w http.ResponseWriter, r *http.Request, p []string) {
@@ -102,24 +98,20 @@ func userHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	err := userHtml().Execute(w, userData(s.User), defFuncMap)
+	err := renderUser(w, s.User)
 	if err != nil {
 		h.ServerError(w, err)
 	}
 }
 
-func userHtml() *Html {
+func renderUser(w http.ResponseWriter, u *User) error {
+	d := defData()
+	d.User = u
+	d.Header.Navs = userNavItems()
 	return defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("user"),
-	)
-}
-
-func userData(u *U) *Data {
-	d := defData()
-	d.User = u
-	d.Header.Navs = userNavItems()
-	return d
+	).Execute(w, d, defFuncMap)
 }

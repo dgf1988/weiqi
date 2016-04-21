@@ -26,7 +26,7 @@ const (
   "DbUsername":"root",
   "DbPassword":"guofeng001",
   "DbHost":"localhost",
-  "DbPost":3306,
+  "DbPort":3306,
   "DbName":"weiqi2",
   "DbCharset":"utf8"
 }
@@ -34,24 +34,24 @@ const (
 )
 
 type Config struct {
-	BasePath string
+	BasePath        string
 
-	SiteTitle    string
-	SiteDesc     string
-	SiteKeywords []string
+	SiteTitle       string
+	SiteDesc        string
+	SiteKeywords    []string
 
 	SiteAuthorName  string
 	SiteAuthorUrl   string
 	SiteAuthorEmail string
 	SiteICP         string
 
-	DbDriver   string
-	DbUsername string
-	DbPassword string
-	DbHost     string
-	DbPost     int
-	DbName     string
-	DbCharset  string
+	DbDriver        string
+	DbUsername      string
+	DbPassword      string
+	DbHost          string
+	DbPort          int
+	DbName          string
+	DbCharset       string
 }
 
 var (
@@ -96,7 +96,7 @@ func LoadConfig(filename string) (*Config, error) {
 //"root:guofeng001@tcp(localhost:3306)/weiqi2?charset=utf8&parseTime=true"
 func (c Config) DbConnectString() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true",
-		c.DbUsername, c.DbPassword, c.DbHost, c.DbPost, c.DbName, c.DbCharset)
+		c.DbUsername, c.DbPassword, c.DbHost, c.DbPort, c.DbName, c.DbCharset)
 }
 
 func (c *Config) ToJson() string {

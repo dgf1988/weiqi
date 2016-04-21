@@ -1,7 +1,6 @@
 package weiqi
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -30,7 +29,7 @@ type Player struct {
 }
 
 func (p Player) StrSex() string {
-	return formatSex(p.Sex)
+	return sexToChinese(p.Sex)
 }
 
 const (
@@ -38,7 +37,7 @@ const (
 	C_SEX_GIRL = 2
 )
 
-func formatSex(sex int64) string {
+func sexToChinese(sex int64) string {
 	switch sex {
 	case 1:
 		return "男"
@@ -49,7 +48,7 @@ func formatSex(sex int64) string {
 	}
 }
 
-func parseSex(sex string) int64 {
+func chineseToSex(sex string) int64 {
 	switch sex {
 	case "男":
 		return 1
@@ -58,101 +57,4 @@ func parseSex(sex string) int64 {
 	default:
 		return 0
 	}
-}
-
-func dbCountPlayer(where string) int64 {
-	var n int64
-	if where == "" {
-		n, _ = dbCount("player")
-	} else {
-		n, _ = dbCountBy("player", where)
-	}
-	return n
-}
-
-func dbGetPlayer(id int64) (*Player, error) {
-	if id <= 0 {
-		return nil, ErrPrimaryKey
-	}
-	var p Player
-	row := databases.QueryRow("select * from player where id = ? limit 1", id)
-	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
-}
-
-func dbFindPlayer(name string) (*Player, error) {
-	var p Player
-	row := databases.QueryRow("select * from player where pname = ? limit 1", name)
-	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
-}
-
-func dbWherePlayer(where string) (*Player, error) {
-	if where == "" {
-		return nil, sql.ErrNoRows
-	}
-	var p Player
-	row := databases.QueryRow("select * from player where " + where + " limit 1")
-	err := row.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
-}
-
-func dbListPlayer(take, skip int) ([]Player, error) {
-	rows, err := databases.Query("select * from player order by id desc limit ?,?", skip, take)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var ps = make([]Player, 0)
-	for rows.Next() {
-		var p Player
-		err := rows.Scan(&p.Id, &p.Name, &p.Sex, &p.Country, &p.Rank, &p.Birth)
-		if err != nil {
-			return ps, err
-		}
-		ps = append(ps, p)
-	}
-	return ps, rows.Err()
-}
-
-func dbAddPlayer(p *Player) (int64, error) {
-	if p.Id > 0 {
-		return -1, ErrPrimaryKey
-	}
-	res, err := databases.Exec("insert into player (pname, psex, pcountry, prank, pbirth) values (?,?,?,?,?)", p.Name, p.Sex, p.Country, p.Rank, p.Birth)
-	if err != nil {
-		return -1, err
-	}
-	return res.LastInsertId()
-}
-
-func dbUpdatePlayer(p *Player) (int64, error) {
-	if p.Id <= 0 {
-		return -1, ErrPrimaryKey
-	}
-	res, err := databases.Exec("update player set pname=?,psex=?,pcountry=?,prank=?,pbirth=? where id = ? limit 1", p.Name, p.Sex, p.Country, p.Rank, p.Birth, p.Id)
-	if err != nil {
-		return -1, err
-	}
-	return res.RowsAffected()
-}
-
-func dbDeletePlayer(id int64) (int64, error) {
-	if id <= 0 {
-		return -1, ErrPrimaryKey
-	}
-	res, err := databases.Exec("delete from player where id = ? limit 1", id)
-	if err != nil {
-		return -1, err
-	}
-	return res.RowsAffected()
 }

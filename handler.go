@@ -17,7 +17,7 @@ func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 }
 
-func render_default(w http.ResponseWriter, u *U) error {
+func render_default(w http.ResponseWriter, u *User) error {
 	html := defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),

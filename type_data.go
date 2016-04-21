@@ -84,7 +84,7 @@ func newEditor(action, msg string) *Editor {
 type Content map[string]interface{}
 
 type Data struct {
-	User    *U
+	User    *User
 	Head    *Head
 	Header  *Header
 	Content Content

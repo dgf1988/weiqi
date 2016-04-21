@@ -33,10 +33,10 @@ func formatMapToSet(kvs map[string]interface{}) (string, []interface{}) {
 	sqlitems := make([]string, 0)
 	values := make([]interface{}, 0)
 	for k, v := range kvs {
-		sqlitems = append(sqlitems, fmt.Sprint(k, "=?"))
+		sqlitems = append(sqlitems, k + "=?")
 		values = append(values, v)
 	}
-	return strings.Join(sqlitems, ","), values
+	return strings.Join(sqlitems, ", "), values
 }
 
 func formatMapToWhere(kvs map[string]interface{}) (string, []interface{}) {
@@ -53,62 +53,63 @@ func formatMapToWhere(kvs map[string]interface{}) (string, []interface{}) {
 	return strings.Join(sqlitems, " AND "), values
 }
 
-func parseValue(src interface{}) (interface{}, error) {
+func makeScans(length int) []interface{} {
+	return make([]interface{}, length)
+}
+
+// 把源数据从指针提取出来，返回给使用的人。
+func parseValue(src interface{}) (value interface{},err error) {
 	switch src.(type) {
 	case *sql.NullString:
-		value := src.(*sql.NullString)
-		if value.Valid {
-			return value.String, nil
+		src_value := src.(*sql.NullString)
+		if src_value.Valid {
+			value = src_value.String
 		}
-		return nil, nil
 	case *sql.NullBool:
-		value := src.(*sql.NullBool)
-		if value.Valid {
-			return value.Bool, nil
+		src_value := src.(*sql.NullBool)
+		if src_value.Valid {
+			value = src_value.Bool
 		}
-		return nil, nil
 	case *sql.NullInt64:
-		value := src.(*sql.NullInt64)
-		if value.Valid {
-			return value.Int64, nil
+		src_value := src.(*sql.NullInt64)
+		if src_value.Valid {
+			value = src_value.Int64
 		}
-		return nil, nil
 	case *sql.NullFloat64:
-		value := src.(*sql.NullFloat64)
-		if value.Valid {
-			return value.Float64, nil
+		src_value := src.(*sql.NullFloat64)
+		if src_value.Valid {
+			value = src_value.Float64
 		}
-		return nil, nil
 	case *NullTime:
-		value := src.(*NullTime)
-		if value.Valid {
-			return value.Time, nil
+		src_value := src.(*NullTime)
+		if src_value.Valid {
+			value = src_value.Time
 		}
-		return nil, nil
 	case *NullBytes:
-		value := src.(*NullBytes)
-		if value.Valid {
-			return value.Bytes, nil
+		src_value := src.(*NullBytes)
+		if src_value.Valid {
+			value = src_value.Bytes
 		}
-		return nil, nil
 	case *string:
-		return *src.(*string), nil
+		value = *src.(*string)
 	case *int:
-		return *src.(*int), nil
+		value = *src.(*int)
 	case *int64:
-		return *src.(*int64), nil
+		value = *src.(*int64)
 	case *float64:
-		return *src.(*float64), nil
+		value = *src.(*float64)
 	case *bool:
-		return *src.(*bool), nil
+		value = *src.(*bool)
 	case *time.Time:
-		return *src.(*time.Time), nil
+		value = *src.(*time.Time)
 	case *[]byte:
-		return *src.(*[]byte), nil
+		value = *src.(*[]byte)
 	case nil:
-		return nil, nil
+		value = nil
+	default:
+		err = errors.New(fmt.Sprintf("db: unknow src value type (%v)", reflect.TypeOf(src)))
 	}
-	return nil, errors.New(fmt.Sprintf("db: unknow src type (%v)", reflect.TypeOf(src)))
+	return
 }
 
 func parseStruct(scans []interface{}, object interface{}) error {

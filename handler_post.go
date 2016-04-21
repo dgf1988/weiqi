@@ -9,21 +9,21 @@ import (
 
 //post list
 func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
-
-	posts, err := dbListPostByPage(40, 0)
+	var posts = [40]Post{}
+	n, err := Posts.ListBy(&posts, 0)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
-	cutPostTextMany(posts)
+	cutPostTextMany(posts[:n])
 
-	err = postListHtml().Execute(w, postListData(u, posts), defFuncMap)
+	err = postListHtml().Execute(w, postListData(u, posts[:n]), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -38,7 +38,7 @@ func postListHtml() *Html {
 	)
 }
 
-func postListData(u *U, posts []P) *Data {
+func postListData(u *User, posts []Post) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = "文章列表"
@@ -50,7 +50,7 @@ func postListData(u *U, posts []P) *Data {
 
 //post id
 func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
@@ -61,8 +61,8 @@ func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		h.NotFound(w, "找不到文章")
 		return
 	}
-
-	p, err := dbGetPost(id)
+	var p = new(Post)
+	err := Posts.GetBy(id, p)
 	if err == sql.ErrNoRows {
 		h.NotFound(w, "找不到文章")
 	} else if err != nil {
@@ -84,7 +84,7 @@ func postIdHtml() *Html {
 	)
 }
 
-func postIdData(u *U, post *P) *Data {
+func postIdData(u *User, post *Post) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = post.Title
@@ -109,13 +109,13 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 	var (
 		action    = "/user/post/add"
 		msg       = r.FormValue("editormsg")
-		post   *P = nil
+		post   = new(Post)
 		err    error
 	)
 
 	if len(args) > 0 {
 		action = "/user/post/update"
-		post, err = dbGetPost(atoi64(args[0]))
+		err := Posts.GetBy(args[0], post)
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
 			h.NotFound(w, "找不到文章")
 			return
@@ -124,18 +124,15 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 			h.ServerError(w, err)
 			return
 		}
-	} else {
-		post = new(P)
 	}
 
-	posts, err := dbListPostByPage(40, 0)
-	if err == sql.ErrNoRows {
-		posts = make([]P, 0)
-	} else if err != nil {
+	var posts = [40]Post{}
+	n, err := Posts.ListBy(&posts, 0)
+	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
-	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts), defFuncMap)
+	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts[:n]), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -151,7 +148,7 @@ func userPostEditHtml() *Html {
 	)
 }
 
-func userPostEditData(u *U, action, msg string, post *P, posts []P) *Data {
+func userPostEditData(u *User, action, msg string, post *Post, posts []Post) *Data {
 	data := defData()
 	data.User = u
 	data.Header.Navs = userNavItems()
@@ -169,13 +166,13 @@ func handlerUserPostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
-	var p P
+	var p Post
 	r.ParseForm()
 	p.Title = r.FormValue("title")
 	p.Text = r.FormValue("text")
 
 	if len(p.Title) > 0 && len(p.Text) > 0 {
-		_, err := dbAddPost(&p)
+		_, err := Posts.Add(nil, p.Title, p.Text)
 		if err == nil {
 			h.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
@@ -196,7 +193,7 @@ func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string
 	}
 
 	r.ParseForm()
-	var p P
+	var p Post
 	p.Id = atoi64(r.FormValue("id"))
 	p.Title = r.FormValue("title")
 	p.Text = r.FormValue("text")
@@ -208,7 +205,7 @@ func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
-	err := dbUpdatePost(&p)
+	_, err := Posts.Set(p.Id, nil, p.Title, p.Text, p.Pstatus)
 	if err != nil {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return
@@ -231,7 +228,7 @@ func handlerUserPostDelete(w http.ResponseWriter, r *http.Request, args []string
 		h.NotFound(w, "找不找文章")
 		return
 	}
-	err := dbDeletePost(id)
+	_, err := Posts.Del(id)
 	if err != nil {
 		h.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
 	} else {

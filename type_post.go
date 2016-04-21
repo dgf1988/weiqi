@@ -1,14 +1,13 @@
 package weiqi
 
 import (
-	"database/sql"
 	"fmt"
 	"html/template"
 	"strings"
 	"time"
 )
 
-type P struct {
+type Post struct {
 	Id      int64
 	Title   string
 	Text    string
@@ -17,64 +16,8 @@ type P struct {
 	Pupdate time.Time
 }
 
-func (p *P) HtmlText() template.HTML {
+func (p *Post) HtmlText() template.HTML {
 	return template.HTML(p.Text)
-}
-
-func dbListPostByPage(pagesize int, page int) ([]P, error) {
-	rows, err := databases.Query("select * from post order by id desc limit ?,?", pagesize*page, pagesize)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	ps := make([]P, 0)
-	for rows.Next() {
-		var p P
-		err := rows.Scan(&p.Id, &p.Title, &p.Text, &p.Pstatus, &p.Pposted, &p.Pupdate)
-		if err != nil {
-			return ps, err
-		} else {
-			ps = append(ps, p)
-		}
-	}
-	if err = rows.Err(); err != nil {
-		return ps, err
-	}
-	return ps, nil
-}
-
-func dbAddPost(p *P) (int64, error) {
-	res, err := databases.Exec("insert into post (ptitle, ptext) values (?,?)", p.Title, p.Text)
-	if err != nil {
-		return 0, err
-	}
-	return res.LastInsertId()
-}
-
-func dbGetPost(id int64) (*P, error) {
-	row := databases.QueryRow("select * from post where id = ?  limit 1", id)
-	var p P
-	err := row.Scan(&p.Id, &p.Title, &p.Text, &p.Pstatus, &p.Pposted, &p.Pupdate)
-	if err != nil {
-		return nil, err
-	}
-	return &p, nil
-}
-
-func dbUpdatePost(p *P) error {
-	_, err := databases.Exec("update post set ptitle = ?, ptext = ? where id = ? limit 1", p.Title, p.Text, p.Id)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-	return nil
-}
-
-func dbDeletePost(id int64) error {
-	_, err := databases.Exec("delete from post where id = ? limit 1", id)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-	return nil
 }
 
 const Post_CutText_Length = 140
@@ -90,7 +33,7 @@ func cutPostText(text string, length int) string {
 	return string(s[:length])
 }
 
-func cutPostTextMany(ps []P) {
+func cutPostTextMany(ps []Post) {
 	if ps == nil {
 		return
 	}

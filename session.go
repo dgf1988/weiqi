@@ -21,11 +21,11 @@ var (
 
 type Session struct {
 	Id      string
-	User    *U
+	User    *User
 	Timeout time.Time
 }
 
-func newSession(u *U) *Session {
+func newSession(u *User) *Session {
 	return &Session{
 		sessionId(),
 		u,
@@ -81,9 +81,8 @@ func clearSessionMany() int {
 	defer SessionLocker.Unlock()
 
 	keys := make([]string, 0)
-	now := time.Now().UnixNano()
 	for k, s := range Sessions {
-		if s.Timeout.UnixNano() < now {
+		if s.Timeout.Before(time.Now()) {
 			keys = append(keys, k)
 		}
 	}
@@ -110,7 +109,7 @@ func (s *Session) Add(w http.ResponseWriter) {
 
 //快速获取会话中的用户。
 //并不是什么时候都需要持有一个会话对象。
-func getSessionUser(r *http.Request) *U {
+func getSessionUser(r *http.Request) *User {
 	s := getSession(r)
 	if s != nil {
 		return s.User

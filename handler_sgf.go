@@ -9,49 +9,45 @@ import (
 
 //sgf list
 func sgfListHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
-	sgfs, err := dbListSgf(40, 0)
-	if err == sql.ErrNoRows {
-		h.NotFound(w, "sgf list not found")
-		return
-	}
+	err := renderSgfList(w, u)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
-	if err = sgfListHtml().Execute(w, sgfListData(u, sgfs), defFuncMap); err != nil {
-		h.ServerError(w, err)
-		return
+}
+
+func renderSgfList(w http.ResponseWriter, u *User) error {
+	var sgfs = [40]Sgf{}
+	n, err := Sgfs.ListBy(&sgfs, 0)
+	if err != nil {
+		return err
 	}
-}
 
-func sgfListHtml() *Html {
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlFooter(),
-		newHtmlContent("sgflist"),
-	)
-}
-
-func sgfListData(u *U, sgfs []Sgf) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = "棋谱列表"
 	data.Head.Desc = "围棋棋谱列表"
 	data.Head.Keywords = []string{"围棋", "棋谱", "比赛"}
-	data.Content["Sgfs"] = sgfs
-	return data
+	data.Content["Sgfs"] = sgfs[:n]
+
+	return defHtmlLayout().Append(
+		defHtmlHead(),
+		defHtmlHeader(),
+		defHtmlFooter(),
+		newHtmlContent("sgflist"),
+	).Execute(w, data, defFuncMap)
 }
+
 
 //sgf id
 func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
@@ -62,7 +58,8 @@ func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		h.NotFound(w, p[0]+" sgf not found")
 		return
 	}
-	sgf, err := dbGetSgf(id)
+	var sgf = new(Sgf)
+	err := Sgfs.GetBy(id, sgf)
 	if err == sql.ErrNoRows {
 		h.NotFound(w, p[0]+" sgf not found")
 		return
@@ -86,7 +83,7 @@ func sgfIdHtml() *Html {
 	)
 }
 
-func sgfIdData(u *U, sgf *Sgf) *Data {
+func sgfIdData(u *User, sgf *Sgf) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = fmt.Sprintf("%s - %s VS %s", sgf.Event, sgf.Black, sgf.White)
@@ -108,13 +105,13 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var (
 		action      = "/user/sgf/add"
 		msg         = r.FormValue("editormsg")
-		sgf    *Sgf = nil
+		sgf    = new(Sgf)
 		err    error
 	)
 
 	if len(p) > 0 {
 		action = "/user/sgf/update"
-		sgf, err = dbGetSgf(atoi64(p[0]))
+		err := Sgfs.GetBy(p[0], sgf)
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
 			h.NotFound(w, "sgf not found")
 			return
@@ -123,17 +120,16 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 			h.ServerError(w, err)
 			return
 		}
-	} else {
-		sgf = new(Sgf)
 	}
 
-	sgfs, err := dbListSgf(40, 0)
+	var sgfs = [40]Sgf{}
+	n, err := Sgfs.ListBy(&sgfs, 0)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
-	if err = userSgfEditHtml().Execute(w, userSgfEditData(s.User, action, msg, sgf, sgfs), defFuncMap); err != nil {
+	if err = userSgfEditHtml().Execute(w, userSgfEditData(s.User, action, msg, sgf, sgfs[:n]), defFuncMap); err != nil {
 		h.ServerError(w, err)
 		return
 	}
@@ -148,7 +144,7 @@ func userSgfEditHtml() *Html {
 	)
 }
 
-func userSgfEditData(u *U, action, msg string, sgf *Sgf, sgfs []Sgf) *Data {
+func userSgfEditData(u *User, action, msg string, sgf *Sgf, sgfs []Sgf) *Data {
 	data := defData()
 	data.User = u
 	data.Header.Navs = userNavItems()
@@ -185,7 +181,7 @@ func handlerUserSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	id, err := dbAddSgf(s)
+	id, err := Sgfs.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps, s.Update)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -210,7 +206,7 @@ func handlerUserSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	_, err := dbUpdateSgf(s)
+	_, err := Sgfs.Set(s.Id, nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -232,7 +228,7 @@ func handlerUserSgfDelete(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	_, err := dbDelSgf(id)
+	_, err := Sgfs.Del(id)
 	if err != nil {
 		h.ServerError(w, err)
 		return

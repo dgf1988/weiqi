@@ -9,19 +9,20 @@ import (
 
 //player list
 func playerListHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
 	}
 
-	ps, err := dbListPlayer(40, 0)
+	var ps [40]Player
+	n, err := Players.ListBy(&ps, 0)
 	if err != nil && err != sql.ErrNoRows {
 		h.ServerError(w, err)
 		return
 	}
 
-	err = playerListHtml().Execute(w, playerListData(u, ps), defFuncMap)
+	err = playerListHtml().Execute(w, playerListData(u, ps[:n]), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -37,7 +38,7 @@ func playerListHtml() *Html {
 	)
 }
 
-func playerListData(u *U, playerlist []Player) *Data {
+func playerListData(u *User, playerlist []Player) *Data {
 	data := defData()
 	data.Head.Title = "棋手列表"
 	data.Head.Desc = "围棋棋手列表"
@@ -49,7 +50,7 @@ func playerListData(u *U, playerlist []Player) *Data {
 
 //player id
 func playerIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
@@ -61,7 +62,8 @@ func playerIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
-	p, err := dbGetPlayer(id)
+	var p = new(Player)
+	err := Players.GetBy(id, p)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -83,7 +85,7 @@ func playerIdHtml() *Html {
 	)
 }
 
-func playerIdData(u *U, player *Player) *Data {
+func playerIdData(u *User, player *Player) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = player.Name
@@ -95,7 +97,7 @@ func playerIdData(u *U, player *Player) *Data {
 
 //plaeyr edit
 func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *U
+	var u *User
 	s := getSession(r)
 	if s != nil {
 		u = s.User
@@ -107,13 +109,13 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	var (
 		action         = "/user/player/add"
 		msg            = r.FormValue("editormsg")
-		player *Player = nil
+		player  = new(Player)
 		err    error
 	)
 
 	if len(p) > 0 {
 		action = "/user/player/update"
-		player, err = dbGetPlayer(atoi64(p[0]))
+		err = Players.GetBy(atoi64(p[0]), player)
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
 			h.NotFound(w, "找不到棋手")
 			return
@@ -122,17 +124,16 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 			h.ServerError(w, err)
 			return
 		}
-	} else {
-		player = new(Player)
 	}
 
-	ps, err := dbListPlayer(40, 0)
+	var ps [40]Player
+	n, err := Players.ListBy(&ps, 0)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
-	err = userPlayerEditHtml().Execute(w, userPlayerEditData(u, action, msg, player, ps), defFuncMap)
+	err = userPlayerEditHtml().Execute(w, userPlayerEditData(u, action, msg, player, ps[:n]), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -148,7 +149,7 @@ func userPlayerEditHtml() *Html {
 	)
 }
 
-func userPlayerEditData(u *U, action, msg string, player *Player, players []Player) *Data {
+func userPlayerEditData(u *User, action, msg string, player *Player, players []Player) *Data {
 	data := defData()
 	data.User = u
 	data.Header.Navs = userNavItems()
@@ -162,7 +163,7 @@ func getPlayerFromRequest(r *http.Request) *Player {
 	var p Player
 	p.Id = atoi64(r.FormValue("id"))
 	p.Name = r.FormValue("name")
-	p.Sex = parseSex(r.FormValue("sex"))
+	p.Sex = chineseToSex(r.FormValue("sex"))
 	p.Country = r.FormValue("country")
 	p.Rank = r.FormValue("rank")
 	p.Birth, _ = ParseDate(r.FormValue("birth"))
@@ -192,7 +193,7 @@ func handlerUserPlayerAdd(w http.ResponseWriter, r *http.Request, args []string)
 		return
 	}
 
-	id, err := dbAddPlayer(p)
+	id, err := Players.Add(nil, p.Name, p.Sex, p.Country, p.Rank, p.Birth)
 	if err == ErrPrimaryKey {
 		h.NotFound(w, "找不到棋手")
 		return
@@ -217,7 +218,7 @@ func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
 		h.NotFound(w, "找不到棋手")
 		return
 	}
-	_, err := dbDeletePlayer(id)
+	_, err := Players.Del(id)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -240,7 +241,7 @@ func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []stri
 		return
 	}
 
-	_, err := dbUpdatePlayer(p)
+	_, err := Players.Set(p.Id, nil, p.Name, p.Sex, p.Country, p.Rank, p.Birth)
 	if err == ErrPrimaryKey {
 		h.NotFound(w, "找不到棋手")
 		return

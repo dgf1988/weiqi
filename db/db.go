@@ -8,12 +8,8 @@ import (
 
 var (
 	db     *sql.DB
-	config map[string]interface{}
+	config map[string]interface{} = make(map[string]interface{})
 )
-
-func init() {
-	config = make(map[string]interface{})
-}
 
 //Config 配置数据库
 func Config(driver, user, password, database string, host string, port int, charset string) {
@@ -29,7 +25,7 @@ func Config(driver, user, password, database string, host string, port int, char
 //Connect 连接数据库
 func Connect() error {
 	var err error
-	db, err = getConnect(config["driver"].(string),
+	db, err = dbGetConnect(config["driver"].(string),
 		config["user"].(string), config["password"].(string),
 		config["host"].(string), config["port"].(int),
 		config["database"].(string), config["charset"].(string))
@@ -39,7 +35,7 @@ func Connect() error {
 	return nil
 }
 
-func getConnect(driver, user, password, host string, port int, database, charset string) (*sql.DB, error) {
+func dbGetConnect(driver, user, password, host string, port int, database, charset string) (*sql.DB, error) {
 	conn, err := sql.Open(driver, fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true",
 		user, password, host, port, database, charset))
 	if err != nil {
@@ -52,20 +48,20 @@ func getConnect(driver, user, password, host string, port int, database, charset
 	return conn, nil
 }
 
-func query(sql string, args ...interface{}) (*sql.Rows, error) {
+func dbQuery(sql string, args ...interface{}) (*sql.Rows, error) {
 	return db.Query(sql, args...)
 }
 
-func queryRow(sql string, args ...interface{}) *sql.Row {
+func dbQueryRow(sql string, args ...interface{}) *sql.Row {
 	return db.QueryRow(sql, args...)
 }
 
-func exec(sql string, args ...interface{}) (sql.Result, error) {
+func dbExec(sql string, args ...interface{}) (sql.Result, error) {
 	return db.Exec(sql, args...)
 }
 
-func count(table string) int64 {
-	row := queryRow("select count(*) as num from " + table)
+func dbCount(table string) int64 {
+	row := dbQueryRow("select count(*) as num from " + table)
 	var n int64
 	err := row.Scan(&n)
 	if err != nil {
@@ -74,8 +70,8 @@ func count(table string) int64 {
 	return n
 }
 
-func countBy(table string, where string, args ...interface{}) int64 {
-	row := queryRow(fmt.Sprintf("select count(*) as num from %s where %s", table, where), args...)
+func dbCountBy(table string, where string, args ...interface{}) int64 {
+	row := dbQueryRow(fmt.Sprintf("select count(*) as num from %s where %s", table, where), args...)
 	var n int64
 	err := row.Scan(&n)
 	if err != nil {

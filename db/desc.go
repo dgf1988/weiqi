@@ -166,7 +166,7 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 	ORDER BY
 		 ORDINAL_POSITION
 	`
-	rows, err := query(sqlquery, databasename, tablename)
+	rows, err := dbQuery(sqlquery, databasename, tablename)
 	if err != nil {
 		return nil, err
 	}

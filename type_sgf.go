@@ -1,7 +1,6 @@
 package weiqi
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -27,7 +26,6 @@ ENGINE=InnoDB
 */
 
 const (
-	SGF_TABLENAME = "sgf"
 	SGF_CHARSET   = "utf-8"
 )
 
@@ -65,82 +63,4 @@ func (this Sgf) ToSgf() string {
 	items_sgf = append(items_sgf, this.Steps)
 	items_sgf = append(items_sgf, ")")
 	return strings.Join(items_sgf, "")
-}
-
-func dbCountSgf(where string) (int64, error) {
-	if where == "" {
-		return dbCount(SGF_TABLENAME)
-	}
-	return dbCountBy(SGF_TABLENAME, where)
-}
-
-func dbAddSgf(s *Sgf) (int64, error) {
-	insertsql := "insert into sgf (stime, splace, sevent, sblack, swhite, srule, sresult, ssteps) values (?,?,?,?,?,?,?,?)"
-	res, err := databases.Exec(insertsql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
-	if err != nil {
-		return -1, err
-	}
-	return res.LastInsertId()
-}
-
-func dbUpdateSgf(s *Sgf) (int64, error) {
-	if s.Id <= 0 {
-		return -1, ErrPrimaryKey
-	}
-	updatesql := "update sgf set stime=?, splace=?, sevent=?, sblack=?, swhite=?, srule=?, sresult=?, ssteps=? where id = ?  limit 1"
-	res, err := databases.Exec(updatesql, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps, s.Id)
-	if err != nil {
-		return -1, err
-	}
-	return res.RowsAffected()
-}
-
-func dbGetSgf(id int64) (*Sgf, error) {
-	getsql := "select * from sgf where id = ? limit 1"
-	row := databases.QueryRow(getsql, id)
-	var s Sgf
-	err := row.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
-	if err != nil {
-		return nil, err
-	}
-	return &s, nil
-}
-
-func dbDelSgf(id int64) (int64, error) {
-	res, err := databases.Exec("delete from sgf where id = ? limit 1", id)
-	if err != nil {
-		return -1, err
-	}
-	return res.RowsAffected()
-}
-
-func dbFindSgf(where string) (*Sgf, error) {
-	if where == "" {
-		return nil, sql.ErrNoRows
-	}
-	var s Sgf
-	row := databases.QueryRow("select * from sgf where " + where + " limit 1")
-	err := row.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
-	if err != nil {
-		return nil, err
-	}
-	return &s, nil
-}
-
-func dbListSgf(take, skip int) ([]Sgf, error) {
-	rows, err := databases.Query("select * from sgf  order by sgf.id desc limit ?,?", skip, take)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	sgflist := make([]Sgf, 0)
-	for rows.Next() {
-		var s Sgf
-		err := rows.Scan(&s.Id, &s.Time, &s.Place, &s.Event, &s.Black, &s.White, &s.Rule, &s.Result, &s.Steps, &s.Update)
-		if err != nil {
-			return sgflist, err
-		}
-		sgflist = append(sgflist, s)
-	}
-	return sgflist, rows.Err()
 }
