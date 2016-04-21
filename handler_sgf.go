@@ -87,7 +87,7 @@ func sgfIdData(u *User, sgf *Sgf) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = fmt.Sprintf("%s - %s VS %s", sgf.Event, sgf.Black, sgf.White)
-	data.Head.Desc = "围棋棋谱之" + sgf.Event
+	data.Head.Desc = "围棋棋谱"
 	data.Head.Keywords = []string{"围棋", "棋谱", "比赛", sgf.Black, sgf.White}
 	data.Content["Sgf"] = sgf
 	return data
