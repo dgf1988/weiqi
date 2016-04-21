@@ -98,19 +98,19 @@ func (t Table) GetMap(key interface{}) (map[string]interface{}, error) {
 	return t.parseMap(scans)
 }
 
-func (t Table) FindBy(obj interface{}, where string, args ...interface{}) error {
+func (t Table) FindBy(obj interface{}, args ...interface{}) error {
 	scans, err := t.makeStructScans(obj)
 	if err != nil {
 		return err
 	}
-	return t.find(where, args...).Scan(scans...)
+	return t.find(args...).Scan(scans...)
 }
 
 // FindArray 查找数据
-func (t Table) FindSlice(where string, args ...interface{}) ([]interface{}, error) {
+func (t Table) FindSlice(args ...interface{}) ([]interface{}, error) {
 	scans := t.makeNullableScans()
 
-	err := t.find(where, args...).Scan(scans...)
+	err := t.find(args...).Scan(scans...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,10 +118,10 @@ func (t Table) FindSlice(where string, args ...interface{}) ([]interface{}, erro
 }
 
 // FindMap	查找数据，输出字典
-func (t Table) FindMap(where string, args ...interface{}) (map[string]interface{}, error) {
+func (t Table) FindMap(args ...interface{}) (map[string]interface{}, error) {
 	scans := t.makeNullableScans()
 
-	err := t.find(where, args...).Scan(scans...)
+	err := t.find(args...).Scan(scans...)
 	if err != nil {
 		return nil, err
 	}
@@ -329,8 +329,8 @@ func (t Table) Get(key interface{}, scans ...interface{}) error {
 	return t.get(key, scans)
 }
 
-func (t Table) Find(where string, args ...interface{}) *sql.Row {
-	return t.find(where, args...)
+func (t Table) Find(args ...interface{}) *sql.Row {
+	return t.find(args...)
 }
 
 func (t Table) Query(query string, args ...interface{}) (*sql.Rows, error) {

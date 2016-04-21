@@ -50,7 +50,7 @@ func RegisterUser(username, password, password2, email, ip string) (int64, error
 	}
 
 	user := User{}
-	err := Users.FindBy(&user, "uname = ?", username)
+	err := Users.FindBy(&user, nil, username)
 	if err == sql.ErrNoRows {
 		return Users.Add(nil, username, getPasswordMd5(password, ip), email, ip)
 	} else if err != nil {
@@ -70,7 +70,7 @@ func loginUser(username, password string) (*User, error) {
 	}
 
 	var u User
-	err := Users.FindBy(&u, "uname=?", username)
+	err := Users.FindBy(&u, nil, username)
 	if err == sql.ErrNoRows {
 		return nil, ErrUserNotFound
 	}

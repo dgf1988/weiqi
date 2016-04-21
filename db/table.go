@@ -155,8 +155,17 @@ func (t Table) get(key interface{}, scans ...interface{}) error {
 	return dbQueryRow(t.sqlSelectByPrimarykey, key).Scan(scans...)
 }
 
-func (t Table) find(where string, args ...interface{}) *sql.Row {
-	return dbQueryRow(fmt.Sprintf("%s WHERE %s limit 1", t.sqlSelect, where), args...)
+func (t Table) find(args ...interface{}) *sql.Row {
+	wheres := make([]string, 0)
+	values := make([]interface{}, 0)
+	for i := range args {
+		if args[i] == nil {
+			continue
+		}
+		wheres = append(wheres, t.Columns[i].FullName + "=?")
+		values = append(values, args[i])
+	}
+	return dbQueryRow(fmt.Sprintf("%s WHERE %s limit 1", t.sqlSelect, strings.Join(wheres, " AND ")), values...)
 }
 
 func (t Table) query(query string, args ...interface{}) (*sql.Rows, error) {

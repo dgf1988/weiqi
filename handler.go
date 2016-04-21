@@ -13,17 +13,10 @@ func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	err := render_default(w, u)
 	if err != nil {
 		h.ServerError(w, err)
-		return
 	}
 }
 
 func render_default(w http.ResponseWriter, u *User) error {
-	html := defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlContent(),
-		defHtmlFooter(),
-	)
 	data := defData()
 	data.User = u
 
@@ -43,8 +36,15 @@ func render_default(w http.ResponseWriter, u *User) error {
 	if err != nil {
 		return err
 	}
+
 	data.Content["Posts"] = posts
 	data.Content["Sgfs"] = sgfs
 	data.Content["Players"] = players
-	return html.Execute(w, data, defFuncMap)
+
+	return defHtmlLayout().Append(
+		defHtmlHead(),
+		defHtmlHeader(),
+		defHtmlContent(),
+		defHtmlFooter(),
+	).Execute(w, data, defFuncMap)
 }

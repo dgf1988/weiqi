@@ -184,7 +184,7 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 		if err != nil {
 			return nil, err
 		}
-		col.FullName = fmt.Sprint(col.TableName, ".", col.Name)
+		col.FullName = fmt.Sprintf("%s.`%s`" ,col.TableName, col.Name)
 
 		col.Nullable = scannullable == "YES"
 		col.IsAuto = col.Default.V == "CURRENT_TIMESTAMP" || col.Extra == "auto_increment"
