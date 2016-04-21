@@ -88,7 +88,7 @@ func postIdData(u *User, post *Post) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = post.Title
-	data.Head.Desc = "围棋文章之" + post.Title
+	data.Head.Desc = "围棋文章"
 	data.Head.Keywords = []string{"围棋", "文章", "新闻", "资料"}
 	post.Text = parseTextToHtml(post.Text)
 	data.Content["Post"] = post
