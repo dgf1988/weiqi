@@ -15,37 +15,35 @@ func playerListHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		u = s.User
 	}
 
-	var ps [40]Player
-	n, err := Players.ListBy(&ps, 0)
-	if err != nil && err != sql.ErrNoRows {
-		h.ServerError(w, err)
-		return
-	}
-
-	err = playerListHtml().Execute(w, playerListData(u, ps[:n]), defFuncMap)
+	err := playerListRender(w, u)
 	if err != nil {
-		h.ServerError(w, err)
-		return
+		switch err {
+		case sql.ErrNoRows:
+			h.NotFound(w, "找不到棋手")
+		default:
+			h.ServerError(w, err)
+		}
 	}
 }
 
-func playerListHtml() *Html {
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlFooter(),
-		newHtmlContent("playerlist"),
-	)
-}
-
-func playerListData(u *User, playerlist []Player) *Data {
+func playerListRender(w http.ResponseWriter, u *User) error {
+	var playerlist = [40]Player{}
+	n, err := Players.ListBy(&playerlist, 0)
+	if err != nil {
+		return err
+	}
 	data := defData()
 	data.Head.Title = "棋手列表"
 	data.Head.Desc = "围棋棋手列表"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料"}
 	data.User = u
-	data.Content["Players"] = playerlist
-	return data
+	data.Content["Players"] = playerlist[:n]
+	return defHtmlLayout().Append(
+		defHtmlHead(),
+		defHtmlHeader(),
+		defHtmlFooter(),
+		newHtmlContent("playerlist"),
+	).Execute(w, data, defFuncMap)
 }
 
 //player id
@@ -56,43 +54,57 @@ func playerIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		u = s.User
 	}
 
-	id := atoi64(args[0])
-	if id <= 0 {
-		h.NotFound(w, "找不到棋手")
-		return
-	}
-
-	var p = new(Player)
-	err := Players.GetBy(id, p)
+	err := playerIdRender(w, u, args[0])
 	if err != nil {
-		h.ServerError(w, err)
-		return
-	}
-
-	err = playerIdHtml().Execute(w, playerIdData(u, p), defFuncMap)
-	if err != nil {
-		h.ServerError(w, err)
-		return
+		switch err {
+		case sql.ErrNoRows:
+			h.NotFound(w, "棋手不存在")
+		default:
+			h.ServerError(w, err)
+		}
 	}
 }
 
-func playerIdHtml() *Html {
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlFooter(),
-		newHtmlContent("playerid"),
-	)
-}
+func playerIdRender(w http.ResponseWriter, u *User, id interface{}) error {
+	var player = new(Player)
+	var text = new(Text)
 
-func playerIdData(u *User, player *Player) *Data {
+	err := Players.GetBy(id, player)
+	if err != nil {
+		return err
+	}
+	var textid int64
+	err = PlayerText.Find(nil, player.Id).Scan(nil, nil, &textid)
+	if err == sql.ErrNoRows {
+		goto DATA
+	}
+	if err != nil {
+		return err
+	}
+	err = Texts.GetBy(textid, text)
+	if err == sql.ErrNoRows {
+		goto DATA
+	}
+	if err != nil {
+		return err
+	}
+
+	DATA:
 	data := defData()
 	data.User = u
 	data.Head.Title = player.Name
 	data.Head.Desc = "围棋棋手"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料", player.Name}
 	data.Content["Player"] = player
-	return data
+	text.Text = parseTextToHtml(text.Text)
+	data.Content["Text"] = text
+	return defHtmlLayout().Append(
+		defHtmlHead(),
+		defHtmlHeader(),
+		defHtmlFooter(),
+		newHtmlContent("playerid"),
+	).Execute(w, data, defFuncMap)
+
 }
 
 //plaeyr edit
@@ -110,53 +122,68 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		action = "/user/player/add"
 		msg    = r.FormValue("editormsg")
 		player = new(Player)
+		playerlist = [40]Player{}
+		text = new(Text)
 		err    error
 	)
-
 	if len(p) > 0 {
 		action = "/user/player/update"
-		err = Players.GetBy(atoi64(p[0]), player)
-		if err == sql.ErrNoRows || err == ErrPrimaryKey {
-			h.NotFound(w, "找不到棋手")
+		err = Players.GetBy(p[0], player)
+		if err == sql.ErrNoRows {
+			h.NotFound(w, "棋手不存在")
 			return
 		}
 		if err != nil {
 			h.ServerError(w, err)
 			return
 		}
+
+		var textid int64
+		err = PlayerText.Find(nil, player.Id).Scan(nil, nil, &textid)
+		if err == sql.ErrNoRows {
+			goto LISTPLAYERS
+		}
+		if err != nil {
+			h.ServerError(w, err)
+			return
+		}
+
+		err = Texts.GetBy(textid, text)
+		if err != nil && err != sql.ErrNoRows {
+			h.ServerError(w, err)
+			return
+		}
 	}
 
-	var ps [40]Player
-	n, err := Players.ListBy(&ps, 0)
+	LISTPLAYERS:
+	n, err := Players.ListBy(&playerlist, 0)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
-	err = userPlayerEditHtml().Execute(w, userPlayerEditData(u, action, msg, player, ps[:n]), defFuncMap)
+	err = userPlayerEditRender(w, u, action, msg, player, text, playerlist[:n])
 	if err != nil {
 		h.ServerError(w, err)
-		return
 	}
 }
 
-func userPlayerEditHtml() *Html {
+func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, player *Player, text *Text, playerlist []Player) error {
+	var editor = Editor{action, msg}
+	data := defData()
+	data.User = u
+	data.Header.Navs = userNavItems()
+	data.Content["Editor"] = editor
+	data.Content["Player"] = player
+	data.Content["Text"] = text
+	data.Content["Players"] = playerlist
+
 	return defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("userplayeredit"),
-	)
-}
-
-func userPlayerEditData(u *User, action, msg string, player *Player, players []Player) *Data {
-	data := defData()
-	data.User = u
-	data.Header.Navs = userNavItems()
-	data.Content["Editor"] = Editor{action, msg}
-	data.Content["Player"] = player
-	data.Content["Players"] = players
-	return data
+	).Execute(w, data, defFuncMap)
 }
 
 func getPlayerFromRequest(r *http.Request) *Player {
@@ -187,22 +214,30 @@ func handlerUserPlayerAdd(w http.ResponseWriter, r *http.Request, args []string)
 
 	r.ParseForm()
 	p := getPlayerFromRequest(r)
+	text := r.FormValue("text")
+
 
 	if checkPlayerFieldInput(p) != nil {
 		h.SeeOther(w, r, "/user/player/?editormsg=输入不能为空")
 		return
 	}
 
-	id, err := Players.Add(nil, p.Name, p.Sex, p.Country, p.Rank, p.Birth)
-	if err == ErrPrimaryKey {
-		h.NotFound(w, "找不到棋手")
-		return
-	}
+	playerid, err := Players.Add(nil, p.Name, p.Sex, p.Country, p.Rank, p.Birth)
 	if err != nil {
 		h.ServerError(w, err)
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=提交成功", id))
+	textid, err := Texts.Add(nil, text)
+	if err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	_, err = PlayerText.Add(nil, playerid, textid)
+	if err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=提交成功", playerid))
 }
 
 func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
@@ -218,7 +253,22 @@ func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
 		h.NotFound(w, "找不到棋手")
 		return
 	}
-	_, err := Players.Del(id)
+	var textid int64
+	var pt_id int64
+	err := PlayerText.Find(nil, id).Scan(&pt_id, nil, &textid)
+	if err == sql.ErrNoRows {
+		goto DELETEPLAYER
+	}
+	if err != nil  {
+		h.ServerError(w, err)
+		return
+
+	}
+	Texts.Del(textid)
+	PlayerText.Del(pt_id)
+
+	DELETEPLAYER:
+	_, err = Players.Del(id)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -235,6 +285,7 @@ func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []stri
 
 	r.ParseForm()
 	p := getPlayerFromRequest(r)
+	text := r.FormValue("text")
 
 	if checkPlayerFieldInput(p) != nil {
 		h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=输入不能为空", p.Id))
@@ -242,13 +293,33 @@ func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []stri
 	}
 
 	_, err := Players.Set(p.Id, nil, p.Name, p.Sex, p.Country, p.Rank, p.Birth)
-	if err == ErrPrimaryKey {
-		h.NotFound(w, "找不到棋手")
+	if err != nil {
+		h.ServerError(w, err)
 		return
+	}
+	var textid int64
+	err = PlayerText.Find(nil, p.Id).Scan(nil, nil, &textid)
+	if err == sql.ErrNoRows {
+		textid, err = Texts.Add(nil, text)
+		if err != nil {
+			h.ServerError(w, err)
+			return
+		}
+		_, err = PlayerText.Add(nil, p.Id, textid)
+		if err != nil {
+			h.ServerError(w, err)
+			return
+		}
 	}
 	if err != nil {
 		h.ServerError(w, err)
 		return
+	} else {
+		_, err = Texts.Set(textid, nil, text)
+		if err != nil {
+			h.ServerError(w, err)
+			return
+		}
 	}
 	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=修改成功", p.Id))
 }

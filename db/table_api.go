@@ -16,7 +16,7 @@ func GetTable(databasename, tablename string) (*Table, error) {
 	//设置表名
 	t.DatabaseName = databasename
 	t.Name = tablename
-	t.fullName = fmt.Sprint(t.DatabaseName, ".", t.Name)
+	t.Fullname = fmt.Sprint(t.DatabaseName, ".", t.Name)
 
 	//保存字段
 	t.Columns = cols
@@ -36,13 +36,13 @@ func GetTable(databasename, tablename string) (*Table, error) {
 	strKeys := strings.Join(keys, ", ")
 
 	//保存预备SQL语句。
-	t.sqlInsert = fmt.Sprintf("INSERT INTO %s", t.fullName)
-	t.sqlDeleteByPrimarykey = fmt.Sprintf("DELETE FROM %s WHERE %s = ? LIMIT 1", t.fullName, t.Primarykey)
+	t.sqlInsert = fmt.Sprintf("INSERT INTO %s", t.Fullname)
+	t.sqlDeleteByPrimarykey = fmt.Sprintf("DELETE FROM %s WHERE %s = ? LIMIT 1", t.Fullname, t.Primarykey)
 
-	t.sqlUpdate = fmt.Sprintf("UPDATE %s", t.fullName)
+	t.sqlUpdate = fmt.Sprintf("UPDATE %s", t.Fullname)
 
-	t.sqlSelect = fmt.Sprintf("SELECT %s FROM %s ", strKeys, t.fullName)
-	t.sqlSelectByPrimarykey = fmt.Sprintf("SELECT %s FROM %s WHERE %s = ? limit 1", strKeys, t.fullName, t.Primarykey)
+	t.sqlSelect = fmt.Sprintf("SELECT %s FROM %s ", strKeys, t.Fullname)
+	t.sqlSelectByPrimarykey = fmt.Sprintf("SELECT %s FROM %s WHERE %s = ? limit 1", strKeys, t.Fullname, t.Primarykey)
 
 	t.sqlOrderByPrimarykey = fmt.Sprintf("ORDER BY %s", t.Primarykey)
 	return t, nil
@@ -329,7 +329,7 @@ func (t Table) Get(key interface{}, scans ...interface{}) error {
 	return t.get(key, scans)
 }
 
-func (t Table) Find(args ...interface{}) *sql.Row {
+func (t Table) Find(args ...interface{}) *Row {
 	return t.find(args...)
 }
 
@@ -347,10 +347,10 @@ func (t Table) UpdateMany(datas map[string]interface{}, query string, args ...in
 
 // Count 统计
 func (t Table) Count() int64 {
-	return dbCount(t.fullName)
+	return dbCount(t.Fullname)
 }
 
 // Count 条件统计
 func (t Table) CountBy(where string, args ...interface{}) int64 {
-	return dbCountBy(t.fullName, where, args...)
+	return dbCountBy(t.Fullname, where, args...)
 }

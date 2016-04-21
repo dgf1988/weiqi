@@ -10,19 +10,19 @@ import (
 // Table 保存表信息
 type Table struct {
 	//数据库名
-	DatabaseName string
+	DatabaseName          string
 	//表名
-	Name string
+	Name                  string
 	//字段结构信息
-	Columns []Column
+	Columns               []Column
 	//字段数量
-	ColumnNumbers int
+	ColumnNumbers         int
 	//主键
-	Primarykey string
+	Primarykey            string
 	//唯一键
-	UniqueIndex []string
+	UniqueIndex           []string
 
-	fullName string
+	Fullname              string
 	// 预备Sql执行语句
 	sqlInsert             string
 	sqlDeleteByPrimarykey string
@@ -30,9 +30,9 @@ type Table struct {
 	sqlSelect             string
 	sqlSelectByPrimarykey string
 
-	sqlUpdate string
+	sqlUpdate             string
 
-	sqlOrderByPrimarykey string
+	sqlOrderByPrimarykey  string
 }
 
 func newTable() *Table {
@@ -155,7 +155,7 @@ func (t Table) get(key interface{}, scans ...interface{}) error {
 	return dbQueryRow(t.sqlSelectByPrimarykey, key).Scan(scans...)
 }
 
-func (t Table) find(args ...interface{}) *sql.Row {
+func (t *Table) find(args ...interface{}) *Row {
 	wheres := make([]string, 0)
 	values := make([]interface{}, 0)
 	for i := range args {
@@ -165,7 +165,11 @@ func (t Table) find(args ...interface{}) *sql.Row {
 		wheres = append(wheres, t.Columns[i].FullName+"=?")
 		values = append(values, args[i])
 	}
-	return dbQueryRow(fmt.Sprintf("%s WHERE %s limit 1", t.sqlSelect, strings.Join(wheres, " AND ")), values...)
+	return &Row{
+		t,
+		fmt.Sprintf("WHERE %s limit 1", strings.Join(wheres, " AND ")),
+		values,
+	}
 }
 
 func (t Table) query(query string, args ...interface{}) (*sql.Rows, error) {

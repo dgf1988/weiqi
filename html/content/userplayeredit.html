@@ -1,4 +1,14 @@
 {{define "content"}}
+<style>
+    #content > #player-editor form table td .input {
+        width: 400px;
+    }
+    #content > #player-editor form table td .text {
+        height: 400px;
+        resize: none;
+
+    }
+</style>
 <div id="content">
     {{with .Content}}
     <section id="player-editor">
@@ -20,6 +30,9 @@
                 </tr>
                 <tr>
                     <th>生日</th><td><label><input name="birth" type="text" class="input" value='{{.Player.Birth.Format "2006-01-02"}}'></label></td>
+                </tr>
+                <tr>
+                    <th>介绍</th><td><label><textarea name="text" class="input text">{{.Text.Text}}</textarea></label></td>
                 </tr>
                 <tr>
                     <th></th>

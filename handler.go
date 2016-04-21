@@ -10,13 +10,13 @@ func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
 	//从会话中获取用户信息，如果没登录，则为nil。
 	u := getSessionUser(r)
 
-	err := render_default(w, u)
+	err := renderDefault(w, u)
 	if err != nil {
 		h.ServerError(w, err)
 	}
 }
 
-func render_default(w http.ResponseWriter, u *User) error {
+func renderDefault(w http.ResponseWriter, u *User) error {
 	data := defData()
 	data.User = u
 

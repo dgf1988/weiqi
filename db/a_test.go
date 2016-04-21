@@ -32,8 +32,13 @@ func TestCount(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	} else {
-		var player = new(Player)
-		t.Log(Players.FindBy(player, nil, "古力"))
-		t.Log(player)
+		var name string
+		var birth time.Time
+		err = Players.Find(3).Scan(nil, &name, nil, nil, nil, &birth)
+		if err != nil {
+			t.Error(err.Error())
+		} else {
+			t.Log(name, birth)
+		}
 	}
 }

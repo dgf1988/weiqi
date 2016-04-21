@@ -1,6 +1,11 @@
 {{define "content"}}
 <style>
-
+    #content #player {
+        margin: auto;
+        width: 600px;
+        border: 1px solid #dddddd;
+        padding: 10px 20px;
+    }
 </style>
 <div id="content">
     {{with .Content}}
@@ -22,6 +27,9 @@
                 <th>生日</th><td>{{.Player.Birth.Format "2006-01-02"}}</td>
             </tr>
         </table>
+        <div  class="article-header-text">
+            {{.Text.HtmlText}}
+        </div>
     </article>
     {{end}}
 </div>

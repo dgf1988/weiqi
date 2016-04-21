@@ -2,6 +2,7 @@ package weiqi
 
 import (
 	"time"
+	"html/template"
 )
 
 /*
@@ -26,6 +27,18 @@ type Player struct {
 	Country string
 	Rank    string
 	Birth   time.Time
+}
+
+type Text struct {
+	Id int64
+	Text string
+	Status int64
+	Create time.Time
+	Update time.Time
+}
+
+func (t Text) HtmlText() template.HTML {
+	return template.HTML(t.Text)
 }
 
 func (p Player) StrSex() string {

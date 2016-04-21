@@ -12,6 +12,9 @@ var (
 	Users         *db.Table
 	Posts         *db.Table
 	Sgfs          *db.Table
+
+	Texts		  *db.Table
+	PlayerText	  *db.Table
 )
 
 func init() {
@@ -34,6 +37,16 @@ func init() {
 		log.Fatal(err.Error())
 	}
 	Sgfs, err = db.GetTable(config.DbName, "sgf")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	Texts, err = db.GetTable(config.DbName, "text")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	PlayerText, err = db.GetTable(config.DbName, "player_text")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

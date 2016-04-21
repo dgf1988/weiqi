@@ -5,3 +5,9 @@
 .article-header-h1 {
     font-size: 24px;
 }
+
+.article-header-text {
+    text-indent: 2em;
+    font-size: 18px;
+    text-align: left;
+}
