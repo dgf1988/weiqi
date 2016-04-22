@@ -8,13 +8,13 @@ import (
 
 var (
 	ErrPrimaryKey = errors.New("primary key error")
-	Players       *db.Table
-	Users         *db.Table
-	Posts         *db.Table
-	Sgfs          *db.Table
+	Players       db.ITable
+	Users         db.ITable
+	Posts         db.ITable
+	Sgfs          db.ITable
 
-	Texts		  *db.Table
-	PlayerText	  *db.Table
+	Texts		  db.ITable
+	PlayerText	  db.ITable
 )
 
 func init() {

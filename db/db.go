@@ -59,23 +59,3 @@ func dbQueryRow(sql string, args ...interface{}) *sql.Row {
 func dbExec(sql string, args ...interface{}) (sql.Result, error) {
 	return db.Exec(sql, args...)
 }
-
-func dbCount(table string) int64 {
-	row := dbQueryRow("select count(*) as num from " + table)
-	var n int64
-	err := row.Scan(&n)
-	if err != nil {
-		return -1
-	}
-	return n
-}
-
-func dbCountBy(table string, where string, args ...interface{}) int64 {
-	row := dbQueryRow(fmt.Sprintf("select count(*) as num from %s where %s", table, where), args...)
-	var n int64
-	err := row.Scan(&n)
-	if err != nil {
-		return -1
-	}
-	return n
-}

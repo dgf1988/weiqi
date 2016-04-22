@@ -69,7 +69,7 @@ func playerIdRender(w http.ResponseWriter, u *User, id interface{}) error {
 	var player = new(Player)
 	var text = new(Text)
 
-	err := Players.GetBy(id, player)
+	err := Players.GetStruct(id, player)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func playerIdRender(w http.ResponseWriter, u *User, id interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = Texts.GetBy(textid, text)
+	err = Texts.GetStruct(textid, text)
 	if err == sql.ErrNoRows {
 		goto DATA
 	}
@@ -128,7 +128,7 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	)
 	if len(p) > 0 {
 		action = "/user/player/update"
-		err = Players.GetBy(p[0], player)
+		err = Players.GetStruct(p[0], player)
 		if err == sql.ErrNoRows {
 			h.NotFound(w, "棋手不存在")
 			return
@@ -148,7 +148,7 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 			return
 		}
 
-		err = Texts.GetBy(textid, text)
+		err = Texts.GetStruct(textid, text)
 		if err != nil && err != sql.ErrNoRows {
 			h.ServerError(w, err)
 			return

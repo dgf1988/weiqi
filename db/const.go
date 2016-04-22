@@ -2,8 +2,11 @@ package db
 
 const (
 	typeInt int64 = iota
+	typeBigint
 
 	typeFloat
+	typeDouble
+	typeDecimal
 
 	typeChar
 	typeVarchar

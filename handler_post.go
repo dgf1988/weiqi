@@ -62,7 +62,7 @@ func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 	var p = new(Post)
-	err := Posts.GetBy(id, p)
+	err := Posts.GetStruct(id, p)
 	if err == sql.ErrNoRows {
 		h.NotFound(w, "找不到文章")
 	} else if err != nil {
@@ -115,7 +115,7 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 
 	if len(args) > 0 {
 		action = "/user/post/update"
-		err := Posts.GetBy(args[0], post)
+		err := Posts.GetStruct(args[0], post)
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
 			h.NotFound(w, "找不到文章")
 			return

@@ -7,29 +7,20 @@ import (
 )
 
 func main() {
-
-	type A struct {
-		Id     int64
-		Key    string
-		Value  string
-		Status int64
-	}
-
-	as := [2]A{}
-
-	fmt.Println(as)
-	a(&as)
-	fmt.Println(as)
+	var src interface{}
+	var dest interface{}
+	fmt.Println(src, reflect.TypeOf(src), "=>", dest, reflect.TypeOf(dest))
+	src = new(int)
+	fmt.Println(src, reflect.TypeOf(src), "=>", dest, reflect.TypeOf(dest))
+	dest = src
+	fmt.Println(src, reflect.TypeOf(src), "=>", dest, reflect.TypeOf(dest))
+	var ptr interface{}
+	ptr = &dest
+	fmt.Println(src, reflect.TypeOf(src), "=>", dest, reflect.TypeOf(dest), ptr, reflect.TypeOf(ptr), *ptr)
 }
 
-func a(as interface{}) {
-	rv_as := reflect.ValueOf(as)
-	rv_as = reflect.Indirect(rv_as)
-	fmt.Println(rv_as.Kind(), rv_as.CanSet(), rv_as.CanAddr())
-	fmt.Println(rv_as.Index(0).Kind(), rv_as.Index(0).CanSet(), rv_as.Index(0).CanAddr())
-	//fmt.Println(rv_as.Index(0).Addr().Kind(), rv_as.Index(0).Addr().CanSet(), rv_as.Index(0).Addr().CanAddr())
-	//fmt.Println(rv_as.Index(0).Addr().Elem().Kind(), rv_as.Index(0).Addr().Elem().CanSet(), rv_as.Index(0).Addr().Elem().CanAddr())
-	//rv_as.Index(0).Addr().Elem().Field(0).Set(reflect.ValueOf(20))
+func copy(dest interface{}, src interface{}) {
+
 }
 
 type Ts struct {

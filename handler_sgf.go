@@ -58,7 +58,7 @@ func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 	var sgf = new(Sgf)
-	err := Sgfs.GetBy(id, sgf)
+	err := Sgfs.GetStruct(id, sgf)
 	if err == sql.ErrNoRows {
 		h.NotFound(w, p[0]+" sgf not found")
 		return
@@ -110,7 +110,7 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	if len(p) > 0 {
 		action = "/user/sgf/update"
-		err := Sgfs.GetBy(p[0], sgf)
+		err := Sgfs.GetStruct(p[0], sgf)
 		if err == sql.ErrNoRows || err == ErrPrimaryKey {
 			h.NotFound(w, "sgf not found")
 			return

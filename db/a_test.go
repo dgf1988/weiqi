@@ -3,11 +3,14 @@ package db
 import (
 	"testing"
 	"time"
+	"log"
 )
 
 //Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2", "utf8")
 
 func TestCount(t *testing.T) {
+	log.SetPrefix("[Debug: db]")
+	log.SetFlags(log.Ltime)
 	//Config("mysql", "root", "guofeng001", "weiqi2", "localhost", 3306, "utf8")
 	Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "weiqi_163", "www.weiqi163.com", 3306, "utf8")
 	err := Connect()
@@ -24,21 +27,28 @@ func TestCount(t *testing.T) {
 		Birth   time.Time
 	}
 
-	Players, err := GetTable("weiqi_2", "player")
+	Posts, err := GetTable("weiqi_2", "post")
 
-	for i := range Players.Columns {
-		t.Log(Players.Columns[i].FullName)
-	}
 	if err != nil {
 		t.Error(err.Error())
 	} else {
-		var name string
-		var birth time.Time
-		err = Players.Find(3).Scan(nil, &name, nil, nil, nil, &birth)
+		log.Println(Posts.ToSql())
+
+		rows, err := Posts.Query("where post.title like ?", "%韩国%")
 		if err != nil {
 			t.Error(err.Error())
 		} else {
-			t.Log(name, birth)
+			defer rows.Close()
+			for rows.Next() {
+				var id int64
+				var title string
+				err = rows.Scan(&id, &title)
+				if err != nil {
+					t.Error(err.Error())
+				} else {
+					t.Log(id, title)
+				}
+			}
 		}
 	}
 }

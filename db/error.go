@@ -4,6 +4,7 @@ import "fmt"
 
 var (
 	ErrNoAffected = NewErrorf("db: no affected row at this execute")
+	ErrNilPtr = NewErrorf("db: destination pointer is nil")
 )
 
 type Error struct {

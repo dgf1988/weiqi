@@ -5,6 +5,6 @@ import (
 )
 
 func TestDbDesc(t *testing.T) {
-	t.Log(Texts.Count())
-	t.Log(PlayerText.Count())
+	t.Log(Texts.Count(""))
+	t.Log(PlayerText.Count(""))
 }

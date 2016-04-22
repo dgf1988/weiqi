@@ -38,6 +38,16 @@ func (t *Type) Scan(v interface{}) error {
 	//int64
 	case "int":
 		t.Value = typeInt
+	case "bigint":
+		t.Value = typeBigint
+
+	//float64
+	case "float":
+		t.Value = typeFloat
+	case "double":
+		t.Value = typeDouble
+	case "decimal":
+		t.Value = typeDecimal
 
 	//string
 	case "char":
@@ -62,9 +72,6 @@ func (t *Type) Scan(v interface{}) error {
 		t.Value = typeTimestamp
 	case "time":
 		t.Value = typeTime
-
-	case "float":
-		t.Value = typeFloat
 
 	//Error
 	default:

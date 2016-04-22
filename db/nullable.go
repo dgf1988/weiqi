@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type Nullable interface {
+	Scan(value interface{}) error
+	Value() (driver.Value, error)
+}
+
 // NullTime 可空时间结构体
 type NullTime struct {
 	Time  time.Time
