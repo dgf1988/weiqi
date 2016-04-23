@@ -8,8 +8,6 @@ import (
 )
 
 const (
-	Time_Format     = "2006年01月02日 15:04"
-	Time_Def_Format = "2006-01-02 15:04:05"
 	GET             = "GET"
 	POST            = "POST"
 )

@@ -3,18 +3,17 @@ package db
 import "fmt"
 
 var (
-	ErrNoAffected = NewErrorf("db: no affected row at this execute")
-	ErrNilPtr = NewErrorf("db: destination pointer is nil")
+	errNilPtr = newErrorf("db: destination pointer is nil")
 )
 
-type Error struct {
+type typeError struct {
 	msg string
 }
 
-func NewErrorf(format string, args ...interface{}) Error {
-	return Error{msg: fmt.Sprintf(format, args...)}
+func newErrorf(format string, args ...interface{}) typeError {
+	return typeError{msg: fmt.Sprintf(format, args...)}
 }
 
-func (e Error) Error() string {
+func (e typeError) Error() string {
 	return e.msg
 }

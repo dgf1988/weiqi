@@ -23,9 +23,22 @@ func sgfListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 }
 
 func renderSgfList(w http.ResponseWriter, u *User) error {
-	var sgfs = [40]Sgf{}
-	n, err := Sgfs.ListBy(&sgfs, 0)
-	if err != nil {
+	var sgfs = make([]Sgf, 0)
+
+	if rows, err := Sgfs.List(40, 0); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err == nil {
+				sgfs = append(sgfs, sgf)
+			} else {
+				return err
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return err
+		}
+	} else {
 		return err
 	}
 
@@ -34,7 +47,7 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 	data.Head.Title = "棋谱列表"
 	data.Head.Desc = "围棋棋谱列表"
 	data.Head.Keywords = []string{"围棋", "棋谱", "比赛"}
-	data.Content["Sgfs"] = sgfs[:n]
+	data.Content["Sgfs"] = sgfs
 
 	return defHtmlLayout().Append(
 		defHtmlHead(),
@@ -46,30 +59,22 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 
 //sgf id
 func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
+	var user *User
+	if s := getSession(r); s != nil {
+		user = s.User
 	}
 
-	id := atoi64(p[0])
-	if id <= 0 {
-		h.NotFound(w, p[0]+" sgf not found")
-		return
-	}
+	var sgfid = atoi(p[0])
 	var sgf = new(Sgf)
-	err := Sgfs.GetStruct(id, sgf)
-	if err == sql.ErrNoRows {
-		h.NotFound(w, p[0]+" sgf not found")
-		return
-	}
-	if err != nil {
+	var err error
+	if err = Sgfs.Get(sgfid).Struct(sgf); err == nil {
+		if err = sgfIdHtml().Execute(w, sgfIdData(user, sgf), defFuncMap); err != nil {
+			h.ServerError(w, err)
+		}
+	} else if err == sql.ErrNoRows {
+		h.NotFound(w, "找不到棋谱")
+	} else {
 		h.ServerError(w, err)
-		return
-	}
-	if err = sgfIdHtml().Execute(w, sgfIdData(u, sgf), defFuncMap); err != nil {
-		h.ServerError(w, err)
-		return
 	}
 }
 
@@ -94,46 +99,50 @@ func sgfIdData(u *User, sgf *Sgf) *Data {
 
 //sgf edit
 func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	s := getSession(r)
+	var s = getSession(r)
 	if s == nil {
 		h.SeeOther(w, r, "/login")
 		return
 	}
 
 	r.ParseForm()
-	var (
-		action = "/user/sgf/add"
-		msg    = r.FormValue("editormsg")
-		sgf    = new(Sgf)
-		err    error
-	)
-
-	if len(p) > 0 {
-		action = "/user/sgf/update"
-		err := Sgfs.GetStruct(p[0], sgf)
-		if err == sql.ErrNoRows || err == ErrPrimaryKey {
-			h.NotFound(w, "sgf not found")
-			return
+	var err error
+	var sgfs = make([]Sgf, 0)
+	if rows, err := Sgfs.List(40, 0); err != nil {
+		h.ServerError(w, err)
+		return
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err == nil {
+				sgfs = append(sgfs, sgf)
+			} else {
+				h.ServerError(w, err)
+				return
+			}
 		}
-		if err != nil {
+	}
+
+	var sgf = new(Sgf)
+	var action = "/user/sgf/add"
+	if len(p) > 0 {
+		sgfid := atoi(p[0])
+		if err = Sgfs.Get(sgfid).Struct(sgf); err == sql.ErrNoRows {
+			h.NotFound(w, "找不到棋手")
+			return
+		} else if err != nil  {
 			h.ServerError(w, err)
 			return
 		}
+		action = "/user/sgf/update"
 	}
 
-	var sgfs = [40]Sgf{}
-	n, err := Sgfs.ListBy(&sgfs, 0)
-	if err != nil {
+	if err = userSgfEditHtml().Execute(w, userSgfEditData(s.User, action, r.FormValue("editormsg"), sgf, sgfs), defFuncMap); err != nil {
 		h.ServerError(w, err)
-		return
 	}
-
-	if err = userSgfEditHtml().Execute(w, userSgfEditData(s.User, action, msg, sgf, sgfs[:n]), defFuncMap); err != nil {
-		h.ServerError(w, err)
-		return
-	}
-
 }
+
 func userSgfEditHtml() *Html {
 	return defHtmlLayout().Append(
 		defHtmlHead(),
@@ -180,7 +189,7 @@ func handlerUserSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	id, err := Sgfs.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps, s.Update)
+	id, err := Sgfs.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -205,7 +214,7 @@ func handlerUserSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	_, err := Sgfs.Set(s.Id, nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	_, err := Sgfs.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		h.ServerError(w, err)
 		return

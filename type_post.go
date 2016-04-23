@@ -8,12 +8,12 @@ import (
 )
 
 type Post struct {
-	Id      int64
-	Title   string
-	Text    string
-	Pstatus int64
-	Pposted time.Time
-	Pupdate time.Time
+	Id     int64
+	Title  string
+	Text   string
+	Status int64
+	Posted time.Time
+	Update time.Time
 }
 
 func (p *Post) HtmlText() template.HTML {

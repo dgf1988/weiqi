@@ -14,16 +14,28 @@ func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	if s != nil {
 		u = s.User
 	}
-	var posts = [40]Post{}
-	n, err := Posts.ListBy(&posts, 0)
-	if err != nil {
+
+	var err error
+	var posts = make([]Post, 0)
+	if rows, err := Posts.List(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var post Post
+			if err = rows.Struct(&post); err != nil {
+				h.ServerError(w, err)
+				return
+			} else {
+				posts = append(posts, post)
+			}
+		}
 	}
 
-	cutPostTextMany(posts[:n])
+	cutPostTextMany(posts)
 
-	err = postListHtml().Execute(w, postListData(u, posts[:n]), defFuncMap)
+	err = postListHtml().Execute(w, postListData(u, posts), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -62,7 +74,7 @@ func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 	var p = new(Post)
-	err := Posts.GetStruct(id, p)
+	err := Posts.Get(id).Struct(p)
 	if err == sql.ErrNoRows {
 		h.NotFound(w, "找不到文章")
 	} else if err != nil {
@@ -115,8 +127,8 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 
 	if len(args) > 0 {
 		action = "/user/post/update"
-		err := Posts.GetStruct(args[0], post)
-		if err == sql.ErrNoRows || err == ErrPrimaryKey {
+		err := Posts.Get(args[0]).Struct(post)
+		if err == sql.ErrNoRows {
 			h.NotFound(w, "找不到文章")
 			return
 		}
@@ -126,13 +138,24 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 		}
 	}
 
-	var posts = [40]Post{}
-	n, err := Posts.ListBy(&posts, 0)
-	if err != nil {
+	var posts = make([]Post, 0)
+	if rows, err := Posts.List(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var post Post
+			if err = rows.Struct(&post); err != nil {
+				h.ServerError(w, err)
+				return
+			} else {
+				posts = append(posts, post)
+			}
+		}
 	}
-	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts[:n]), defFuncMap)
+
+	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -205,7 +228,7 @@ func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
-	_, err := Posts.Set(p.Id, nil, p.Title, p.Text, p.Pstatus)
+	_, err := Posts.Update(p.Id).Values(nil, p.Title, p.Text, p.Status)
 	if err != nil {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return
@@ -232,6 +255,6 @@ func handlerUserPostDelete(w http.ResponseWriter, r *http.Request, args []string
 	if err != nil {
 		h.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
 	} else {
-		h.SeeOther(w, r, "/user/post/")
+		h.SeeOther(w, r, "/user/post/?editormsg=删除成功")
 	}
 }

@@ -33,12 +33,6 @@ func newSession(u *User) *Session {
 	}
 }
 
-func logSession() {
-	for _, s := range Sessions {
-		logDebug(s.Id, s.Timeout, s.User)
-	}
-}
-
 func getSession(r *http.Request) *Session {
 	s := &Session{}
 	c, _ := r.Cookie(SessionCookieName)

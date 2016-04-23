@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"reflect"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -82,14 +82,14 @@ func (rs *typeRows) Scan(dest ...interface{}) error {
 func (rs *typeRows) Struct(dest interface{}) error {
 	rv := reflect.ValueOf(dest)
 	if rv.Kind() != reflect.Ptr {
-		return NewErrorf("db: the object (%s) is not a pointer", rv.Kind())
+		return newErrorf("db: the object (%s) is not a pointer", rv.Kind())
 	}
 	rv = rv.Elem()
 	if rv.Kind() != reflect.Struct {
-		return NewErrorf("db: the pointer (%s) can't point to a struct object", rv.Kind())
+		return newErrorf("db: the pointer (%s) can't point to a struct object", rv.Kind())
 	}
 	if rv.NumField() != rs.t.ColumnNumbers {
-		return NewErrorf("db: the object field numbers (%d) not equals table column numbers (%d)", rv.NumField(), rs.t.ColumnNumbers)
+		return newErrorf("db: the object field numbers (%d) not equals table column numbers (%d)", rv.NumField(), rs.t.ColumnNumbers)
 	}
 	for i := range rs.scans {
 		rs.scans[i] = rv.Field(i).Addr().Interface()
@@ -113,13 +113,13 @@ func (rs *typeRows) Map() (map[string]interface{}, error) {
 	return rs.t.parseMap(rs.scans), nil
 }
 
-type Setter struct {
-	t *typeTable
+type typeSetter struct {
+	t     *typeTable
 	query string
-	args []interface{}
+	args  []interface{}
 }
 
-func (s *Setter) Set(values ...interface{}) (int64, error) {
+func (s *typeSetter) Values(values ...interface{}) (int64, error) {
 	listkey := make([]string, 0)
 	listvalue := make([]interface{}, 0)
 	for i := range values {

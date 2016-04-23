@@ -1,8 +1,8 @@
 package weiqi
 
 import (
-	"time"
 	"html/template"
+	"time"
 )
 
 /*
@@ -29,14 +29,6 @@ type Player struct {
 	Birth   time.Time
 }
 
-type Text struct {
-	Id int64
-	Text string
-	Status int64
-	Create time.Time
-	Update time.Time
-}
-
 func (t Text) HtmlText() template.HTML {
 	return template.HTML(t.Text)
 }
@@ -44,11 +36,6 @@ func (t Text) HtmlText() template.HTML {
 func (p Player) StrSex() string {
 	return sexToChinese(p.Sex)
 }
-
-const (
-	C_SEX_BOY  = 1
-	C_SEX_GIRL = 2
-)
 
 func sexToChinese(sex int64) string {
 	switch sex {

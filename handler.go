@@ -20,21 +20,64 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 	data := defData()
 	data.User = u
 
-	posts, err := Posts.ListMap(40, 0)
-	if err != nil {
+	var (
+		posts   = make([]Post, 0)
+		players = make([]Player, 0)
+		sgfs    = make([]Sgf, 0)
+	)
+
+	if rows, err := Players.List(40, 0); err != nil {
 		return err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var player Player
+			err = rows.Struct(&player)
+			if err != nil {
+				return err
+			} else {
+				players = append(players, player)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return err
+		}
 	}
 
-	//
-	players, err := Players.ListMap(40, 0)
-	if err != nil {
+	if rows, err := Posts.List(40, 0); err != nil {
 		return err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var post Post
+			err = rows.Struct(&post)
+			if err != nil {
+				return err
+			} else {
+				posts = append(posts, post)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return err
+		}
 	}
 
-	//
-	sgfs, err := Sgfs.ListMap(40, 0)
-	if err != nil {
+	if rows, err := Sgfs.List(40, 0); err != nil {
 		return err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			err = rows.Struct(&sgf)
+			if err != nil {
+				return err
+			} else {
+				sgfs = append(sgfs, sgf)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return err
+		}
 	}
 
 	data.Content["Posts"] = posts

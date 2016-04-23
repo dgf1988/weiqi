@@ -21,7 +21,7 @@ type User struct {
 }
 
 func (this User) RegisterTime() string {
-	return this.Register.Format(Time_Def_Format)
+	return this.Register.Format(ConstStdDatetime)
 }
 
 var (
@@ -50,13 +50,13 @@ func RegisterUser(username, password, password2, email, ip string) (int64, error
 	}
 
 	user := User{}
-	err := Users.FindBy(&user, nil, username)
-	if err == sql.ErrNoRows {
-		return Users.Add(nil, username, getPasswordMd5(password, ip), email, ip)
-	} else if err != nil {
-		return -1, err
-	} else {
+	err := Users.Get(nil, username).Struct(&user)
+	if err == nil {
 		return user.Id, ErrUserExisted
+	} else if err == sql.ErrNoRows {
+		return Users.Add(nil, username, getPasswordMd5(password, ip), email, ip)
+	} else {
+		return -1, err
 	}
 }
 
@@ -69,16 +69,16 @@ func loginUser(username, password string) (*User, error) {
 		return nil, ErrUserPasswordTooShort
 	}
 
-	var u User
-	err := Users.FindBy(&u, nil, username)
+	var user User
+	err := Users.Get(nil, username).Struct(&user)
 	if err == sql.ErrNoRows {
 		return nil, ErrUserNotFound
 	}
 	if err != nil {
 		return nil, err
 	}
-	if u.Password != getPasswordMd5(password, u.Ip) {
+	if user.Password != getPasswordMd5(password, user.Ip) {
 		return nil, ErrUserPassword
 	}
-	return &u, nil
+	return &user, nil
 }

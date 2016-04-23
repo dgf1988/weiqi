@@ -6,7 +6,7 @@ import (
 )
 
 func parseValue(src interface{}) interface{} {
-	if s, ok := src.(Nullable); ok {
+	if s, ok := src.(iNullable); ok {
 		src, _ = s.Value()
 	}
 	if src == nil {
@@ -16,16 +16,16 @@ func parseValue(src interface{}) interface{} {
 }
 
 func copyValue(dest interface{}, src interface{}) error {
-	if s, ok := src.(Nullable); ok {
+	if s, ok := src.(iNullable); ok {
 		src, _ = s.Value()
 	}
 	switch s := src.(type) {
 	//int64
-	case *int64 :
+	case *int64:
 		switch d := dest.(type) {
 		case *int64:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
@@ -34,16 +34,16 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *int64:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
 		}
 	case *float64:
 		switch d := dest.(type) {
-		case *float64 :
+		case *float64:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
@@ -52,25 +52,25 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *float64:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
 		}
-	case *bool :
+	case *bool:
 		switch d := dest.(type) {
-		case *bool :
+		case *bool:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
 		}
-	case bool :
+	case bool:
 		switch d := dest.(type) {
-		case *bool :
+		case *bool:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
@@ -79,7 +79,7 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *string:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
@@ -88,25 +88,25 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *string:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
 		}
-	case *[]byte :
+	case *[]byte:
 		switch d := dest.(type) {
-		case *[]byte :
+		case *[]byte:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
 		}
-	case []byte :
+	case []byte:
 		switch d := dest.(type) {
 		case *[]byte:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
@@ -115,7 +115,7 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *time.Time:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = *s
 			return nil
@@ -124,11 +124,11 @@ func copyValue(dest interface{}, src interface{}) error {
 		switch d := dest.(type) {
 		case *time.Time:
 			if d == nil {
-				return ErrNilPtr
+				return errNilPtr
 			}
 			*d = s
 			return nil
 		}
 	}
-	return NewErrorf("db: type error %s => %s", reflect.TypeOf(src), reflect.TypeOf(dest))
+	return newErrorf("db: type error %s => %s", reflect.TypeOf(src), reflect.TypeOf(dest))
 }

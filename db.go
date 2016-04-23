@@ -1,26 +1,24 @@
 package weiqi
 
 import (
-	"errors"
 	"github.com/dgf1988/weiqi/db"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
 
 var (
-	ErrPrimaryKey = errors.New("primary key error")
 	Players       db.ITable
 	Users         db.ITable
 	Posts         db.ITable
 	Sgfs          db.ITable
 
-	Texts		  db.ITable
-	PlayerText	  db.ITable
+	Texts      	  db.ITable
+	TextPlayer    db.ITable
 )
 
 func init() {
 	var err error
-	db.Config(config.DbDriver, config.DbUsername, config.DbPassword, config.DbName, config.DbHost, config.DbPort, config.DbCharset)
-	err = db.Connect()
+	err = db.Connect(config.DbDriver, config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -46,7 +44,7 @@ func init() {
 		log.Fatal(err.Error())
 	}
 
-	PlayerText, err = db.GetTable(config.DbName, "player_text")
+	TextPlayer, err = db.GetTable(config.DbName, "text_player")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

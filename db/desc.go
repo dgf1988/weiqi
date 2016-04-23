@@ -8,13 +8,13 @@ import (
 )
 
 // Type 保存数据库里的类型信息
-type Type struct {
+type columnType struct {
 	Name   string
 	Value  int64
 	Length int
 }
 
-func (t Type) ToSql() string {
+func (t columnType) ToSql() string {
 	switch t.Name {
 	case "text", "mediumtext", "date", "datetime", "timestamp":
 		return t.Name
@@ -22,7 +22,7 @@ func (t Type) ToSql() string {
 	return fmt.Sprintf("%s(%d)", t.Name, t.Length)
 }
 
-func (t *Type) Scan(v interface{}) error {
+func (t *columnType) Scan(v interface{}) error {
 	typebuf, ok := v.([]byte)
 	if !ok {
 		typebuf, ok = v.([]uint8)
@@ -81,13 +81,13 @@ func (t *Type) Scan(v interface{}) error {
 }
 
 // Default 保存数据库里的默认值信息
-type Default struct {
+type columnDefault struct {
 	Null             bool
 	V                string
 	CurrentTimestamp bool
 }
 
-func (d Default) ToSql() string {
+func (d columnDefault) ToSql() string {
 	if !d.Null {
 		if d.CurrentTimestamp {
 			return "DEFAULT CURRENT_TIMESTAMP"
@@ -99,7 +99,7 @@ func (d Default) ToSql() string {
 	}
 }
 
-func (d *Default) Scan(v interface{}) error {
+func (d *columnDefault) Scan(v interface{}) error {
 	if v == nil {
 		d.Null, d.V, d.CurrentTimestamp = true, "", false
 	} else {
@@ -112,7 +112,7 @@ func (d *Default) Scan(v interface{}) error {
 	return nil
 }
 
-func (d Default) Value() (driver.Value, error) {
+func (d columnDefault) Value() (driver.Value, error) {
 	if d.Null {
 		return d.V, nil
 	} else {
@@ -121,7 +121,7 @@ func (d Default) Value() (driver.Value, error) {
 }
 
 // Column 保存行结构信息
-type Column struct {
+type typeColumn struct {
 	DatabaseName string
 	TableName    string
 	Name         string
@@ -129,11 +129,11 @@ type Column struct {
 
 	Order int
 
-	Default Default
+	Default columnDefault
 
 	Nullable bool
 
-	Type Type
+	Type columnType
 
 	Key     string
 	Extra   string
@@ -143,7 +143,7 @@ type Column struct {
 }
 
 // ToSql 输出行结构
-func (c Column) ToSql() string {
+func (c typeColumn) ToSql() string {
 	stritems := make([]string, 0)
 	stritems = append(stritems, fmt.Sprintf("`%s`", c.Name), c.Type.ToSql())
 	if c.Nullable {
@@ -159,7 +159,7 @@ func (c Column) ToSql() string {
 }
 
 // GetColumns 取某表的行结构
-func GetColumns(databasename, tablename string) ([]Column, error) {
+func getColumns(databasename, tablename string) ([]typeColumn, error) {
 	sqlquery := `
 	SELECT
 		TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION,
@@ -178,10 +178,10 @@ func GetColumns(databasename, tablename string) ([]Column, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	cols := make([]Column, 0)
+	cols := make([]typeColumn, 0)
 	for rows.Next() {
 		var (
-			col          Column
+			col          typeColumn
 			scannullable string
 		)
 		err = rows.Scan(&col.DatabaseName, &col.TableName, &col.Name, &col.Order,

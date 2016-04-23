@@ -1,12 +1,7 @@
 package weiqi
 
 import (
-	"errors"
 	"fmt"
-)
-
-var (
-	ErrInputEmpty = errors.New("输入为空")
 )
 
 type WeiqiError struct {

@@ -34,7 +34,7 @@
             {{range .Posts}}
             <tr>
                 <td><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></td>
-                <td>{{.Pstatus}}</td><td>{{.Pupdate.Format "01-02 15:04"}}</td><td><button onclick="location.href='/user/post/{{.Id}}'">编辑</button><form action="/user/post/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form></td>
+                <td>{{.Status}}</td><td>{{.Update.Format "01-02 15:04"}}</td><td><button onclick="location.href='/user/post/{{.Id}}'">编辑</button><form action="/user/post/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form></td>
             </tr>
             {{end}}
             </tbody>

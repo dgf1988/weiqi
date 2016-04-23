@@ -5,7 +5,7 @@
         <h6>最新文章</h6>
         <ol>
             {{range .Posts}}
-            <li><time>{{.posted.Format "2006-01-02"}}</time><a href="/post/{{.id}}" title="{{.id}}">{{.title}}</a></li>
+            <li><time>{{.Posted.Format "2006-01-02"}}</time><a href="/post/{{.Id}}" title="{{.Id}}">{{.Title}}</a></li>
             {{end}}
         </ol>
     </div>
@@ -14,7 +14,7 @@
             <h6>热门棋手</h6>
             <ol>
                 {{range .Players}}
-                <li><a href="/player/{{.id}}">{{.name}}</a></li>
+                <li><a href="/player/{{.Id}}">{{.Name}}</a></li>
                 {{end}}
             </ol>
         </section>
@@ -22,7 +22,7 @@
             <h6>热门棋谱</h6>
             <ol>
                 {{range .Sgfs}}
-                <li><a href="/sgf/{{.id}}" title="{{.black}} VS {{.white}}">{{.event}}</a></li>
+                <li><a href="/sgf/{{.Id}}" title="{{.Black}} VS {{.White}}">{{.Event}}</a></li>
                 {{end}}
             </ol>
         </section>
