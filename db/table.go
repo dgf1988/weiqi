@@ -155,7 +155,7 @@ func (t *typeTable) Find(args ...interface{}) (IRows, error) {
 }
 
 func (t *typeTable) List(take, skip int) (IRows, error) {
-	rows, err := dbQuery(fmt.Sprintf("%s limit ?, ?", t.sqlSelect), skip, take)
+	rows, err := dbQuery(fmt.Sprintf("%s ORDER BY %s DESC limit ?, ?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
 	}
