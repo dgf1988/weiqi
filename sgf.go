@@ -26,7 +26,7 @@ ENGINE=InnoDB
 */
 
 const (
-	SGF_CHARSET = "utf-8"
+	c_SgfCharset = "utf-8"
 )
 
 type Sgf struct {
@@ -48,7 +48,7 @@ func (this Sgf) ToSgf() string {
 	}
 	items_sgf := make([]string, 0)
 	items_sgf = append(items_sgf, "(;")
-	items_sgf = append(items_sgf, fmt.Sprintf("CA[%s]EV[%s]", SGF_CHARSET, this.Event))
+	items_sgf = append(items_sgf, fmt.Sprintf("CA[%s]EV[%s]", c_SgfCharset, this.Event))
 	if this.Time.IsZero() {
 		items_sgf = append(items_sgf, "DT[0000-00-00]")
 	} else {

@@ -20,11 +20,11 @@ func (p *Post) HtmlText() template.HTML {
 	return template.HTML(p.Text)
 }
 
-const Post_CutText_Length = 140
+const c_CutTextLength = 140
 
 func cutPostText(text string, length int) string {
 	if length <= 0 {
-		length = Post_CutText_Length
+		length = c_CutTextLength
 	}
 	s := []rune(text)
 	if len(s) < length {

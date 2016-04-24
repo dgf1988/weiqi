@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SessionCookieName = "WEIQI"
+	c_SessionCookieName = "WEIQI"
 )
 
 var (
@@ -35,7 +35,7 @@ func newSession(u *User) *Session {
 
 func getSession(r *http.Request) *Session {
 	s := &Session{}
-	c, _ := r.Cookie(SessionCookieName)
+	c, _ := r.Cookie(c_SessionCookieName)
 	if c == nil {
 		return nil
 	}
@@ -57,7 +57,7 @@ func clearSession(w http.ResponseWriter, r *http.Request) {
 	sessionLocker.Lock()
 	defer sessionLocker.Unlock()
 
-	c, _ := r.Cookie(SessionCookieName)
+	c, _ := r.Cookie(c_SessionCookieName)
 	if c != nil {
 		c.MaxAge = -1
 		c.Expires = time.Now().AddDate(0, -1, 0)
@@ -97,7 +97,7 @@ func (s *Session) Add(w http.ResponseWriter) {
 	sessionLocker.Lock()
 	defer sessionLocker.Unlock()
 
-	http.SetCookie(w, &http.Cookie{Name: SessionCookieName, Value: s.Id, Expires: s.Timeout})
+	http.SetCookie(w, &http.Cookie{Name: c_SessionCookieName, Value: s.Id, Expires: s.Timeout})
 	sessionStor[s.Id] = s
 }
 

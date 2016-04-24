@@ -7,14 +7,14 @@ import (
 )
 
 const (
-	HtmlBasePath    = "html/"
-	HtmlSuffix      = "html"
-	HtmlDefClsname  = "layout"
-	HtmlDefFilename = "default"
+	c_HtmlBasePath = "html/"
+	c_HtmlSuffix = "html"
+	c_HtmlDefClsname = "layout"
+	c_HtmlDefFilename = "default"
 )
 
 func getHtmlFullname(clsname, filename string) string {
-	return fmt.Sprintf("%s%s%s/%s.%s", config.BasePath, HtmlBasePath, clsname, filename, HtmlSuffix)
+	return fmt.Sprintf("%s%s%s/%s.%s", config.BasePath, c_HtmlBasePath, clsname, filename, c_HtmlSuffix)
 }
 
 type Html struct {
@@ -60,10 +60,10 @@ func (h *Html) Execute(out io.Writer, datamap interface{}, funcmap template.Func
 //
 func newHtml(clsname, filename string) *Html {
 	if clsname == "" {
-		clsname = HtmlDefClsname
+		clsname = c_HtmlDefClsname
 	}
 	if filename == "" {
-		filename = HtmlDefFilename
+		filename = c_HtmlDefFilename
 	}
 	return &Html{clsname, filename, make([]*Html, 0)}
 }

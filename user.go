@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	MinLenUsername = 5
-	MinLenPassword = 6
+	c_MinLenUsername = 5
+	c_MinLenPassword = 6
 )
 
 type User struct {
@@ -39,10 +39,10 @@ func encryptPassword(password, ip string) string {
 
 //注册用户
 func registerUser(username, password, password2, email, ip string) (int64, error) {
-	if len(username) < MinLenUsername {
+	if len(username) < c_MinLenUsername {
 		return -1, ErrUserNameTooShort
 	}
-	if len(password) < MinLenPassword {
+	if len(password) < c_MinLenPassword {
 		return -1, ErrUserPasswordTooShort
 	}
 	if password != password2 {
@@ -62,10 +62,10 @@ func registerUser(username, password, password2, email, ip string) (int64, error
 
 //验证用户
 func loginUser(username, password string) (*User, error) {
-	if len(username) < MinLenUsername {
+	if len(username) < c_MinLenUsername {
 		return nil, ErrUserNameTooShort
 	}
-	if len(password) < MinLenPassword {
+	if len(password) < c_MinLenPassword {
 		return nil, ErrUserPasswordTooShort
 	}
 
