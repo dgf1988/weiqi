@@ -9,11 +9,6 @@ import (
 
 //post list
 func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	}
 
 	var err error
 	var posts = make([]Post, 0)
@@ -35,7 +30,7 @@ func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	cutPostTextMany(posts)
 
-	err = postListHtml().Execute(w, postListData(u, posts), defFuncMap)
+	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -62,11 +57,6 @@ func postListData(u *User, posts []Post) *Data {
 
 //post id
 func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	}
 
 	id := atoi64(args[0])
 	if id <= 0 {
@@ -80,7 +70,7 @@ func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	} else if err != nil {
 		h.ServerError(w, err)
 	} else {
-		err = postIdHtml().Execute(w, postIdData(u, p), defFuncMap)
+		err = postIdHtml().Execute(w, postIdData(getSessionUser(r), p), defFuncMap)
 		if err != nil {
 			h.ServerError(w, err)
 		}
@@ -111,8 +101,8 @@ func postIdData(u *User, post *Post) *Data {
 func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
-	s := getSession(r)
-	if s == nil {
+	var user *User
+	if user = getSessionUser(r); user == nil {
 		h.SeeOther(w, r, "/login")
 		return
 	}
@@ -155,7 +145,7 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 		}
 	}
 
-	err = userPostEditHtml().Execute(w, userPostEditData(s.User, action, msg, post, posts), defFuncMap)
+	err = userPostEditHtml().Execute(w, userPostEditData(user, action, msg, post, posts), defFuncMap)
 	if err != nil {
 		h.ServerError(w, err)
 		return

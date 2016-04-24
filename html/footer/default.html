@@ -7,7 +7,7 @@
         <li><strong>Email</strong>:<span><a href="mailto:{{.AuthorEmail}}" title="发邮件">{{.AuthorEmail}}</a></span></li>
         <li><strong>ICP</strong>:<span><a href="http://www.miitbeian.gov.cn/" title="{{.ICP}}" target="_blank">{{.ICP}}</a></span></li>
         {{end}}
-        {{if HasLogin .User }}<li><strong>管理</strong>:<span><a href="/user" title="后台管理">{{.User.Name}}</a></span><span><a href="/logout" title="退出">退出</a></span></li>
+        {{if .User }}<li><strong>管理</strong>:<span><a href="/user" title="后台管理">{{.User.Name}}</a></span><span><a href="/logout" title="退出">退出</a></span></li>
         {{else}}<li><strong>管理</strong>:<span><a href="/login" title="用户登录">登录</a></span></li>
         {{end}}
     </ul>

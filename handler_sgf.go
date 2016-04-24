@@ -8,14 +8,9 @@ import (
 )
 
 //sgf list
-func sgfListHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	}
+func handleListSgf(w http.ResponseWriter, r *http.Request, p []string) {
 
-	err := renderSgfList(w, u)
+	err := renderSgfList(w, getSessionUser(r))
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -58,49 +53,67 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 }
 
 //sgf id
-func sgfIdHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 	var user *User
 	if s := getSession(r); s != nil {
 		user = s.User
 	}
 
-	var sgfid = atoi(p[0])
 	var sgf = new(Sgf)
 	var err error
-	if err = Sgfs.Get(sgfid).Struct(sgf); err == nil {
-		if err = sgfIdHtml().Execute(w, sgfIdData(user, sgf), defFuncMap); err != nil {
-			h.ServerError(w, err)
-		}
-	} else if err == sql.ErrNoRows {
+	if err = Sgfs.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
 		h.NotFound(w, "找不到棋谱")
-	} else {
+		return
+	} else if err != nil {
 		h.ServerError(w, err)
+		return
 	}
-}
 
-func sgfIdHtml() *Html {
-	return defHtmlLayout().Append(
+	var black = new(Player)
+	var white = new(Player)
+	if err = Players.Get(nil, sgf.Black).Struct(black); err == sql.ErrNoRows {
+		black = nil
+	} else if err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	if err = Players.Get(nil, sgf.White).Struct(white); err == sql.ErrNoRows {
+		white = nil
+	} else if err != nil {
+		h.ServerError(w, err)
+		return
+	}
+
+
+	err = defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("sgfid"),
-	)
+	).Execute(w, sgfIdData(user, sgf, black, white), nil)
+	if err != nil {
+		h.ServerError(w, err)
+	}
 }
 
-func sgfIdData(u *User, sgf *Sgf) *Data {
+func sgfIdData(u *User, sgf *Sgf, black, white *Player) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = fmt.Sprintf("%s - %s VS %s", sgf.Event, sgf.Black, sgf.White)
 	data.Head.Desc = "围棋棋谱"
 	data.Head.Keywords = []string{"围棋", "棋谱", "比赛", sgf.Black, sgf.White}
 	data.Content["Sgf"] = sgf
+	data.Content["Black"] = black
+	data.Content["White"] = white
 	return data
 }
 
 //sgf edit
-func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var s = getSession(r)
-	if s == nil {
+func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
+	var user *User
+	if s := getSession(r); s != nil {
+		user = s.User
+	} else {
 		h.SeeOther(w, r, "/login")
 		return
 	}
@@ -125,10 +138,9 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 
 	var sgf = new(Sgf)
-	var action = "/user/sgf/add"
+	var action string
 	if len(p) > 0 {
-		sgfid := atoi(p[0])
-		if err = Sgfs.Get(sgfid).Struct(sgf); err == sql.ErrNoRows {
+		if err = Sgfs.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
 			h.NotFound(w, "找不到棋手")
 			return
 		} else if err != nil {
@@ -136,9 +148,11 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 			return
 		}
 		action = "/user/sgf/update"
+	} else {
+		action = "/user/sgf/add"
 	}
 
-	if err = userSgfEditHtml().Execute(w, userSgfEditData(s.User, action, r.FormValue("editormsg"), sgf, sgfs), defFuncMap); err != nil {
+	if err = userSgfEditHtml().Execute(w, userSgfEditData(user, action, r.FormValue("editormsg"), sgf, sgfs), defFuncMap); err != nil {
 		h.ServerError(w, err)
 	}
 }

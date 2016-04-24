@@ -8,14 +8,9 @@ import (
 )
 
 //player list
-func playerListHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	}
+func handleListPlayer(w http.ResponseWriter, r *http.Request, args []string) {
 
-	err := playerListRender(w, u)
+	err := playerListRender(w, getSessionUser(r))
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -61,14 +56,9 @@ func playerListRender(w http.ResponseWriter, u *User) error {
 }
 
 //player id
-func playerIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	}
+func handlePlayerId(w http.ResponseWriter, r *http.Request, args []string) {
 
-	switch err := renderPlayerid(w, u, args[0]); err {
+	switch err := renderPlayerid(w, getSessionUser(r), args[0]); err {
 	case nil:
 	case sql.ErrNoRows:
 		h.NotFound(w, "棋手不存在")
@@ -114,14 +104,13 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 
 //plaeyr edit
 func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
-	var u *User
-	s := getSession(r)
-	if s != nil {
-		u = s.User
-	} else {
+	var user *User
+	if user = getSessionUser(r); user == nil {
 		h.SeeOther(w, r, "/login")
 		return
 	}
+
+
 	r.ParseForm()
 	var (
 		action = "/user/player/add"

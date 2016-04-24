@@ -79,8 +79,8 @@
             <table>
                 <tr><th>日期:</th><td><time>{{.Sgf.Time.Format "2006-01-02"}}</time></td></tr>
                 <tr><th>地点:</th><td>{{.Sgf.Place}}</td></tr>
-                <tr><th>黑棋:</th><td>{{.Sgf.Black}}</td></tr>
-                <tr><th>白棋:</th><td>{{.Sgf.White}}</td></tr>
+                <tr><th>黑棋:</th><td>{{if .Black}}<a href="/player/{{.Black.Id}}" title="{{.Black.Name}}" target="_blank">{{.Black.Name}}</a>{{else}}{{.Sgf.Black}}{{end}}</td></tr>
+                <tr><th>白棋:</th><td>{{if .White}}<a href="/player/{{.White.Id}}" title="{{.White.Name}}" target="_blank">{{.White.Name}}</a>{{else}}{{.Sgf.White}}{{end}}</td></tr>
                 <tr><th>赛事:</th><td>{{.Sgf.Event}}</td></tr>
                 <tr><th>规则:</th><td>{{.Sgf.Rule}}</td></tr>
                 <tr><th>结果:</th><td>{{.Sgf.Result}}</td></tr>
