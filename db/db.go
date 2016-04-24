@@ -11,12 +11,12 @@ func Connect(drivername, username, password, hostname string, port int, database
 }
 
 //值设置器
-type ISet interface {
+type Set interface {
 	Values(values ...interface{}) (int64, error)
 }
 
 //单行读取
-type IRow interface {
+type Row interface {
 	Scan(dest ...interface{}) error
 	Struct(object interface{}) error
 
@@ -25,8 +25,8 @@ type IRow interface {
 }
 
 //多行读取
-type IRows interface {
-	IRow
+type Rows interface {
+	Row
 	Close() error
 	Err() error
 	Next() bool
@@ -34,7 +34,7 @@ type IRows interface {
 }
 
 //表操作接口
-type ITable interface {
+type Table interface {
 
 	//输出表结构
 	ToSql() string
@@ -46,15 +46,15 @@ type ITable interface {
 	Del(args ...interface{}) (int64, error)
 
 	//更新记录
-	Update(args ...interface{}) ISet
+	Update(args ...interface{}) Set
 
 	//获取单条记录
-	Get(args ...interface{}) IRow
+	Get(args ...interface{}) Row
 
 	//查询多条记录
-	Find(args ...interface{}) (IRows, error)
-	List(take, skip int) (IRows, error)
-	Query(query string, args ...interface{}) (IRows, error)
+	Find(args ...interface{}) (Rows, error)
+	List(take, skip int) (Rows, error)
+	Query(query string, args ...interface{}) (Rows, error)
 
 	//统计
 	Count(query string, args ...interface{}) (int64, error)

@@ -8,7 +8,7 @@ import (
 )
 
 //player list
-func handleListPlayer(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
 
 	err := playerListRender(w, getSessionUser(r))
 	if err != nil {
@@ -52,7 +52,7 @@ func playerListRender(w http.ResponseWriter, u *User) error {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("playerlist"),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 }
 
 //player id
@@ -98,12 +98,12 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("playerid"),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 
 }
 
 //plaeyr edit
-func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var user *User
 	if user = getSessionUser(r); user == nil {
 		h.SeeOther(w, r, "/login")
@@ -162,7 +162,7 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	err := userPlayerEditRender(w, u, action, msg, player, text, players)
+	err := userPlayerEditRender(w, user, action, msg, player, text, players)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -183,7 +183,7 @@ func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, pl
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("userplayeredit"),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 }
 
 func getPlayerFromRequest(r *http.Request) *Player {
@@ -198,7 +198,7 @@ func getPlayerFromRequest(r *http.Request) *Player {
 }
 
 //player post
-func handlerUserPlayerAdd(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePlayerAdd(w http.ResponseWriter, r *http.Request, args []string) {
 
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")
@@ -236,7 +236,7 @@ func handlerUserPlayerAdd(w http.ResponseWriter, r *http.Request, args []string)
 	h.SeeOther(w, r, fmt.Sprintf("/user/player/%d?editormsg=提交成功", playerid))
 }
 
-func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
+func handlePlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
 	var err error
 
 	if getSession(r) == nil {
@@ -282,7 +282,7 @@ func handlerUserPlayerDel(w http.ResponseWriter, r *http.Request, p []string) {
 	h.SeeOther(w, r, "/user/player/?editormsg=删除成功")
 }
 
-func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePlayerUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 	var err error
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")

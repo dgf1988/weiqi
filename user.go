@@ -25,20 +25,20 @@ func (this User) RegisterTime() string {
 }
 
 var (
-	ErrUserExisted            = NewWeiqiError("用户已经存在")
-	ErrUserNotFound           = NewWeiqiError("用户不存在")
-	ErrUserNameTooShort       = NewWeiqiError("用户名太短")
-	ErrUserPassword           = NewWeiqiError("密码错误")
-	ErrUserPasswordTooShort   = NewWeiqiError("密码太短")
-	ErrUserPasswordNotTheSame = NewWeiqiError("密码不一致")
+	ErrUserExisted            = newWeiqiError("用户已经存在")
+	ErrUserNotFound           = newWeiqiError("用户不存在")
+	ErrUserNameTooShort       = newWeiqiError("用户名太短")
+	ErrUserPassword           = newWeiqiError("密码错误")
+	ErrUserPasswordTooShort   = newWeiqiError("密码太短")
+	ErrUserPasswordNotTheSame = newWeiqiError("密码不一致")
 )
 
-func getPasswordMd5(password, ip string) string {
+func encryptPassword(password, ip string) string {
 	return getMd5(password + ip)
 }
 
 //注册用户
-func RegisterUser(username, password, password2, email, ip string) (int64, error) {
+func registerUser(username, password, password2, email, ip string) (int64, error) {
 	if len(username) < MinLenUsername {
 		return -1, ErrUserNameTooShort
 	}
@@ -54,14 +54,14 @@ func RegisterUser(username, password, password2, email, ip string) (int64, error
 	if err == nil {
 		return user.Id, ErrUserExisted
 	} else if err == sql.ErrNoRows {
-		return Users.Add(nil, username, getPasswordMd5(password, ip), email, ip)
+		return Users.Add(nil, username, encryptPassword(password, ip), email, ip)
 	} else {
 		return -1, err
 	}
 }
 
 //验证用户
-func LoginUser(username, password string) (*User, error) {
+func loginUser(username, password string) (*User, error) {
 	if len(username) < MinLenUsername {
 		return nil, ErrUserNameTooShort
 	}
@@ -77,7 +77,7 @@ func LoginUser(username, password string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if user.Password != getPasswordMd5(password, user.Ip) {
+	if user.Password != encryptPassword(password, user.Ip) {
 		return nil, ErrUserPassword
 	}
 	return &user, nil

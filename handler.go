@@ -25,7 +25,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		sgfs    = make([]Sgf, 0)
 	)
 
-	if rows, err := Players.List(40, 0); err != nil {
+	if rows, err := Db.Player.List(40, 0); err != nil {
 		return err
 	} else {
 		defer rows.Close()
@@ -40,7 +40,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		}
 	}
 
-	if rows, err := Posts.List(40, 0); err != nil {
+	if rows, err := Db.Post.List(40, 0); err != nil {
 		return err
 	} else {
 		defer rows.Close()
@@ -55,7 +55,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		}
 	}
 
-	if rows, err := Sgfs.List(40, 0); err != nil {
+	if rows, err := Db.Sgf.List(40, 0); err != nil {
 		return err
 	} else {
 		defer rows.Close()
@@ -79,5 +79,5 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		defHtmlHeader(),
 		defHtmlContent(),
 		defHtmlFooter(),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 }

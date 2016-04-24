@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GetTable(databasename, tablename string) (ITable, error) {
+func GetTable(databasename, tablename string) (Table, error) {
 	cols, err := getColumns(databasename, tablename)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (t typeTable) Del(args ...interface{}) (int64, error) {
 	return res.RowsAffected()
 }
 
-func (t *typeTable) Update(args ...interface{}) ISet {
+func (t *typeTable) Update(args ...interface{}) Set {
 	listwhere := make([]string, 0)
 	listparam := make([]interface{}, 0)
 	for i := range args {
@@ -117,7 +117,7 @@ func (t *typeTable) Update(args ...interface{}) ISet {
 	}
 }
 
-func (t *typeTable) Get(args ...interface{}) IRow {
+func (t *typeTable) Get(args ...interface{}) Row {
 	listwhere := make([]string, 0)
 	listparam := make([]interface{}, 0)
 	for i := range args {
@@ -134,7 +134,7 @@ func (t *typeTable) Get(args ...interface{}) IRow {
 	}
 }
 
-func (t *typeTable) Find(args ...interface{}) (IRows, error) {
+func (t *typeTable) Find(args ...interface{}) (Rows, error) {
 	listwhere := make([]string, 0)
 	listparam := make([]interface{}, 0)
 	for i := range args {
@@ -154,7 +154,7 @@ func (t *typeTable) Find(args ...interface{}) (IRows, error) {
 	}, nil
 }
 
-func (t *typeTable) List(take, skip int) (IRows, error) {
+func (t *typeTable) List(take, skip int) (Rows, error) {
 	rows, err := dbQuery(fmt.Sprintf("%s ORDER BY %s DESC limit ?, ?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err
@@ -164,7 +164,7 @@ func (t *typeTable) List(take, skip int) (IRows, error) {
 	}, nil
 }
 
-func (t *typeTable) Query(query string, args ...interface{}) (IRows, error) {
+func (t *typeTable) Query(query string, args ...interface{}) (Rows, error) {
 	strSql := fmt.Sprintf("%s %s", t.sqlSelect, query)
 	rows, err := dbQuery(strSql, args...)
 	if err != nil {

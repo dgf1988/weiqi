@@ -59,14 +59,14 @@ var (
 )
 
 func init() {
-	c, err := LoadConfig(c_configFilename)
+	c, err := loadConfig(c_configFilename)
 	if err != nil || c == nil {
 		panic(err.Error())
 	}
 	config = c
 }
 
-func DefConfig() *Config {
+func defConfig() *Config {
 	var c = &Config{}
 	err := json.Unmarshal([]byte(c_defaultConfigJson), c)
 	if err != nil {
@@ -75,7 +75,7 @@ func DefConfig() *Config {
 	return c
 }
 
-func LoadConfig(filename string) (*Config, error) {
+func loadConfig(filename string) (*Config, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err

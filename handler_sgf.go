@@ -8,7 +8,7 @@ import (
 )
 
 //sgf list
-func handleListSgf(w http.ResponseWriter, r *http.Request, p []string) {
+func handleSgfList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	err := renderSgfList(w, getSessionUser(r))
 	if err != nil {
@@ -49,15 +49,11 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("sgflist"),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 }
 
 //sgf id
 func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
-	var user *User
-	if s := getSession(r); s != nil {
-		user = s.User
-	}
 
 	var sgf = new(Sgf)
 	var err error
@@ -90,7 +86,7 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("sgfid"),
-	).Execute(w, sgfIdData(user, sgf, black, white), nil)
+	).Execute(w, sgfIdData(getSessionUser(r), sgf, black, white), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -111,9 +107,7 @@ func sgfIdData(u *User, sgf *Sgf, black, white *Player) *Data {
 //sgf edit
 func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var user *User
-	if s := getSession(r); s != nil {
-		user = s.User
-	} else {
+	if user = getSessionUser(r); user == nil {
 		h.SeeOther(w, r, "/login")
 		return
 	}
@@ -152,7 +146,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 		action = "/user/sgf/add"
 	}
 
-	if err = userSgfEditHtml().Execute(w, userSgfEditData(user, action, r.FormValue("editormsg"), sgf, sgfs), defFuncMap); err != nil {
+	if err = userSgfEditHtml().Execute(w, userSgfEditData(user, action, r.FormValue("editormsg"), sgf, sgfs), nil); err != nil {
 		h.ServerError(w, err)
 	}
 }
@@ -190,7 +184,7 @@ func getSgfFromRequest(r *http.Request) *Sgf {
 	return &s
 }
 
-func handlerUserSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
+func handleSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")
 		return
@@ -211,7 +205,7 @@ func handlerUserSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", id, "?editormsg=添加成功"))
 }
 
-func handlerUserSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
+func handleSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")
 		return
@@ -236,7 +230,7 @@ func handlerUserSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", s.Id, "?editormsg=修改成功"))
 }
 
-func handlerUserSgfDelete(w http.ResponseWriter, r *http.Request, p []string) {
+func handleSgfDel(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
 		h.SeeOther(w, r, "/login")
 		return

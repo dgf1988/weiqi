@@ -8,7 +8,7 @@ type WeiqiError struct {
 	Msg string
 }
 
-func NewWeiqiError(msg string) *WeiqiError {
+func newWeiqiError(msg string) *WeiqiError {
 	return &WeiqiError{msg}
 }
 

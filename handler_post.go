@@ -8,7 +8,7 @@ import (
 )
 
 //post list
-func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var err error
 	var posts = make([]Post, 0)
@@ -30,7 +30,7 @@ func postListHandler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	cutPostTextMany(posts)
 
-	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts), defFuncMap)
+	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -56,7 +56,7 @@ func postListData(u *User, posts []Post) *Data {
 }
 
 //post id
-func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostId(w http.ResponseWriter, r *http.Request, args []string) {
 
 	id := atoi64(args[0])
 	if id <= 0 {
@@ -70,7 +70,7 @@ func postIdHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	} else if err != nil {
 		h.ServerError(w, err)
 	} else {
-		err = postIdHtml().Execute(w, postIdData(getSessionUser(r), p), defFuncMap)
+		err = postIdHtml().Execute(w, postIdData(getSessionUser(r), p), nil)
 		if err != nil {
 			h.ServerError(w, err)
 		}
@@ -98,7 +98,7 @@ func postIdData(u *User, post *Post) *Data {
 }
 
 //post edit
-func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 	var user *User
@@ -145,7 +145,7 @@ func userPostEidtHandler(w http.ResponseWriter, r *http.Request, args []string) 
 		}
 	}
 
-	err = userPostEditHtml().Execute(w, userPostEditData(user, action, msg, post, posts), defFuncMap)
+	err = userPostEditHtml().Execute(w, userPostEditData(user, action, msg, post, posts), nil)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -171,7 +171,7 @@ func userPostEditData(u *User, action, msg string, post *Post, posts []Post) *Da
 	return data
 }
 
-func handlerUserPostAdd(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 
 	if getSession(r) == nil {
@@ -196,7 +196,7 @@ func handlerUserPostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 }
 
-func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 
@@ -226,7 +226,7 @@ func handlerUserPostUpdate(w http.ResponseWriter, r *http.Request, args []string
 	h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=提交成功"))
 }
 
-func handlerUserPostDelete(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostDel(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 

@@ -6,14 +6,26 @@ import (
 	"log"
 )
 
-var (
-	Players db.ITable
-	Users   db.ITable
-	Posts   db.ITable
-	Sgfs    db.ITable
+type weiqiDb struct {
+	Player db.Table
+	User db.Table
+	Post db.Table
+	Sgf db.Table
 
-	Texts      db.ITable
-	TextPlayer db.ITable
+	Text db.Table
+	TextPlayer db.Table
+}
+
+var Db weiqiDb = weiqiDb{}
+
+var (
+	Players db.Table
+	Users   db.Table
+	Posts   db.Table
+	Sgfs    db.Table
+
+	Texts      db.Table
+	TextPlayer db.Table
 )
 
 func init() {
@@ -26,26 +38,35 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.Player = Players
+
 	Users, err = db.GetTable(config.DbName, "user")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.User = Users
+
 	Posts, err = db.GetTable(config.DbName, "post")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.Post = Posts
+
 	Sgfs, err = db.GetTable(config.DbName, "sgf")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.Sgf = Sgfs
 
 	Texts, err = db.GetTable(config.DbName, "text")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.Text = Texts
 
 	TextPlayer, err = db.GetTable(config.DbName, "text_player")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	Db.TextPlayer = TextPlayer
 }

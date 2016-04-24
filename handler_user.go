@@ -7,7 +7,7 @@ import (
 )
 
 //登录页面
-func loginHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func handleLogin(w http.ResponseWriter, r *http.Request, p []string) {
 
 	//会话验证
 	if getSession(r) != nil {
@@ -21,7 +21,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
-		u, err := LoginUser(username, password)
+		u, err := loginUser(username, password)
 		if err == nil && u != nil {
 			newSession(u).Add(w)
 			h.SeeOther(w, r, "/user")
@@ -55,15 +55,15 @@ func renderLogin(w http.ResponseWriter, loginmsg, registermsg string) error {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("login"),
-	).Execute(w, data, defFuncMap)
+	).Execute(w, data, nil)
 }
 
-func handlerLogout(w http.ResponseWriter, r *http.Request, p []string) {
+func handleLogout(w http.ResponseWriter, r *http.Request, p []string) {
 	clearSession(w, r)
 	h.SeeOther(w, r, "/login")
 }
 
-func handlerRegister(w http.ResponseWriter, r *http.Request, p []string) {
+func handleRegister(w http.ResponseWriter, r *http.Request, p []string) {
 
 	//会话验证
 	if getSession(r) != nil {
@@ -77,7 +77,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request, p []string) {
 	password2 := r.FormValue("password2")
 	email := r.FormValue("email")
 
-	_, err := RegisterUser(username, password, password2, email, r.RemoteAddr)
+	_, err := registerUser(username, password, password2, email, r.RemoteAddr)
 	if err == nil {
 		h.SeeOther(w, r, "/login?registermsg=注册成功")
 		return
@@ -89,16 +89,16 @@ func handlerRegister(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 }
 
-func userHandler(w http.ResponseWriter, r *http.Request, p []string) {
+func handleUser(w http.ResponseWriter, r *http.Request, p []string) {
 
 	//会话验证
-	s := getSession(r)
-	if s == nil {
+	var user *User
+	if user = getSessionUser(r); user == nil {
 		h.SeeOther(w, r, "/login")
 		return
 	}
 
-	err := renderUser(w, s.User)
+	err := renderUser(w, user)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -113,5 +113,5 @@ func renderUser(w http.ResponseWriter, u *User) error {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("user"),
-	).Execute(w, d, defFuncMap)
+	).Execute(w, d, nil)
 }
