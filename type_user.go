@@ -21,7 +21,7 @@ type User struct {
 }
 
 func (this User) RegisterTime() string {
-	return this.Register.Format(ConstStdDatetime)
+	return this.Register.Format(c_stdDatetime)
 }
 
 var (
@@ -61,7 +61,7 @@ func RegisterUser(username, password, password2, email, ip string) (int64, error
 }
 
 //验证用户
-func loginUser(username, password string) (*User, error) {
+func LoginUser(username, password string) (*User, error) {
 	if len(username) < MinLenUsername {
 		return nil, ErrUserNameTooShort
 	}

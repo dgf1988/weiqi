@@ -1,33 +1,57 @@
 package weiqi
 
 import (
-	"html/template"
+	"crypto/md5"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 )
 
-var (
-	defFuncMap = template.FuncMap{
-		"HasLogin": func(u *User) bool {
-			return u != nil && u.Name != ""
-		},
-	}
+const (
+	c_shortDate   string = "2006年1月2日"
+	c_longDate    string = "2006年01月02日"
+	c_stdDate     string = "2006-01-02"
+	c_stdDatetime string = "2006-01-02 15:04"
 )
 
 //ParseDate 解析日期字符串
-func ParseDate(dateStr string) (time.Time, error) {
+func parseDate(dateStr string) (time.Time, error) {
 	var (
 		date time.Time
 		err  error
 	)
-	date, err = time.Parse(ConstStdDate, dateStr)
+	date, err = time.Parse(c_stdDate, dateStr)
 	if err != nil {
-		date, err = time.Parse(ConstLongDate, dateStr)
+		date, err = time.Parse(c_longDate, dateStr)
 		if err != nil {
-			date, err = time.Parse(ConstShortDate, dateStr)
+			date, err = time.Parse(c_shortDate, dateStr)
 			if err != nil {
 				return time.Time{}, err
 			}
 		}
 	}
 	return date, err
+}
+
+func getMd5(data string) string {
+	hashMd5 := md5.New()
+	io.WriteString(hashMd5, data)
+	return fmt.Sprintf("%x", hashMd5.Sum(nil))
+}
+
+func atoi(num string) int {
+	n, err := strconv.Atoi(num)
+	if err != nil {
+		return 0
+	}
+	return n
+}
+
+func atoi64(num string) int64 {
+	n, err := strconv.ParseInt(num, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return n
 }

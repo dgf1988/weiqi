@@ -7,13 +7,13 @@ import (
 )
 
 var (
-	Players       db.ITable
-	Users         db.ITable
-	Posts         db.ITable
-	Sgfs          db.ITable
+	Players db.ITable
+	Users   db.ITable
+	Posts   db.ITable
+	Sgfs    db.ITable
 
-	Texts      	  db.ITable
-	TextPlayer    db.ITable
+	Texts      db.ITable
+	TextPlayer db.ITable
 )
 
 func init() {

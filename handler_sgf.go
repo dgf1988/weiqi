@@ -131,7 +131,7 @@ func userSgfEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		if err = Sgfs.Get(sgfid).Struct(sgf); err == sql.ErrNoRows {
 			h.NotFound(w, "找不到棋手")
 			return
-		} else if err != nil  {
+		} else if err != nil {
 			h.ServerError(w, err)
 			return
 		}
@@ -165,7 +165,7 @@ func userSgfEditData(u *User, action, msg string, sgf *Sgf, sgfs []Sgf) *Data {
 func getSgfFromRequest(r *http.Request) *Sgf {
 	var s Sgf
 	s.Id = atoi64(r.FormValue("id"))
-	s.Time, _ = ParseDate(r.FormValue("time"))
+	s.Time, _ = parseDate(r.FormValue("time"))
 	s.Event = r.FormValue("event")
 	s.Place = r.FormValue("place")
 	s.Black = r.FormValue("black")

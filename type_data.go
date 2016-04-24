@@ -51,6 +51,13 @@ func defHeader() *Header {
 	}
 }
 
+func userHeader() *Header {
+	return &Header{
+		config.SiteTitle,
+		userNavItems(),
+	}
+}
+
 //页面脚结构
 type Footer struct {
 	AuthorName  string
@@ -95,6 +102,15 @@ func defData() *Data {
 	data := &Data{}
 	data.Head = defHead()
 	data.Header = defHeader()
+	data.Footer = defFooter()
+	data.Content = make(Content)
+	return data
+}
+
+func userData() *Data {
+	data := &Data{}
+	data.Head = defHead()
+	data.Header = userHeader()
 	data.Footer = defFooter()
 	data.Content = make(Content)
 	return data

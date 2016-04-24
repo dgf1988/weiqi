@@ -21,7 +21,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p []string) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
-		u, err := loginUser(username, password)
+		u, err := LoginUser(username, password)
 		if err == nil && u != nil {
 			newSession(u).Add(w)
 			h.SeeOther(w, r, "/user")
@@ -33,7 +33,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p []string) {
 			h.ServerError(w, err)
 		}
 	} else if r.Method == GET {
-		clearSessionMany()
+		gcSession()
 		r.ParseForm()
 		loginMsg := r.FormValue("loginmsg")
 		registerMsg := r.FormValue("registermsg")

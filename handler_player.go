@@ -124,13 +124,12 @@ func userPlayerEditHandler(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 	r.ParseForm()
 	var (
-		action     = "/user/player/add"
-		msg        = r.FormValue("editormsg")
+		action = "/user/player/add"
+		msg    = r.FormValue("editormsg")
 
-		player     = new(Player)
-		text       = new(Text)
-		players    = make([]Player, 0)
-
+		player  = new(Player)
+		text    = new(Text)
+		players = make([]Player, 0)
 	)
 	if len(p) > 0 {
 		action = "/user/player/update"
@@ -205,7 +204,7 @@ func getPlayerFromRequest(r *http.Request) *Player {
 	p.Sex = chineseToSex(r.FormValue("sex"))
 	p.Country = r.FormValue("country")
 	p.Rank = r.FormValue("rank")
-	p.Birth, _ = ParseDate(r.FormValue("birth"))
+	p.Birth, _ = parseDate(r.FormValue("birth"))
 	return &p
 }
 
@@ -334,7 +333,7 @@ func handlerUserPlayerUpdate(w http.ResponseWriter, r *http.Request, args []stri
 				h.ServerError(w, err)
 				return
 			}
-		} else  {
+		} else {
 			h.ServerError(w, err)
 			return
 		}

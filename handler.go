@@ -39,9 +39,6 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 				players = append(players, player)
 			}
 		}
-		if err = rows.Err(); err != nil {
-			return err
-		}
 	}
 
 	if rows, err := Posts.List(40, 0); err != nil {
@@ -57,9 +54,6 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 				posts = append(posts, post)
 			}
 		}
-		if err = rows.Err(); err != nil {
-			return err
-		}
 	}
 
 	if rows, err := Sgfs.List(40, 0); err != nil {
@@ -74,9 +68,6 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 			} else {
 				sgfs = append(sgfs, sgf)
 			}
-		}
-		if err = rows.Err(); err != nil {
-			return err
 		}
 	}
 

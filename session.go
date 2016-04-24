@@ -14,9 +14,9 @@ const (
 
 var (
 	//锁
-	SessionLocker sync.RWMutex
+	sessionLocker sync.RWMutex
 	//会话存储
-	Sessions map[string]*Session = make(map[string]*Session)
+	sessionStor map[string]*Session = make(map[string]*Session)
 )
 
 type Session struct {
@@ -41,9 +41,9 @@ func getSession(r *http.Request) *Session {
 	}
 	s.Id = c.Value
 
-	SessionLocker.Lock()
-	defer SessionLocker.Unlock()
-	s_get, ok := Sessions[s.Id]
+	sessionLocker.Lock()
+	defer sessionLocker.Unlock()
+	s_get, ok := sessionStor[s.Id]
 	//id 相同， 并且user不为nil
 	if !ok || s_get.Id != s.Id || s_get.User == nil {
 		return nil
@@ -54,8 +54,8 @@ func getSession(r *http.Request) *Session {
 }
 
 func clearSession(w http.ResponseWriter, r *http.Request) {
-	SessionLocker.Lock()
-	defer SessionLocker.Unlock()
+	sessionLocker.Lock()
+	defer sessionLocker.Unlock()
 
 	c, _ := r.Cookie(SessionCookieName)
 	if c != nil {
@@ -64,24 +64,24 @@ func clearSession(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, c)
 	}
 
-	_, ok := Sessions[c.Value]
+	_, ok := sessionStor[c.Value]
 	if ok {
-		delete(Sessions, c.Value)
+		delete(sessionStor, c.Value)
 	}
 }
 
-func clearSessionMany() int {
-	SessionLocker.Lock()
-	defer SessionLocker.Unlock()
+func gcSession() int {
+	sessionLocker.Lock()
+	defer sessionLocker.Unlock()
 
 	keys := make([]string, 0)
-	for k, s := range Sessions {
+	for k, s := range sessionStor {
 		if s.Timeout.Before(time.Now()) {
 			keys = append(keys, k)
 		}
 	}
 	for i := range keys {
-		delete(Sessions, keys[i])
+		delete(sessionStor, keys[i])
 	}
 	return len(keys)
 }
@@ -94,11 +94,11 @@ func sessionId() string {
 }
 
 func (s *Session) Add(w http.ResponseWriter) {
-	SessionLocker.Lock()
-	defer SessionLocker.Unlock()
+	sessionLocker.Lock()
+	defer sessionLocker.Unlock()
 
 	http.SetCookie(w, &http.Cookie{Name: SessionCookieName, Value: s.Id, Expires: s.Timeout})
-	Sessions[s.Id] = s
+	sessionStor[s.Id] = s
 }
 
 //快速获取会话中的用户。

@@ -15,6 +15,6 @@
   "DbPassword":"guofeng001",
   "DbHost":"localhost",
   "DbPort":3306,
-  "DbName":"weiqi2",
+  "DbName":"weiqi_2",
   "DbCharset":"utf8"
 }

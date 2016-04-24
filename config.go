@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	C_FILENAME = "config.json"
+	c_configFilename = "config.json"
 
-	C_DEF_CONFIG_JSON = `
+	c_defaultConfigJson = `
 {
   "BasePath":"d:/Project/src/github.com/dgf1988/weiqi/",
   "SiteTitle":"围棋163",
@@ -27,7 +27,7 @@ const (
   "DbPassword":"guofeng001",
   "DbHost":"localhost",
   "DbPort":3306,
-  "DbName":"weiqi2",
+  "DbName":"weiqi_2",
   "DbCharset":"utf8"
 }
 	`
@@ -59,7 +59,7 @@ var (
 )
 
 func init() {
-	c, err := LoadConfig(C_FILENAME)
+	c, err := LoadConfig(c_configFilename)
 	if err != nil || c == nil {
 		panic(err.Error())
 	}
@@ -68,7 +68,7 @@ func init() {
 
 func DefConfig() *Config {
 	var c = &Config{}
-	err := json.Unmarshal([]byte(C_DEF_CONFIG_JSON), c)
+	err := json.Unmarshal([]byte(c_defaultConfigJson), c)
 	if err != nil {
 		panic(err.Error())
 	}

@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	GET             = "GET"
-	POST            = "POST"
+	GET  = "GET"
+	POST = "POST"
 )
 
 //Run ...
