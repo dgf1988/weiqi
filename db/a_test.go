@@ -4,6 +4,7 @@ import (
 	"log"
 	"testing"
 	"time"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 //Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2", "utf8")
@@ -11,11 +12,11 @@ import (
 func TestCount(t *testing.T) {
 	log.SetPrefix("[Debug: db]")
 	log.SetFlags(log.Ltime)
-	Config("mysql", "root", "guofeng001", "weiqi2", "localhost", 3306, "utf8")
-	//Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "weiqi_163", "www.weiqi163.com", 3306, "utf8")
-	err := Connect()
+	err := Connect("mysql", "root", "guofeng001", "localhost", 3306, "weiqi_2")
+	//err := Connect("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2")
 	if err != nil {
 		t.Error(err.Error())
+		return
 	}
 
 	type Post struct {
@@ -37,21 +38,28 @@ func TestCount(t *testing.T) {
 	}
 
 	//Posts, err := GetTable("weiqi2", "post")
-	Players, err := GetTable("weiqi2", "player")
-
-	rows, err := Players.Find(nil, nil, nil, "什么国")
+	Players, err := GetTable("weiqi_2", "player")
 	if err != nil {
 		t.Error(err.Error())
+		return
+	}
+
+	if rows, err := Players.Find(nil, nil, nil, "中国"); err != nil {
+		t.Error(err.Error())
+		return
 	} else {
 		defer rows.Close()
+		players := make([]Player, 0)
+		before, _ := time.Parse("2006-01-02", "1990-01-01")
 		for rows.Next() {
-			player, err := rows.Slice()
-			if err != nil {
+			var player Player
+			players = append(players, player)
+			if err := rows.Struct(&player); err != nil {
 				t.Error(err.Error())
 			} else {
-				t.Log(player)
-				_, err = Players.Update(player[0]).Values(nil, nil, nil, "我国", "九段")
-				t.Log(err)
+				if player.Birth.After(before) {
+					t.Log(player)
+				}
 			}
 		}
 	}

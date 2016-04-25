@@ -22,6 +22,9 @@ func GetTable(databasename, tablename string) (Table, error) {
 	//保存字段
 	t.Columns = cols
 	t.ColumnNumbers = len(cols)
+	if t.ColumnNumbers <= 0 {
+		return nil, newErrorf("db: table not found")
+	}
 
 	//遍历字段，读取其它信息。
 	keys := make([]string, 0)

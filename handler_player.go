@@ -68,11 +68,10 @@ func handlePlayerId(w http.ResponseWriter, r *http.Request, args []string) {
 }
 
 func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
-	var err error
 	var player = new(Player)
 	var text = new(Text)
 
-	if err = Players.Get(id).Struct(player); err != nil {
+	if err := Players.Get(id).Struct(player); err != nil {
 		return err
 	} else {
 		var textid int64
@@ -85,6 +84,34 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 		}
 	}
 
+	var sgfs = make([]Sgf, 0)
+	if rows, err := Sgfs.Find(nil, nil, nil, nil, player.Name); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err == nil {
+				sgfs = append(sgfs, sgf)
+			} else {
+				return err
+			}
+		}
+	} else {
+		return err
+	}
+	if rows, err := Sgfs.Find(nil, nil, nil, nil, nil, player.Name); err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err == nil {
+				sgfs = append(sgfs, sgf)
+			} else {
+				return err
+			}
+		}
+	} else {
+		return err
+	}
+
 	data := defData()
 	data.User = u
 	data.Head.Title = player.Name
@@ -93,6 +120,7 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 	data.Content["Player"] = player
 	text.Text = parseTextToHtml(text.Text)
 	data.Content["Text"] = text
+	data.Content["Sgfs"] = sgfs
 	return defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),

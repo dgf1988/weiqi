@@ -1,4 +1,23 @@
 {{define "footer"}}
+<style>
+    /* footer */
+    body > footer {
+        text-align: center;
+        border-top: 1px solid;
+        margin: 10px;
+    }
+    body > footer > ul {
+        list-style: none;
+    }
+    body > footer > ul > li {
+        display: inline;
+        font-size: 12px;
+        margin: auto 5px;
+    }
+    body > footer > ul > li span{
+        margin: auto 5px;
+    }
+</style>
 <footer>
     <ul>
         {{with .Footer}}

@@ -1,4 +1,40 @@
 {{define "header"}}
+<style>
+    /* header */
+    body > header {
+        border-bottom: 1px solid;
+        margin: 10px;
+    }
+    body > header > h2 {
+        font-size: 32px;
+        margin: auto 20px ;
+    }
+    /* header nav */
+    body > header > nav > ul {
+        list-style: none;
+        background: linear-gradient(to right, #03467a, #0579cb);
+        box-shadow: -1px 1px 3px #000000;
+        border-radius: 2px;
+    }
+    body > header > nav > ul > li {
+        display: inline-block;
+        margin: auto 10px;
+
+        height: 30px;
+        line-height: 30px;
+        vertical-align: middle;
+
+        font-size: 18px;
+    }
+    body > header > nav > ul > li > a {
+        color: #dfdfdf;
+        text-decoration: none;
+    }
+    body > header > nav > ul > li > a:hover {
+        color: #dfdfdf;
+        text-decoration: underline;
+    }
+</style>
 <header>
     {{with .Header}}
     <h2>{{.Title}}</h2>
