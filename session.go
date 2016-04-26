@@ -29,7 +29,7 @@ func newSession(u *User) *Session {
 	return &Session{
 		sessionId(),
 		u,
-		time.Now().AddDate(0, 0, 1),
+		time.Now().Add(time.Hour*24),
 	}
 }
 
@@ -97,7 +97,7 @@ func (s *Session) Add(w http.ResponseWriter) {
 	sessionLocker.Lock()
 	defer sessionLocker.Unlock()
 
-	http.SetCookie(w, &http.Cookie{Name: c_SessionCookieName, Value: s.Id, Expires: s.Timeout})
+	http.SetCookie(w, &http.Cookie{Name: c_SessionCookieName, Value: s.Id})
 	sessionStor[s.Id] = s
 }
 
