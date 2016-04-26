@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgf1988/weiqi/h"
 	"net/http"
+	"sort"
 )
 
 //sgf list
@@ -36,6 +37,8 @@ func renderSgfList(w http.ResponseWriter, u *User) error {
 	} else {
 		return err
 	}
+
+	sort.Sort(sortSgfByTimeDesc(sgfs))
 
 	data := defData()
 	data.User = u

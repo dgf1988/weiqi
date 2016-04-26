@@ -19,6 +19,13 @@
         border: 1px solid #d4d4d4;
         border-radius: 2px;
     }
+    body > #content > section:hover{
+        background: #eeeeee;
+    }
+    body > #content > section:hover header h4 a {
+        color: #f00;
+        font-weight:bold;
+    }
     body > #content > section > header > h4 > a {
         text-decoration: none;
         color: blue;
@@ -28,7 +35,7 @@
 <div id="content">
     {{with .Content}}
         {{range .Posts}}
-        <section>
+        <section onclick="location.href='/post/{{.Id}}'">
             <header>
                 <h4><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></h4>
                 <time>{{.Posted.Format "2006-01-02 15:04:05"}}</time>

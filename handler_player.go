@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgf1988/weiqi/h"
 	"net/http"
+	"sort"
 )
 
 //player list
@@ -111,6 +112,7 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 	} else {
 		return err
 	}
+	sort.Sort(sortSgfByTimeDesc(sgfs))
 
 	data := defData()
 	data.User = u

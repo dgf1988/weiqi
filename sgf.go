@@ -64,3 +64,9 @@ func (this Sgf) ToSgf() string {
 	items_sgf = append(items_sgf, ")")
 	return strings.Join(items_sgf, "")
 }
+
+type sortSgfByTimeDesc []Sgf
+
+func (arr sortSgfByTimeDesc) Len() int { return len(arr)}
+func (arr sortSgfByTimeDesc) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i]}
+func (arr sortSgfByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time)}
