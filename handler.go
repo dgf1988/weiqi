@@ -44,7 +44,6 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 			}
 		}
 	}
-
 	if sgfs, err = listSgfOrderTimeDesc(40, 0); err != nil {
 		return err
 	}
