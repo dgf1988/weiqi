@@ -20,7 +20,7 @@ func handleSgfList(w http.ResponseWriter, r *http.Request, p []string) {
 func renderSgfList(w http.ResponseWriter, u *User) error {
 	var sgfs []Sgf
 	var err error
-	if sgfs, err = listSgfOrderTimeDesc(40, 0); err != nil {
+	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
 		return err
 	}
 

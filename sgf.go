@@ -72,7 +72,7 @@ func (arr sgfOrderByTimeDesc) Len() int { return len(arr)}
 func (arr sgfOrderByTimeDesc) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i]}
 func (arr sgfOrderByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time)}
 
-func listSgfOrderTimeDesc(take, skip int) ([]Sgf, error) {
+func listSgfOrderByTimeDesc(take, skip int) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
 	if rows, err := Db.Sgf.Query("order by sgf.time desc limit ?, ?", skip, take); err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func listSgfOrderTimeDesc(take, skip int) ([]Sgf, error) {
 	return sgfs, nil
 }
 
-func listSgfByNamesOrderTimeDesc(names ...string) ([]Sgf, error) {
+func listSgfByNamesOrderByTimeDesc(names ...string) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
 	for _, name := range names {
 		if name == "" {

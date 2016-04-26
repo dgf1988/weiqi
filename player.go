@@ -111,7 +111,7 @@ func chineseToSex(sex string) int64 {
 	}
 }
 
-func listPlayerOrderRankDesc(take, skip int) ([]Player, error) {
+func listPlayerOrderByRankDesc(take, skip int) ([]Player, error) {
 	var players []Player
 	if rows, err := Db.Player.Query("order by player.rank desc, player.birth desc limit ?, ?", skip, take); err != nil {
 		return nil, err

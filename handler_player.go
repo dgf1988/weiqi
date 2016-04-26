@@ -24,7 +24,7 @@ func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
 func playerListRender(w http.ResponseWriter, u *User) error {
 	var players []Player
 	var err error
-	if players, err = listPlayerOrderRankDesc(40, 0); err != nil {
+	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
 		return err
 	}
 
@@ -73,7 +73,7 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 	}
 
 	var sgfs []Sgf
-	if sgfs, err = listSgfByNamesOrderTimeDesc(player.Name); err != nil {
+	if sgfs, err = listSgfByNamesOrderByTimeDesc(player.Name); err != nil {
 		return err
 	}
 

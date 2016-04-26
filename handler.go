@@ -26,7 +26,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		err error
 	)
 
-	if players, err = listPlayerOrderRankDesc(40, 0); err != nil {
+	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
 		return err
 	}
 
@@ -44,7 +44,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 			}
 		}
 	}
-	if sgfs, err = listSgfOrderTimeDesc(40, 0); err != nil {
+	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
 		return err
 	}
 
