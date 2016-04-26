@@ -100,7 +100,7 @@ func listSgfByNamesOrderTimeDesc(names ...string) ([]Sgf, error) {
 			continue
 		}
 		if rows, err := Db.Sgf.Query("where sgf.black = ? or sgf.white = ? order by sgf.time desc", name, name); err != nil {
-			return
+			return nil, err
 		} else {
 			defer rows.Close()
 			for rows.Next() {

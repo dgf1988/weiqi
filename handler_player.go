@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/dgf1988/weiqi/h"
 	"net/http"
-	"sort"
 )
 
 //player list
@@ -23,23 +22,10 @@ func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
 }
 
 func playerListRender(w http.ResponseWriter, u *User) error {
-	var players = make([]Player, 0)
-	if rows, err := Players.List(40, 0); err != nil {
+	var players []Player
+	var err error
+	if players, err = listPlayerOrderRankDesc(40, 0); err != nil {
 		return err
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var player Player
-			err = rows.Struct(&player)
-			if err != nil {
-				return err
-			} else {
-				players = append(players, player)
-			}
-		}
-		if err = rows.Err(); err != nil {
-			return err
-		}
 	}
 
 	data := defData()
@@ -200,7 +186,7 @@ func getPlayerFromRequest(r *http.Request) *Player {
 	p.Name = r.FormValue("name")
 	p.Sex = chineseToSex(r.FormValue("sex"))
 	p.Country = r.FormValue("country")
-	p.Rank = r.FormValue("rank")
+	p.Rank = chineseToRank(r.FormValue("rank"))
 	p.Birth, _ = parseDate(r.FormValue("birth"))
 	return &p
 }

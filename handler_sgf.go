@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/dgf1988/weiqi/h"
 	"net/http"
-	"sort"
 )
 
 //sgf list

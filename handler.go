@@ -21,24 +21,13 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 
 	var (
 		posts   = make([]Post, 0)
-		players = make([]Player, 0)
+		players []Player
 		sgfs    []Sgf
 		err error
 	)
 
-	if rows, err := Db.Player.List(40, 0); err != nil {
+	if players, err = listPlayerOrderRankDesc(40, 0); err != nil {
 		return err
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var player Player
-			err = rows.Struct(&player)
-			if err != nil {
-				return err
-			} else {
-				players = append(players, player)
-			}
-		}
 	}
 
 	if rows, err := Db.Post.List(40, 0); err != nil {
