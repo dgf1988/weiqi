@@ -19,26 +19,11 @@ func handleSgfList(w http.ResponseWriter, r *http.Request, p []string) {
 }
 
 func renderSgfList(w http.ResponseWriter, u *User) error {
-	var sgfs = make([]Sgf, 0)
-
-	if rows, err := Sgfs.List(40, 0); err == nil {
-		defer rows.Close()
-		for rows.Next() {
-			var sgf Sgf
-			if err = rows.Struct(&sgf); err == nil {
-				sgfs = append(sgfs, sgf)
-			} else {
-				return err
-			}
-		}
-		if err = rows.Err(); err != nil {
-			return err
-		}
-	} else {
+	var sgfs []Sgf
+	var err error
+	if sgfs, err = listSgfOrderTimeDesc(40, 0); err != nil {
 		return err
 	}
-
-	sort.Sort(sortSgfByTimeDesc(sgfs))
 
 	data := defData()
 	data.User = u

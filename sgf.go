@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"sort"
 )
 
 /*
@@ -65,8 +66,56 @@ func (this Sgf) ToSgf() string {
 	return strings.Join(items_sgf, "")
 }
 
-type sortSgfByTimeDesc []Sgf
+type sgfOrderByTimeDesc []Sgf
 
-func (arr sortSgfByTimeDesc) Len() int { return len(arr)}
-func (arr sortSgfByTimeDesc) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i]}
-func (arr sortSgfByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time)}
+func (arr sgfOrderByTimeDesc) Len() int { return len(arr)}
+func (arr sgfOrderByTimeDesc) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i]}
+func (arr sgfOrderByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time)}
+
+func listSgfOrderTimeDesc(take, skip int) ([]Sgf, error) {
+	var sgfs = make([]Sgf, 0)
+	if rows, err := Db.Sgf.Query("order by sgf.time desc limit ?, ?", skip, take); err != nil {
+		return nil, err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err != nil {
+				return nil, err
+			} else {
+				sgfs = append(sgfs, sgf)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+	return sgfs, nil
+}
+
+func listSgfByNamesOrderTimeDesc(names ...string) ([]Sgf, error) {
+	var sgfs = make([]Sgf, 0)
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if rows, err := Db.Sgf.Query("where sgf.black = ? or sgf.white = ? order by sgf.time desc", name, name); err != nil {
+			return
+		} else {
+			defer rows.Close()
+			for rows.Next() {
+				var sgf Sgf
+				if err = rows.Struct(&sgf); err != nil {
+					return nil, err
+				} else {
+					sgfs = append(sgfs, sgf)
+				}
+			}
+			if err = rows.Err(); err != nil {
+				return nil, err
+			}
+		}
+	}
+	sort.Sort(sgfOrderByTimeDesc(sgfs))
+	return sgfs, nil
+}

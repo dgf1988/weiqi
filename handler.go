@@ -22,7 +22,8 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 	var (
 		posts   = make([]Post, 0)
 		players = make([]Player, 0)
-		sgfs    = make([]Sgf, 0)
+		sgfs    []Sgf
+		err error
 	)
 
 	if rows, err := Db.Player.List(40, 0); err != nil {
@@ -55,19 +56,8 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		}
 	}
 
-	if rows, err := Db.Sgf.List(40, 0); err != nil {
+	if sgfs, err = listSgfOrderTimeDesc(40, 0); err != nil {
 		return err
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var sgf Sgf
-			err = rows.Struct(&sgf)
-			if err != nil {
-				return err
-			} else {
-				sgfs = append(sgfs, sgf)
-			}
-		}
 	}
 
 	data.Content["Posts"] = posts
