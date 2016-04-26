@@ -1,16 +1,39 @@
 {{define "content"}}
+<style>
+    body > #content {
+        margin: auto;
+        padding: 5px 10px;
+        width: 600px;
+    }
+
+    body > #content > form {
+        margin: auto;
+        width: 250px;
+        padding: 10px;
+        border: 1px solid #8c8c8c;
+        border-radius: 5px;
+        box-shadow: 1px 1px 1px black;
+    }
+    body > #content > form > table {
+        margin: auto;
+        border-collapse: collapse;
+    }
+    body > #content > form > table td input {
+        width: 150px ;
+    }
+</style>
 <div id="content">
     {{with .Content}}
-    <h4>登录</h4>
     <form method="post" action="/login" id="login">
         <table>
+            <caption>登录</caption>
             <tr><td>用户名:</td><td><label><input type="text" name="username"></label></td></tr>
             <tr><td>密码:</td><td><label><input type="password" name="password"></label></td></tr>
             <tr>
                 <td></td>
                 <td >
                     <button onclick="this.submit()">登录</button>
-                    <span class="redmsg">{{.LoginMsg}}</span>
+                    <span style="color: red;">{{.LoginMsg}}</span>
                 </td>
             </tr>
         </table>

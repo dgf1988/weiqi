@@ -1,17 +1,37 @@
 {{define "content"}}
 <style>
-    #content > #player-editor form table td .input {
-        width: 400px;
+    body > #content > #editor {
+        float: left;
+        margin: auto 10px;
     }
-    #content > #player-editor form table td .text {
-        height: 400px;
+    body > #content > #editor .input {
+        width: 500px;
+        font-size: 18px;
+    }
+    body > #content > #editor .text {
+        height: 500px;
+        font-size: 18px;
         resize: none;
-
+    }
+    body > #content > #list {
+        float: left;
+    }
+    body > #content > #list table {
+        border-collapse: collapse;
+    }
+    body > #content > #list table th{
+        border: 1px solid black;
+        background: #0394ea;
+        padding: 2px 3px;
+    }
+    body > #content > #list table td{
+        border: 1px solid black;
+        padding: 2px 3px;
     }
 </style>
 <div id="content">
     {{with .Content}}
-    <section id="player-editor">
+    <section id="editor">
         <form action="{{.Editor.Action}}" method="post">
             <input type="hidden" name="id" value="{{.Player.Id}}">
             <table>
@@ -38,13 +58,13 @@
                     <th></th>
                     <td>
                         <button onclick="this.submit()">提交</button>
-                        <span class="redmsg">{{.Editor.Msg}}</span>
+                        <span style="color: red;">{{.Editor.Msg}}</span>
                     </td>
                 </tr>
             </table>
         </form>
     </section>
-    <section id="player-list">
+    <section id="list">
         <table>
             <caption>棋手列表</caption>
             <thead>
@@ -60,13 +80,12 @@
             <tbody>
             {{range .Players}}
             <tr>
-                <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+                <td><a href="/user/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
                 <td>{{.StrSex}}</td>
                 <td>{{.Country}}</td>
                 <td>{{.Rank}}</td>
                 <td>{{.Birth.Format "2006-01-02"}}</td>
                 <td>
-                    <button onclick="location.href='/user/player/{{.Id}}'">编辑</button>
                     <form action="/user/player/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>
                 </td>
             </tr>
@@ -75,5 +94,6 @@
         </table>
     </section>
     {{end}}
+    <div style="clear:both;"></div>
 </div>
 {{end}}

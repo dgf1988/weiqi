@@ -1,30 +1,73 @@
 {{define "content"}}
+<style>
+    body > #content {
+        margin: auto;
+        padding: 5px 10px;
+    }
+    body > #content > section > h4 {
+        margin: 10px;
+    }
+    body > #content > section > ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    body > #content > section > ol > li {
+        margin: 5px 10px;
+        padding: 2px 5px;
+        border: 1px solid #b6b6b6;
+    }
+    body > #content > section > ol > li > a {
+        color: blue ;
+        text-decoration: none;
+    }
+    body > #content > section > ol > li:hover {
+        background: #d9d9d9;
+    }
+    body > #content > section > ol > li:hover a {
+        color: red;
+    }
+    body > #content > section > ol > li > time {
+        margin: auto 5px;
+    }
+
+    body > #content > #posts {
+        float: left;
+    }
+    body > #content > #sgfs {
+        float: left;
+    }
+    body > #content > #players {
+        float: left;
+    }
+</style>
 <div id="content">
     {{with .Content}}
-    <section id="index-posts">
-        <h5>最新文章</h5>
+    <section id="posts">
+        <h4>文章</h4>
         <ol>
             {{range .Posts}}
-            <li><time>{{.Posted.Format "01-02"}}</time><a href="/post/{{.Id}}" title="{{.Id}}">{{.Title}}</a></li>
+            <li onclick="location.href='/post/{{.Id}}'"><time>{{.Posted.Format "01-02"}}</time><a href="/post/{{.Id}}" title="{{.Id}}">{{.Title}}</a></li>
             {{end}}
         </ol>
     </section>
-    <section id="side-players">
-        <h5>热门棋手</h5>
-        <ol>
-            {{range .Players}}
-            <li><a href="/player/{{.Id}}">{{.Name}}</a></li>
-            {{end}}
-        </ol>
-    </section>
-    <section id="side-sgfs">
-        <h5>热门棋谱</h5>
+    <section id="sgfs">
+        <h4>棋谱</h4>
         <ol>
             {{range .Sgfs}}
-            <li><a href="/sgf/{{.Id}}" title="{{.Black}} VS {{.White}}">{{.Event}}</a></li>
+            <li onclick="location.href='/sgf/{{.Id}}'"><time>{{.Time.Format "01-02"}}</time><a href="/sgf/{{.Id}}" title="{{.Black}} VS {{.White}}">{{.Event}} - {{.Black}} VS {{.White}}</a></li>
+            {{end}}
+        </ol>
+    </section>
+    <section id="players">
+        <h4>棋手</h4>
+        <ol>
+            {{range .Players}}
+            <li onclick="location.href='/player/{{.Id}}'"><a href="/player/{{.Id}}">{{.Name}}</a></li>
             {{end}}
         </ol>
     </section>
     {{end}}
+    <div style="clear:both;"></div>
 </div>
 {{end}}

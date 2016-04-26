@@ -1,7 +1,37 @@
 {{define "content"}}
+<style>
+    body > #content > #editor {
+        float: left;
+        margin: auto 10px;
+    }
+    body > #content > #editor .input {
+        width: 500px;
+        font-size: 18px;
+    }
+    body > #content > #editor .steps {
+        height: 500px;
+        font-size: 14px;
+        resize: none;
+    }
+    body > #content > #list {
+        float: left;
+    }
+    body > #content > #list table {
+        border-collapse: collapse;
+    }
+    body > #content > #list table th{
+        border: 1px solid black;
+        background: #0394ea;
+        padding: 2px 3px;
+    }
+    body > #content > #list table td{
+        border: 1px solid black;
+        padding: 2px 3px;
+    }
+</style>
 <div id="content">
     {{with .Content}}
-    <section id="sgf-editor">
+    <section id="editor">
         <form action="{{.Editor.Action}}" method="post">
             <input type="hidden" name="id" value="{{.Sgf.Id}}">
             <table>
@@ -34,13 +64,13 @@
                     <th></th>
                     <td>
                         <button onclick="this.submit()">提交</button>
-                        <span class="redmsg">{{.Editor.Msg}}</span>
+                        <span style="color: #f00;">{{.Editor.Msg}}</span>
                     </td>
                 </tr>
             </table>
         </form>
     </section>
-    <section id="sgf-list">
+    <section id="list">
         <table>
             <caption>棋谱列表</caption>
             <thead>
@@ -55,12 +85,11 @@
             <tbody>
             {{range .Sgfs}}
             <tr>
-                <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
+                <td><a href="/user/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
                 <td>{{.Black}}</td>
                 <td>{{.White}}</td>
                 <td>{{.Time.Format "2006-01-02"}}</td>
                 <td>
-                    <button onclick="location.href='/user/sgf/{{.Id}}'">编辑</button>
                     <form action="/user/sgf/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>
                 </td>
             </tr>
@@ -69,5 +98,6 @@
         </table>
     </section>
     {{end}}
+    <div style="clear:both;"></div>
 </div>
 {{end}}

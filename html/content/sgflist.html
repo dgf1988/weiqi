@@ -1,8 +1,25 @@
 {{define "content"}}
+<style>
+    body > #content > table {
+        margin: auto;
+        border-collapse: collapse;
+        font-size: 18px;
+    }
+    body > #content > table td,  body > #content > table th{
+        text-align: center;
+        padding: 1px 3px;
+        border: 1px solid black
+    }
+    body > #content > table th{
+        background: #047ec4;
+    }
+    body > #content > table tbody tr:hover{
+        background: #d5d5d5;
+    }
+</style>
 <div id="content">
     {{with .Content}}
     <table>
-        <caption>棋谱列表</caption>
         <thead>
         <tr>
             <th>比赛</th>
@@ -14,7 +31,7 @@
         </thead>
         <tbody>
         {{range .Sgfs}}
-        <tr>
+        <tr onclick="location.href='/sgf/{{.Id}}'">
             <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
             <td>{{.Black}}</td>
             <td>{{.White}}</td>

@@ -1,8 +1,22 @@
 {{define "content"}}
+<style>
+    body > #content > section > table {
+        border-collapse: collapse;
+        margin: auto;
+    }
+
+    body > #content > section > table td {
+        border: 1px solid black;
+    }
+    body > #content > section > table th {
+        border: 1px solid black;
+        background: #0472ca;
+    }
+
+</style>
 <div id="content">
     <section id="userinfo">
         <table>
-            <caption>用户资料</caption>
             <tr><th>用户名</th><td>{{.User.Name}}</td></tr>
             <tr><th>Email</th><td>{{.User.Email}}</td></tr>
             <tr><th>注册地址</th><td>{{.User.Ip}}</td></tr>

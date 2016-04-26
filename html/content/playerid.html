@@ -22,6 +22,7 @@
     }
     #content #player section table td {
         border: 1px solid black;
+        padding: 3px 5px;
     }
     #content #player section table tr:hover {
         background-color: #e0e0e0;
@@ -30,6 +31,10 @@
         border: 1px solid black;
     }
 
+    body > #content > article > p {
+        text-indent: 2em;
+        font-size: 18px;
+    }
 </style>
 <div id="content">
     {{with .Content}}
@@ -51,9 +56,7 @@
                 <th>生日</th><td>{{.Player.Birth.Format "2006-01-02"}}</td>
             </tr>
         </table>
-        <div  class="article-header-text">
-            {{.Text.HtmlText}}
-        </div>
+        {{.Text.HtmlText}}
         {{if .Sgfs}}
         <section>
             <table>

@@ -1,8 +1,25 @@
 {{define "content"}}
+<style>
+    body > #content > table {
+        margin: auto;
+        border-collapse: collapse;
+        font-size: 18px;
+    }
+    body > #content > table td,  body > #content > table th{
+        text-align: center;
+        padding: 1px 3px;
+        border: 1px solid black
+    }
+    body > #content > table th{
+        background: #047ec4;
+    }
+    body > #content > table tbody tr:hover{
+        background: #d5d5d5;
+    }
+</style>
 <div id="content">
     {{with .Content}}
     <table>
-        <caption>棋手列表</caption>
         <thead>
         <tr>
             <th>姓名</th>
@@ -14,7 +31,7 @@
         </thead>
         <tbody>
         {{range .Players}}
-        <tr>
+        <tr onclick="location.href='/player/{{.Id}}'">
             <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
             <td>{{.StrSex}}</td>
             <td>{{.Country}}</td>

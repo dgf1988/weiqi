@@ -1,8 +1,32 @@
 {{define "content"}}
+<style>
+    body > #content {
+        margin: auto;
+        padding: 5px 10px;
+        width: 600px;
+    }
+    body > #content > section > header > h4 {
+        margin: 5px 0;
+        padding: 0;
+    }
+    body > #content > section > p {
+        margin: 5px 0;
+        padding: 0;
+    }
+    body > #content > section {
+        margin: 5px auto;
+        padding: 5px 10px;
+        border: 1px solid #d4d4d4;
+        border-radius: 2px;
+    }
+    body > #content > section > header > h4 > a {
+        text-decoration: none;
+        color: blue;
+
+    }
+</style>
 <div id="content">
     {{with .Content}}
-    <div id="index-posts">
-        <h6>最新文章</h6>
         {{range .Posts}}
         <section>
             <header>
@@ -12,7 +36,6 @@
             <p>{{.Text}}</p>
         </section>
         {{end}}
-    </div>
     {{end}}
 </div>
 {{end}}
