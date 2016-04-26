@@ -31,9 +31,37 @@
         color: blue;
 
     }
+    body > #content > ol {
+        list-style-type: none;
+    }
+    body > #content > ol > li {
+        border: 1px solid #cacaca;
+        display: inline-block;
+        padding: 4px 10px;
+        margin: auto 2px;
+        text-align: center;
+    }
+    body > #content > ol > li a {
+        color: blue;
+        text-decoration: none;
+    }
+    body > #content > ol > li:hover {
+        background: #e2e2e2;
+    }
+    body > #content > ol > .is-current a {
+        color: black;
+        font-weight: bold;
+    }
 </style>
 <div id="content">
     {{with .Content}}
+        <ol>
+            {{with .IndexPage}}
+            <li style="width: auto;"><a href="/post/page/1">第1页</a></li>
+            {{range .Pages}}<li {{if eq . $.Content.IndexPage.Current}} class="is-current"{{end}} onclick="location.href='/post/page/{{.}}'"><a href="/post/page/{{.}}">{{.}}</a></li>{{end}}
+            <li style="width: auto;"><a href="/post/page/{{.Total}}">第{{.Total}}页</a></li>
+            {{end}}
+        </ol>
         {{range .Posts}}
         <section onclick="location.href='/post/{{.Id}}'">
             <header>

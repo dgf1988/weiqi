@@ -12,7 +12,7 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var err error
 	var posts = make([]Post, 0)
-	if rows, err := Posts.List(40, 0); err != nil {
+	if rows, err := Posts.List(2, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -29,8 +29,19 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 
 	cutPostTextMany(posts)
+	var count int64
+	if count, err = Db.Post.Count(""); err != nil {
+		h.ServerError(w, err)
+		return
+	}
 
-	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts), nil)
+	var num int = int(count/2)
+	if count%2 > 0 {
+		num += 1
+	}
+	var indexpage = newFy(1, num)
+
+	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, indexpage), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -45,14 +56,67 @@ func postListHtml() *Html {
 	)
 }
 
-func postListData(u *User, posts []Post) *Data {
+func postListData(u *User, posts []Post, indexpage *Fy) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = "文章列表"
+	data.Head.Title += fmt.Sprintf(" - 第%d页", indexpage.Current)
 	data.Head.Desc = "围棋文章列表"
 	data.Head.Keywords = []string{"围棋", "文章", "新闻", "资料"}
 	data.Content["Posts"] = posts
+	data.Content["IndexPage"] = indexpage
 	return data
+}
+
+func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
+
+	var current = atoi(args[0])
+	if current <= 0 {
+		h.NotFound(w, "找不到页面")
+		return
+	}
+
+	var fy *Fy
+	if count, err := Db.Post.Count(""); err != nil {
+		h.ServerError(w, err)
+		return
+	} else {
+		var num int = int(count/2)
+		if count%2 > 0 {
+			num += 1
+		}
+		if current > num {
+			h.NotFound(w, "找不到页面")
+			return
+		}
+		fy = newFy(current, num)
+	}
+
+	var posts = make([]Post, 0)
+	if rows, err := Db.Post.List(2, (current -1)*2); err != nil {
+		h.ServerError(w, err)
+		return
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var post Post
+			if err = rows.Struct(&post); err != nil {
+				h.ServerError(w, err)
+				return
+			} else {
+				posts = append(posts, post)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			h.ServerError(w, err)
+			return
+		}
+	}
+	cutPostTextMany(posts)
+	err := postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy), nil)
+	if err != nil {
+		h.ServerError(w, err)
+	}
 }
 
 //post id

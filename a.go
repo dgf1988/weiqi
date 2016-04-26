@@ -38,6 +38,7 @@ func Run() {
 
 	m.HandleFunc(handlePostList, "/post/", GET)
 	m.HandleFunc(handlePostId, "/post/+", GET)
+	m.HandleFunc(handlePostPage, "/post/page/+", GET)
 	m.HandleFunc(handlePostEdit, "/user/post/", GET)
 	m.HandleFunc(handlePostEdit, "/user/post/+", GET)
 	m.HandleFunc(handlePostAdd, "/user/post/add", POST)

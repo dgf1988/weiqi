@@ -18,6 +18,41 @@ func userNavItems() []NavItem {
 	return []NavItem{NavItem{"首页", "/"}, NavItem{"用户", "/user"}, NavItem{"文章", "/user/post/"}, NavItem{"棋谱", "/user/sgf/"}, NavItem{"棋手", "/user/player/"}}
 }
 
+//翻页
+type IndexPage struct {
+	IsCurrent bool
+	Number int
+}
+
+type Fy struct {
+	Current int
+	Total   int
+	Pages   []int
+}
+
+func newFy(currnet, total int) *Fy {
+	fy := Fy{}
+	fy.Current = currnet
+	fy.Total = total
+	fy.Pages = make([]int, 0)
+	var last int
+	if fy.Current + 4 >= fy.Total {
+		last = fy.Total
+	} else {
+		last = fy.Current + 4
+	}
+	if fy.Current < 5 {
+		for i := 1; i <= last; i ++ {
+			fy.Pages = append(fy.Pages, i)
+		}
+	} else {
+		for i := fy.Current -4; i <= last; i ++ {
+			fy.Pages = append(fy.Pages, i)
+		}
+	}
+	return &fy
+}
+
 //Head 页面布局使用的Html头数据结构
 type Head struct {
 	Title    string
