@@ -1,6 +1,8 @@
 package weiqi
 
-import "strings"
+import (
+	"strings"
+)
 
 //导航结构
 type NavItem struct {
@@ -18,40 +20,49 @@ func userNavItems() []NavItem {
 	return []NavItem{NavItem{"首页", "/"}, NavItem{"用户", "/user"}, NavItem{"文章", "/user/post/"}, NavItem{"棋谱", "/user/sgf/"}, NavItem{"棋手", "/user/player/"}}
 }
 
+const (
+	c_lengthFy = 11
+)
+
 //翻页
 type IndexPageItem struct {
-	IsFirst   bool
-	IsLast	  bool
 	IsCurrent bool
 	Number    int
 }
 
-type IndexPages []IndexPageItem
+type IndexPages struct {
+	First *IndexPageItem
+	Last *IndexPageItem
+	Indexs []IndexPageItem
+}
 
-func newIndexPages(currnet, total int) IndexPages {
-	var first = 1
-	var beg = currnet - 4
-	if beg < first {
-		beg = first + 1
+func newIndexPages(currnet, last int) *IndexPages {
+	if currnet > last || last < 1{
+		return nil
 	}
-	var last = beg + 9
-	if last > total {
-		last = total - 1
+	if last == 1 {
+		return &IndexPages{&IndexPageItem{true, 1}, nil, nil}
 	}
-	var indexpages = make(IndexPages, 0)
-	if currnet == first {
-		indexpages = append(indexpages, IndexPageItem{true, false, true, first})
-	} else {
-		indexpages = append(indexpages, IndexPageItem{true, false, false, first})		
+	if last == 2 {
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == 2, 2}, nil}
 	}
-	for i := beg; i < last; i++ {
-		if i == currnet {			
-			indexpages = append(indexpages, IndexPageItem{false, false, true, i})	
-		}
-		indexpages = append(indexpages, IndexPageItem{false, false, false, i})	
+	if last <= c_lengthFy {
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1 + last)}
 	}
-	if last > beg {
-		indexpages = append(indexpages, IndexPageItem{false, false, false, last})	
+	var harf int = c_lengthFy/2
+	if currnet <= harf {
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1 + c_lengthFy)}
+	}
+	if currnet >= last - harf {
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2 + last - c_lengthFy, -1 + last)}
+	}
+	return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, currnet - harf + 1, currnet + harf - 1)}
+}
+
+func makeIndexPageItems(current, beg, end int) []IndexPageItem {
+	indexpages := make([]IndexPageItem, 0)
+	for i := beg ; i <= end ; i++ {
+		indexpages = append(indexpages, IndexPageItem{i==current,i})
 	}
 	return indexpages
 }

@@ -12,7 +12,7 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var err error
 	var posts = make([]Post, 0)
-	if rows, err := Posts.List(2, 0); err != nil {
+	if rows, err := Posts.List(c_listPostSize, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -29,19 +29,19 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 
 	cutPostTextMany(posts)
-	var count int64
-	if count, err = Db.Post.Count(""); err != nil {
+	var indexpages *IndexPages
+	if count, err := Db.Post.Count(""); err != nil {
 		h.ServerError(w, err)
 		return
+	} else {
+		var total int = int(count/c_listPostSize)
+		if count%c_listPostSize > 0 {
+			total += 1
+		}
+		indexpages = newIndexPages(1, total)
 	}
 
-	var num int = int(count/2)
-	if count%2 > 0 {
-		num += 1
-	}
-	var indexpage = newIndexPages(1, num)
-
-	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, indexpage), nil)
+	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, indexpages, 1), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -56,15 +56,14 @@ func postListHtml() *Html {
 	)
 }
 
-func postListData(u *User, posts []Post, indexpage IndexPages) *Data {
+func postListData(u *User, posts []Post, indexpages *IndexPages, current int) *Data {
 	data := defData()
 	data.User = u
-	data.Head.Title = "文章列表"
-	//data.Head.Title += fmt.Sprintf(" - 第%d页", indexpage.Current)
+	data.Head.Title = fmt.Sprintf("文章列表 - 第%d页", current)
 	data.Head.Desc = "围棋文章列表"
 	data.Head.Keywords = []string{"围棋", "文章", "新闻", "资料"}
 	data.Content["Posts"] = posts
-	data.Content["IndexPage"] = indexpage
+	data.Content["IndexPages"] = indexpages
 	return data
 }
 
@@ -76,24 +75,24 @@ func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
-	var fy IndexPages
+	var fy *IndexPages
 	if count, err := Db.Post.Count(""); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
-		var num int = int(count/2)
-		if count%2 > 0 {
-			num += 1
+		var total int = int(count/c_listPostSize)
+		if count%c_listPostSize > 0 {
+			total += 1
 		}
-		if current > num {
+		if current > total {
 			h.NotFound(w, "找不到页面")
 			return
 		}
-		fy = newIndexPages(current, num)
+		fy = newIndexPages(current, total)
 	}
 
 	var posts = make([]Post, 0)
-	if rows, err := Db.Post.List(2, (current -1)*2); err != nil {
+	if rows, err := Db.Post.List(c_listPostSize, (current -1)*c_listPostSize); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -113,7 +112,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
 		}
 	}
 	cutPostTextMany(posts)
-	err := postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy), nil)
+	err := postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy, current), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}

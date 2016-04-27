@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	c_listPostSize = 10
+)
+
 type Post struct {
 	Id     int64
 	Title  string
