@@ -39,7 +39,7 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 	if count%2 > 0 {
 		num += 1
 	}
-	var indexpage = newFy(1, num)
+	var indexpage = newIndexPages(1, num)
 
 	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, indexpage), nil)
 	if err != nil {
@@ -56,11 +56,11 @@ func postListHtml() *Html {
 	)
 }
 
-func postListData(u *User, posts []Post, indexpage *Fy) *Data {
+func postListData(u *User, posts []Post, indexpage IndexPages) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = "文章列表"
-	data.Head.Title += fmt.Sprintf(" - 第%d页", indexpage.Current)
+	//data.Head.Title += fmt.Sprintf(" - 第%d页", indexpage.Current)
 	data.Head.Desc = "围棋文章列表"
 	data.Head.Keywords = []string{"围棋", "文章", "新闻", "资料"}
 	data.Content["Posts"] = posts
@@ -76,7 +76,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
-	var fy *Fy
+	var fy IndexPages
 	if count, err := Db.Post.Count(""); err != nil {
 		h.ServerError(w, err)
 		return
@@ -89,7 +89,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
 			h.NotFound(w, "找不到页面")
 			return
 		}
-		fy = newFy(current, num)
+		fy = newIndexPages(current, num)
 	}
 
 	var posts = make([]Post, 0)

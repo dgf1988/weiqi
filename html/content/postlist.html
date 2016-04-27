@@ -56,11 +56,10 @@
 <div id="content">
     {{with .Content}}
         <ol>
-            {{with .IndexPage}}
-            <li style="width: auto;"><a href="/post/page/1">第1页</a></li>
-            {{range .Pages}}<li {{if eq . $.Content.IndexPage.Current}} class="is-current"{{end}} onclick="location.href='/post/page/{{.}}'"><a href="/post/page/{{.}}">{{.}}</a></li>{{end}}
-            <li style="width: auto;"><a href="/post/page/{{.Total}}">第{{.Total}}页</a></li>
-            {{end}}
+            {{range .IndexPages}}
+            {{if .IsFirst}}<li {{if .IsCurrent}}class="is-current"{{end}} onclick="location.href='/post/page/{{.Number}}'"><a href="/post/page/{{.Number}}">第{{.Number}}页</a></li>{{else}}
+            {{if .IsLast}}<li {{if .IsCurrent}}class="is-current"{{end}} onclick="location.href='/post/page/{{.Number}}'"><a href="/post/page/{{.Number}}">最未页</a></li>{{else}}
+            <li {{if .IsCurrent}}class="is-current"{{end}} onclick="location.href='/post/page/{{.Number}}'"><a href="/post/page/{{.Number}}">{{.Number}}</a></li>{{end}}
         </ol>
         {{range .Posts}}
         <section onclick="location.href='/post/{{.Id}}'">

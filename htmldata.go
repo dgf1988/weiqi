@@ -19,38 +19,41 @@ func userNavItems() []NavItem {
 }
 
 //翻页
-type IndexPage struct {
+type IndexPageItem struct {
+	IsFirst   bool
+	IsLast	  bool
 	IsCurrent bool
-	Number int
+	Number    int
 }
 
-type Fy struct {
-	Current int
-	Total   int
-	Pages   []int
-}
+type IndexPages []IndexPageItem
 
-func newFy(currnet, total int) *Fy {
-	fy := Fy{}
-	fy.Current = currnet
-	fy.Total = total
-	fy.Pages = make([]int, 0)
-	var last int
-	if fy.Current + 4 >= fy.Total {
-		last = fy.Total
-	} else {
-		last = fy.Current + 4
+func newIndexPages(currnet, total int) IndexPages {
+	var first = 1
+	var beg = currnet - 4
+	if beg < first {
+		beg = first + 1
 	}
-	if fy.Current < 5 {
-		for i := 1; i <= last; i ++ {
-			fy.Pages = append(fy.Pages, i)
-		}
-	} else {
-		for i := fy.Current -4; i <= last; i ++ {
-			fy.Pages = append(fy.Pages, i)
-		}
+	var last = beg + 9
+	if last > total {
+		last = total - 1
 	}
-	return &fy
+	var indexpages = make(IndexPages, 0)
+	if currnet == first {
+		indexpages = append(indexpages, IndexPageItem{true, false, true, first})
+	} else {
+		indexpages = append(indexpages, IndexPageItem{true, false, false, first})		
+	}
+	for i := beg; i < last; i++ {
+		if i == currnet {			
+			indexpages = append(indexpages, IndexPageItem{false, false, true, i})	
+		}
+		indexpages = append(indexpages, IndexPageItem{false, false, false, i})	
+	}
+	if last > beg {
+		indexpages = append(indexpages, IndexPageItem{false, false, false, last})	
+	}
+	return indexpages
 }
 
 //Head 页面布局使用的Html头数据结构
