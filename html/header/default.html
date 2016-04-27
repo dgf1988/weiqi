@@ -2,12 +2,11 @@
 <style>
     /* header */
     body > header {
-        border-bottom: 1px solid;
         margin: 10px;
+        border-bottom: 1px solid black;
     }
-    body > header > h2 {
-        font-size: 32px;
-        margin: auto 20px ;
+    body > header > a > img {
+        height: 50px;
     }
     /* header nav */
     body > header > nav > ul {
@@ -15,6 +14,7 @@
         background: linear-gradient(to right, #03467a, #0579cb);
         box-shadow: -1px 1px 3px #000000;
         border-radius: 2px;
+        margin: 0;
     }
     body > header > nav > ul > li {
         display: inline-block;
@@ -37,7 +37,7 @@
 </style>
 <header>
     {{with .Header}}
-    <h2>{{.Title}}</h2>
+    <a href="/"><img src="/static/site/logo.png"></a>
     <nav>
         <ul>
             {{range .Navs}}<li><a href="{{.Url}}" title="{{.Title}}">{{.Title}}</a></li>{{end}}

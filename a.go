@@ -54,6 +54,7 @@ func Run() {
 	m.HandleFunc(handlePlayerUpdate, "/user/player/update", POST)
 
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath)), "/static/*", GET)
+	m.HandleStd(http.FileServer(http.Dir(config.BasePath+"static/site/")), "/+", GET)
 
 	http.Handle("/", m)
 	log.Fatal(http.ListenAndServe(*port, nil))
