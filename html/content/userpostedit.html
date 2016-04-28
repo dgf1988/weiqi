@@ -63,7 +63,7 @@
             {{range .Posts}}
             <tr>
                 <td><a href="/user/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></td>
-                <td>{{.Status}}</td><td>{{.Update.Format "01-02 15:04"}}</td>
+                <td>{{.StrStatus}}</td><td>{{.Update.Format "01-02 15:04"}}</td>
                 <td><form action="/user/post/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form></td>
             </tr>
             {{end}}

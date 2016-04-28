@@ -52,6 +52,7 @@ type Table interface {
 	Get(args ...interface{}) Row
 
 	//查询多条记录
+	Any(args ...interface{}) (Rows, error)
 	Find(args ...interface{}) (Rows, error)
 	List(take, skip int) (Rows, error)
 	Query(query string, args ...interface{}) (Rows, error)

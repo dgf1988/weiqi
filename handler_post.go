@@ -67,7 +67,7 @@ func postListData(u *User, posts []Post, indexpages *IndexPages, current int) *D
 	return data
 }
 
-func handlePostPage(w http.ResponseWriter, r *http.Request, args []string) {
+func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 
 	var current = atoi(args[0])
 	if current <= 0 {

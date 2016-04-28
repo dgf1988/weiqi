@@ -157,6 +157,26 @@ func (t *typeTable) Find(args ...interface{}) (Rows, error) {
 	}, nil
 }
 
+func (t *typeTable) Any(args ...interface{}) (Rows, error) {
+	listwhere := make([]string, 0)
+	listparam := make([]interface{}, 0)
+	for i := range args {
+		if args[i] == nil {
+			continue
+		}
+		listwhere = append(listwhere, t.Columns[i].FullName+"=?")
+		listparam = append(listparam, args[i])
+	}
+	strSql := fmt.Sprintf("%s WHERE %s", t.sqlSelect, strings.Join(listwhere, " OR "))
+	rows, err := dbQuery(strSql, listparam...)
+	if err != nil {
+		return nil, err
+	}
+	return &typeRows{
+		rows, t, t.makeNullableScans(),
+	}, nil
+}
+
 func (t *typeTable) List(take, skip int) (Rows, error) {
 	rows, err := dbQuery(fmt.Sprintf("%s ORDER BY %s DESC limit ?, ?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {

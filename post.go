@@ -15,13 +15,17 @@ type Post struct {
 	Id     int64
 	Title  string
 	Text   string
-	Status int64
+	Status int
 	Posted time.Time
 	Update time.Time
 }
 
 func (p *Post) HtmlText() template.HTML {
 	return template.HTML(p.Text)
+}
+
+func (p Post) StrStatus() string {
+	return statusToString(p.Status)
 }
 
 const c_CutTextLength = 140

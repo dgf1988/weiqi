@@ -46,7 +46,7 @@
                     <th>国籍</th><td><label><input name="country" type="text" class="input" value="{{.Player.Country}}"></label></td>
                 </tr>
                 <tr>
-                    <th>段位</th><td><label><input name="rank" type="text" class="input" value="{{.Player.Rank}}"></label></td>
+                    <th>段位</th><td><label><input name="rank" type="text" class="input" value="{{.Player.StrRank}}"></label></td>
                 </tr>
                 <tr>
                     <th>生日</th><td><label><input name="birth" type="text" class="input" value='{{.Player.Birth.Format "2006-01-02"}}'></label></td>
@@ -83,7 +83,7 @@
                 <td><a href="/user/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
                 <td>{{.StrSex}}</td>
                 <td>{{.Country}}</td>
-                <td>{{.Rank}}</td>
+                <td>{{.StrRank}}</td>
                 <td>{{.Birth.Format "2006-01-02"}}</td>
                 <td>
                     <form action="/user/player/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>

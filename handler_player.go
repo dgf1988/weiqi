@@ -73,7 +73,7 @@ func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
 	}
 
 	var sgfs []Sgf
-	if sgfs, err = listSgfByNamesOrderByTimeDesc(player.Name); err != nil {
+	if sgfs, err = listSgfByNameOrderByTimeDesc(player.Name); err != nil {
 		return err
 	}
 

@@ -93,6 +93,28 @@ func listSgfOrderByTimeDesc(take, skip int) ([]Sgf, error) {
 	return sgfs, nil
 }
 
+func listSgfByNameOrderByTimeDesc(name string) ([]Sgf, error) {
+	var sgfs = make([]Sgf, 0)
+	if rows, err := Db.Sgf.Any(nil, nil, nil, nil, name, name); err != nil {
+		return nil, err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var sgf Sgf
+			if err = rows.Struct(&sgf); err != nil {
+				return nil, err
+			} else {
+				sgfs = append(sgfs, sgf)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+	sort.Sort(sgfOrderByTimeDesc(sgfs))
+	return sgfs, nil
+}
+
 func listSgfByNamesOrderByTimeDesc(names ...string) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
 	for _, name := range names {
