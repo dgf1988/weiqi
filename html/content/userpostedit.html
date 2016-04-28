@@ -77,9 +77,9 @@
             </thead>
             <tbody>
             {{range .Posts}}
-            {{if eq .Status 0}}<tr class="draft">
-            {{else if eq .Status 1}}<tr class="release">
-            {{else if eq .Status 2}}<tr class="delete">
+            {{if eq .Status 0}}<tr class="draft" >
+            {{else if eq .Status 1}}<tr class="release" >
+            {{else if eq .Status 2}}<tr class="delete" >
             {{end}}
                 <td><a href="/user/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></td>
                 <td>{{.Update.Format "01-02 15:04"}}</td>

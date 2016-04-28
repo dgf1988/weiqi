@@ -9,91 +9,73 @@ import (
 
 //player list
 func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
-
-	err := playerListRender(w, getSessionUser(r))
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			h.NotFound(w, "找不到棋手")
-		default:
-			h.ServerError(w, err)
-		}
-	}
-}
-
-func playerListRender(w http.ResponseWriter, u *User) error {
-	var players []Player
 	var err error
-	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
-		return err
-	}
-
-	data := defData()
+	var data = defData()
+	data.User = getSessionUser(r)
 	data.Head.Title = "棋手列表"
 	data.Head.Desc = "围棋棋手列表"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料"}
-	data.User = u
+
+	var players []Player
+	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
+		h.ServerError(w, err)
+		return
+	}
 	data.Content["Players"] = players
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlFooter(),
-		newHtmlContent("playerlist"),
-	).Execute(w, data, nil)
+
+	var html = defHtmlLayout().Append(defHtmlHead(), defHtmlHeader(), defHtmlFooter(), newHtmlContent("playerlist"))
+	if err = html.Execute(w, data, nil); err != nil {
+		logError("%s %s html.execute %s", r.Method, r.URL, err.Error())
+		return
+	}
 }
 
 //player id
 func handlePlayerId(w http.ResponseWriter, r *http.Request, args []string) {
-
-	switch err := renderPlayerid(w, getSessionUser(r), args[0]); err {
-	case nil:
-	case sql.ErrNoRows:
-		h.NotFound(w, "棋手不存在")
-	default:
-		h.ServerError(w, err)
-	}
-}
-
-func renderPlayerid(w http.ResponseWriter, u *User, id interface{}) error {
-	var player = new(Player)
-	var text = new(Text)
 	var err error
+	var data = defData()
+	data.User = getSessionUser(r)
 
-	if err = Players.Get(id).Struct(player); err != nil {
-		return err
-	} else {
-		var textid int64
-		if err = TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
-			if err = Texts.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
-				return err
-			}
-		} else if err != sql.ErrNoRows {
-			return err
-		}
+	var player = new(Player)
+	if err = Db.Player.Get(atoi(args[0])).Struct(player); err == sql.ErrNoRows {
+		h.NotFound(w, "找不到棋手")
+		return
+	} else if err != nil {
+		h.ServerError(w, err)
+		return
 	}
-
-	var sgfs []Sgf
-	if sgfs, err = listSgfByNameOrderByTimeDesc(player.Name); err != nil {
-		return err
-	}
-
-
-	data := defData()
-	data.User = u
 	data.Head.Title = player.Name
 	data.Head.Desc = "围棋棋手"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料", player.Name}
 	data.Content["Player"] = player
-	text.Text = parseTextToHtml(text.Text)
-	data.Content["Text"] = text
-	data.Content["Sgfs"] = sgfs
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlFooter(),
-		newHtmlContent("playerid"),
-	).Execute(w, data, nil)
 
+	var textid int64
+	var text = new(Text)
+	if err = Db.TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
+		if err = Db.Text.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
+			h.ServerError(w, err)
+			return
+		} else {
+			text.Text = parseTextToHtml(text.Text)
+		}
+	} else if err != sql.ErrNoRows {
+		h.ServerError(w, err)
+		return
+	}
+	data.Content["Text"] = text
+
+	var sgfs []Sgf
+	if sgfs, err = listSgfByNameOrderByTimeDesc(player.Name); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	data.Content["Sgfs"] = sgfs
+
+	var html = defHtmlLayout().Append(defHtmlHead(), defHtmlHeader(), defHtmlFooter(), newHtmlContent("playerid"))
+	if err = html.Execute(w, data, nil); err != nil {
+		logError("%s %s html.execute %s", r.Method, r.URL, err.Error())
+		return
+	}
 }
 
 //plaeyr edit

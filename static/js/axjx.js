@@ -128,7 +128,5 @@ function httpSend(action,method,listKeyValue){
 
     document.body.appendChild(form);
     form.submit();
-    document.body.removeChild(form);
-    return form;
 }
 

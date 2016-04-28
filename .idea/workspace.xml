@@ -3,18 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="9e58f444-858e-43a0-af91-59b55ab8fae1" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler_player.go" afterPath="$PROJECT_DIR$/handler_player.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a.go" afterPath="$PROJECT_DIR$/a.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/all_test.go" afterPath="$PROJECT_DIR$/all_test.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/db.go" afterPath="$PROJECT_DIR$/db/db.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/table.go" afterPath="$PROJECT_DIR$/db/table.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler.go" afterPath="$PROJECT_DIR$/handler.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler_post.go" afterPath="$PROJECT_DIR$/handler_post.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler_sgf.go" afterPath="$PROJECT_DIR$/handler_sgf.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html.go" afterPath="$PROJECT_DIR$/html.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html/content/userpostedit.html" afterPath="$PROJECT_DIR$/html/content/userpostedit.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/post.go" afterPath="$PROJECT_DIR$/post.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/weiqi.go" afterPath="$PROJECT_DIR$/weiqi.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html/layout/default.html" afterPath="$PROJECT_DIR$/html/layout/default.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/axjx.js" afterPath="$PROJECT_DIR$/static/js/axjx.js" />
     </list>
     <ignored path="weiqi.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -68,8 +61,8 @@
       <file leaf-file-name="default.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/html/layout/default.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="17" column="7" selection-start-line="17" selection-start-column="7" selection-end-line="17" selection-end-column="7" />
+            <state relative-caret-position="256">
+              <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -88,8 +81,8 @@
       <file leaf-file-name="userpostedit.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/html/content/userpostedit.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="79" column="49" selection-start-line="79" selection-start-column="49" selection-end-line="79" selection-end-column="49" />
+            <state relative-caret-position="318">
+              <caret line="82" column="19" selection-start-line="82" selection-start-column="19" selection-end-line="82" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -126,8 +119,8 @@
         <option value="$PROJECT_DIR$/html/content/postlist.html" />
         <option value="$PROJECT_DIR$/html/content/postid.html" />
         <option value="$PROJECT_DIR$/html/header/default.html" />
-        <option value="$PROJECT_DIR$/html/layout/default.html" />
         <option value="$PROJECT_DIR$/html/content/userplayeredit.html" />
+        <option value="$PROJECT_DIR$/html/layout/default.html" />
         <option value="$PROJECT_DIR$/html/content/userpostedit.html" />
       </list>
     </option>
@@ -301,15 +294,15 @@
       <workItem from="1461675035029" duration="4086000" />
       <workItem from="1461728464316" duration="5413000" />
       <workItem from="1461820078103" duration="6585000" />
-      <workItem from="1461838235714" duration="1912000" />
+      <workItem from="1461838235714" duration="2969000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17996000" />
+    <option name="totallyTimeSpent" value="19053000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="54" y="-8" width="1320" height="784" extended-state="7" />
+    <frame x="54" y="-8" width="1320" height="784" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -491,14 +484,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/html/layout/default.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="7" selection-start-line="17" selection-start-column="7" selection-end-line="17" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/html/content/userplayeredit.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1344">
@@ -515,10 +500,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/html/layout/default.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="256">
+          <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/html/content/userpostedit.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="79" column="49" selection-start-line="79" selection-start-column="49" selection-end-line="79" selection-end-column="49" />
+        <state relative-caret-position="318">
+          <caret line="82" column="19" selection-start-line="82" selection-start-column="19" selection-end-line="82" selection-end-column="19" />
           <folding />
         </state>
       </provider>

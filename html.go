@@ -52,7 +52,7 @@ func (h *Html) Execute(out io.Writer, datamap interface{}, funcmap template.Func
 	if err != nil {
 		return err
 	}
-	return t.ExecuteTemplate(out, h.ClsName, datamap)
+	return t.Execute(out, datamap)
 }
 
 //

@@ -101,12 +101,12 @@ func handlePostId(w http.ResponseWriter, r *http.Request, args []string) {
 
 	if id := atoi(args[0]); id > 0 {
 		var post = new(Post)
-		if err = Db.Post.Get(id).Struct(post); err == sql.ErrNoRows {
-			h.NotFound(w, "找不到文章")
-		} else if err == nil {
+		if err = Db.Post.Get(id).Struct(post); err == nil {
 			if err = postIdHtml().Execute(w, postIdData(getSessionUser(r), post), nil); err != nil {
-				h.ServerError(w, err)
+				logError(err.Error())
 			}
+		} else if err == sql.ErrNoRows{
+			h.NotFound(w, "找不到文章")
 		} else {
 			h.ServerError(w, err)
 		}
@@ -308,5 +308,5 @@ func handlePostStatus(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
-	h.SeeOther(w, r, "/user/post/")
+	h.SeeOther(w, r, fmt.Sprintf("/user/post/%d?editormsg=更新成功", id))
 }
