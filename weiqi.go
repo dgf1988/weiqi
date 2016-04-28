@@ -1,29 +1,36 @@
 package weiqi
 
-var statusMap = map[int]string{
-	-1: "删除",
-	0: "草稿",
-	1: "发布",
+import "fmt"
+
+const (
+	c_statusDraft = iota
+	c_statusRelease
+	c_statusDelete
+)
+
+type State struct {
+	Value int
+	Name string
 }
 
-func statusToString(status int) string {
-	s, ok := statusMap[status]
-	if ok {
-		return s
-	} else {
-		return ""
-	}
+var weiqiStatus = []State{
+	State{0, "草稿"}, State{1, "发布"}, State{2, "删除"},
 }
 
-func stringToStatus(s string) int {
-	switch s {
-	case "删除":
-		return -1
-	case "草稿":
-		return 0
-	case "发布":
-		return 1
-	default:
-		panic("weiqi: the status not found in status map")
+func statusToString(statusValue int) string {
+	for _, s := range weiqiStatus {
+		if s.Value == statusValue {
+			return s.Name
+		}
 	}
+	panic(fmt.Sprint("status:", statusValue, " no found"))
+}
+
+func stringToStatus(statusName string) int {
+	for _, s := range weiqiStatus {
+		if s.Name == statusName {
+			return s.Value
+		}
+	}
+	panic(fmt.Sprint("status:", statusName, " no found"))
 }

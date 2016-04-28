@@ -42,14 +42,12 @@ func (h *Html) AllFullname() []string {
 }
 
 func (h *Html) Execute(out io.Writer, datamap interface{}, funcmap template.FuncMap) error {
-	var (
-		t   = template.New("")
-		err error
-	)
+	var err error
+	var t *template.Template
 	if funcmap != nil {
-		t, err = t.Funcs(funcmap).ParseFiles(h.AllFullname()...)
+		t, err = template.New("root").Funcs(funcmap).ParseFiles(h.AllFullname()...)
 	} else {
-		t, err = t.ParseFiles(h.AllFullname()...)
+		t, err = template.ParseFiles(h.AllFullname()...)
 	}
 	if err != nil {
 		return err

@@ -18,6 +18,13 @@
     body > #content > #list table {
         border-collapse: collapse;
     }
+    body > #content > #list table tbody tr td a {
+        text-decoration: none;
+        color: black;
+    }
+    body > #content > #list table tbody tr:hover {
+        background: #c8c8c8;
+    }
     body > #content > #list table th{
         border: 1px solid black;
         background: #0394ea;
@@ -26,6 +33,15 @@
     body > #content > #list table td{
         border: 1px solid black;
         padding: 2px 3px;
+    }
+    body > #content > #list table .delete{
+        background: #757575;
+    }
+    body > #content > #list table .release{
+        background: #c7edcc;
+    }
+    body > #content > #list table .draft{
+        background: #9a991b;
     }
 </style>
 <div id="content">
@@ -56,15 +72,23 @@
             <caption>文章列表</caption>
             <thead>
             <tr>
-                <th>标题</th><th>状态</th><th>更新</th><th>操作</th>
+                <th>标题</th><th>更新</th><th>状态</th>
             </tr>
             </thead>
             <tbody>
             {{range .Posts}}
-            <tr>
+            {{if eq .Status 0}}<tr class="draft">
+            {{else if eq .Status 1}}<tr class="release">
+            {{else if eq .Status 2}}<tr class="delete">
+            {{end}}
                 <td><a href="/user/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></td>
-                <td>{{.StrStatus}}</td><td>{{.Update.Format "01-02 15:04"}}</td>
-                <td><form action="/user/post/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form></td>
+                <td>{{.Update.Format "01-02 15:04"}}</td>
+                <td>
+                    {{$state := .Status }}
+                    <select name="status" title="Status" onchange="changeStatus(this, {{.Id}})">
+                        {{range $.Content.Status}}<option value="{{.Value}}" {{if eq .Value $state}}selected="selected"{{end}}>{{.Name}}</option>{{end}}
+                    </select>
+                </td>
             </tr>
             {{end}}
             </tbody>
@@ -73,4 +97,27 @@
     {{end}}
     <div style="clear: both;"></div>
 </div>
+<script>
+    function changeStatus(select, id) {
+        var index = select.selectedIndex;
+        var value = select.options[index].value;
+        var text = select.options[index].text;
+
+        var listKeyValue = {"id": id, "status": value};
+
+        var form = document.createElement('form');
+        form.style.display = 'none';
+        form.action = "/user/post/status";
+        form.method=  "post";
+
+        for( var key in listKeyValue){
+            var input = document.createElement('input');
+            input.name = key;
+            input.value = listKeyValue[key];
+            form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
 {{end}}

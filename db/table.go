@@ -178,6 +178,16 @@ func (t *typeTable) Any(args ...interface{}) (Rows, error) {
 }
 
 func (t *typeTable) List(take, skip int) (Rows, error) {
+	rows, err := dbQuery(fmt.Sprintf("%s limit ?, ?", t.sqlSelect), skip, take)
+	if err != nil {
+		return nil, err
+	}
+	return &typeRows{
+		rows, t, t.makeNullableScans(),
+	}, nil
+}
+
+func (t *typeTable) ListDesc(take, skip int) (Rows, error) {
 	rows, err := dbQuery(fmt.Sprintf("%s ORDER BY %s DESC limit ?, ?", t.sqlSelect, t.Primarykey), skip, take)
 	if err != nil {
 		return nil, err

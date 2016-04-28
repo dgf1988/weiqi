@@ -102,7 +102,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	r.ParseForm()
 	var err error
 	var sgfs = make([]Sgf, 0)
-	if rows, err := Sgfs.List(40, 0); err != nil {
+	if rows, err := Sgfs.ListDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	c_listPostSize = 10
+	c_postPageSize = 10
 )
 
 type Post struct {
@@ -65,4 +65,25 @@ func parseTextToHtml(text string) string {
 		}
 	}
 	return strings.Join(ret, "\n")
+}
+
+func listPostByStatusOrderDesc(status, take, skip int) ([]Post, error) {
+	var posts = make([]Post, 0)
+	if rows, err := Db.Post.Query("where post.status = ? order by post.id desc limit ?, ?", status, skip , take); err != nil {
+		return nil, err
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var post Post
+			if err = rows.Struct(&post); err != nil {
+				return nil, err
+			} else {
+				posts = append(posts, post)
+			}
+		}
+		if err = rows.Err(); err != nil {
+			return nil, err
+		}
+	}
+	return posts, nil
 }

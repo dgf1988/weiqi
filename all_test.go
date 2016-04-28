@@ -5,7 +5,7 @@ import (
 )
 
 func TestDbDesc(t *testing.T) {
-	if rows, err := Texts.List(40, 0); err == nil {
+	if rows, err := Texts.ListDesc(40, 0); err == nil {
 		defer rows.Close()
 		for rows.Next() {
 			var text Text

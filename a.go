@@ -42,6 +42,8 @@ func Run() {
 	m.HandleFunc(handlePostEdit, "/user/post/", GET)
 	m.HandleFunc(handlePostEdit, "/user/post/+", GET)
 	m.HandleFunc(handlePostAdd, "/user/post/add", POST)
+	m.HandleFunc(handlePostStatus, "/user/post/status", POST)
+	///user/post/status
 	m.HandleFunc(handlePostUpdate, "/user/post/update", POST)
 	m.HandleFunc(handlePostDel, "/user/post/del", POST)
 

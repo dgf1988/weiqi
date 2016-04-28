@@ -55,6 +55,7 @@ type Table interface {
 	Any(args ...interface{}) (Rows, error)
 	Find(args ...interface{}) (Rows, error)
 	List(take, skip int) (Rows, error)
+	ListDesc(take, skip int) (Rows, error)
 	Query(query string, args ...interface{}) (Rows, error)
 
 	//统计

@@ -136,7 +136,7 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 		}
 	}
 
-	if rows, err := Players.List(40, 0); err == nil {
+	if rows, err := Players.ListDesc(40, 0); err == nil {
 		defer rows.Close()
 		for rows.Next() {
 			var a Player

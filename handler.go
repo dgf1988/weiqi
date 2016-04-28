@@ -20,7 +20,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 	data.User = u
 
 	var (
-		posts   = make([]Post, 0)
+		posts   []Post
 		players []Player
 		sgfs    []Sgf
 		err error
@@ -30,20 +30,10 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		return err
 	}
 
-	if rows, err := Db.Post.List(40, 0); err != nil {
+	if posts, err = listPostByStatusOrderDesc(c_statusRelease, 40, 0); err != nil {
 		return err
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var post Post
-			err = rows.Struct(&post)
-			if err != nil {
-				return err
-			} else {
-				posts = append(posts, post)
-			}
-		}
 	}
+
 	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
 		return err
 	}

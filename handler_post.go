@@ -10,32 +10,22 @@ import (
 //post list
 func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
+	var posts []Post
 	var err error
-	var posts = make([]Post, 0)
-	if rows, err := Posts.List(c_listPostSize, 0); err != nil {
+	if posts, err = listPostByStatusOrderDesc(c_statusRelease, c_postPageSize, 0); err != nil {
 		h.ServerError(w, err)
 		return
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var post Post
-			if err = rows.Struct(&post); err != nil {
-				h.ServerError(w, err)
-				return
-			} else {
-				posts = append(posts, post)
-			}
-		}
 	}
+
 
 	cutPostTextMany(posts)
 	var indexpages *IndexPages
-	if count, err := Db.Post.Count(""); err != nil {
+	if count, err := Db.Post.Count("where post.status = ?", c_statusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
-		var total int = int(count/c_listPostSize)
-		if count%c_listPostSize > 0 {
+		var total int = int(count/ c_postPageSize)
+		if count% c_postPageSize > 0 {
 			total += 1
 		}
 		indexpages = newIndexPages(1, total)
@@ -76,12 +66,12 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var fy *IndexPages
-	if count, err := Db.Post.Count(""); err != nil {
+	if count, err := Db.Post.Count("where post.status = ?", c_statusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
-		var total int = int(count/c_listPostSize)
-		if count%c_listPostSize > 0 {
+		var total int = int(count/ c_postPageSize)
+		if count% c_postPageSize > 0 {
 			total += 1
 		}
 		if current > total {
@@ -91,28 +81,15 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 		fy = newIndexPages(current, total)
 	}
 
-	var posts = make([]Post, 0)
-	if rows, err := Db.Post.List(c_listPostSize, (current -1)*c_listPostSize); err != nil {
+	var posts []Post
+	var err error
+	if posts, err = listPostByStatusOrderDesc(c_statusRelease, c_postPageSize, (current-1)*c_postPageSize); err != nil {
 		h.ServerError(w, err)
 		return
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var post Post
-			if err = rows.Struct(&post); err != nil {
-				h.ServerError(w, err)
-				return
-			} else {
-				posts = append(posts, post)
-			}
-		}
-		if err = rows.Err(); err != nil {
-			h.ServerError(w, err)
-			return
-		}
 	}
+
 	cutPostTextMany(posts)
-	err := postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy, current), nil)
+	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy, current), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
@@ -120,23 +97,21 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 
 //post id
 func handlePostId(w http.ResponseWriter, r *http.Request, args []string) {
+	var err error
 
-	id := atoi64(args[0])
-	if id <= 0 {
-		h.NotFound(w, "找不到文章")
-		return
-	}
-	var p = new(Post)
-	err := Posts.Get(id).Struct(p)
-	if err == sql.ErrNoRows {
-		h.NotFound(w, "找不到文章")
-	} else if err != nil {
-		h.ServerError(w, err)
-	} else {
-		err = postIdHtml().Execute(w, postIdData(getSessionUser(r), p), nil)
-		if err != nil {
+	if id := atoi(args[0]); id > 0 {
+		var post = new(Post)
+		if err = Db.Post.Get(id).Struct(post); err == sql.ErrNoRows {
+			h.NotFound(w, "找不到文章")
+		} else if err == nil {
+			if err = postIdHtml().Execute(w, postIdData(getSessionUser(r), post), nil); err != nil {
+				h.ServerError(w, err)
+			}
+		} else {
 			h.ServerError(w, err)
 		}
+	} else {
+		h.NotFound(w, "找不到文章")
 	}
 }
 
@@ -192,7 +167,7 @@ func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var posts = make([]Post, 0)
-	if rows, err := Posts.List(40, 0); err != nil {
+	if rows, err := Posts.ListDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -231,6 +206,7 @@ func userPostEditData(u *User, action, msg string, post *Post, posts []Post) *Da
 	data.Content["Editor"] = Editor{action, msg}
 	data.Content["Post"] = post
 	data.Content["Posts"] = posts
+	data.Content["Status"] = weiqiStatus
 	return data
 }
 
@@ -310,4 +286,27 @@ func handlePostDel(w http.ResponseWriter, r *http.Request, args []string) {
 	} else {
 		h.SeeOther(w, r, "/user/post/?editormsg=删除成功")
 	}
+}
+
+func handlePostStatus(w http.ResponseWriter, r *http.Request, args []string) {
+	if getSessionUser(r) == nil {
+		h.SeeOther(w, r, "/login")
+		return
+	}
+
+	r.ParseForm()
+	var id = atoi(r.FormValue("id"))
+	var status = atoi(r.FormValue("status"))
+
+	if id <= 0 {
+		h.NotFound(w, "找不到文章")
+		return
+	}
+
+	if _, err := Db.Post.Update(id).Values(nil, nil, nil, status); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+
+	h.SeeOther(w, r, "/user/post/")
 }
