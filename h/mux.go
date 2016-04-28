@@ -1,6 +1,11 @@
 package h
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+	"os"
+	"log"
+)
 
 //Mux
 type Mux struct {
@@ -32,6 +37,16 @@ func (mux *Mux) HandleFuncStd(f http.HandlerFunc, pattern string, methods ...str
 }
 
 func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var useragent = strings.ToLower(r.UserAgent())
+	//Slurp
+	if strings.Contains(useragent, "bot") || strings.Contains(useragent, "spider") || strings.Contains(useragent, "slurp") {
+		if f, err := os.OpenFile(spiderFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
+			panic(err.Error())
+		} else {
+			defer f.Close()
+			log.New(f, "[Spider]", log.LstdFlags).Printf("%s %s %s %s", r.RemoteAddr, r.Method, r.URL, r.UserAgent())
+		}
+	}
 	route, params := mux.Router.Match(r.URL.Path)
 
 	if route == nil || route.Handler == nil || route.Methods == nil || len(route.Methods) == 0 {
