@@ -6,6 +6,8 @@ import (
 	"io"
 	"strconv"
 	"time"
+	"net/http"
+	"regexp"
 )
 
 const (
@@ -38,6 +40,15 @@ func getMd5(data string) string {
 	hashMd5 := md5.New()
 	io.WriteString(hashMd5, data)
 	return fmt.Sprintf("%x", hashMd5.Sum(nil))
+}
+
+func getIp(r *http.Request) string {
+	var ip = r.Header.Get("x-forwarded-for")
+	if ip == "" {
+		ip = r.RemoteAddr
+		return regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`).FindString(ip)
+	}
+	return ip
 }
 
 func atoi(num string) int {

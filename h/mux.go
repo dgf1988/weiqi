@@ -5,6 +5,7 @@ import (
 	"strings"
 	"os"
 	"log"
+	"regexp"
 )
 
 //Mux
@@ -38,10 +39,7 @@ func (mux *Mux) HandleFuncStd(f http.HandlerFunc, pattern string, methods ...str
 
 func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var useragent = strings.ToLower(r.UserAgent())
-	var remoteaddr = r.Header.Get("x-forwarded-for")
-	if remoteaddr == "" {
-		remoteaddr = r.RemoteAddr
-	}
+	var remoteaddr = getIp(r)
 	//Slurp
 	if strings.Contains(useragent, "bot") || strings.Contains(useragent, "spider") || strings.Contains(useragent, "slurp") {
 		if f, err := os.OpenFile(spiderFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
@@ -50,7 +48,15 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			defer f.Close()
 			log.New(f, "[Spider]", log.LstdFlags).Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
 		}
+	} else {
+		if f, err := os.OpenFile(accessFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
+			panic(err.Error())
+		} else {
+			defer f.Close()
+			log.New(f, "[Access]", log.LstdFlags).Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
+		}
 	}
+
 	route, params := mux.Router.Match(r.URL.Path)
 
 	if route == nil || route.Handler == nil || route.Methods == nil || len(route.Methods) == 0 {
@@ -64,4 +70,13 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		MethodNotAllowed(w, "method not allowed", route.Methods)
 	}
+}
+
+func getIp(r *http.Request) string {
+	var ip = r.Header.Get("x-forwarded-for")
+	if ip == "" {
+		ip = r.RemoteAddr
+		return regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|::1`).FindString(ip)
+	}
+	return ip
 }
