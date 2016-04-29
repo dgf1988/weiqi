@@ -1,5 +1,6 @@
 package db
 
+//Connect 连接数据库，使用标准库的连接池。
 func Connect(drivername, username, password, hostname string, port int, databasename string) error {
 	conn, err := dbGetConnect(drivername, username, password, hostname, port, databasename)
 	if err != nil {

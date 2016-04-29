@@ -1,9 +1,7 @@
 package h
 
 import (
-	"log"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -36,11 +34,6 @@ func MethodNotAllowed(w http.ResponseWriter, msg string, allows []string) {
 
 //ServerError 500 服务器错误
 func ServerError(w http.ResponseWriter, err error) {
-	f, ferr := os.OpenFile(errFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if ferr != nil {
-		panic(ferr.Error())
-	}
-	defer f.Close()
-	log.New(f, "[ServerError: 500]", log.LstdFlags).Println(err.Error())
+	errorlogger.Printf(err.Error())
 	textStatus(w, err.Error(), http.StatusInternalServerError)
 }

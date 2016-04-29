@@ -46,7 +46,7 @@ func getIp(r *http.Request) string {
 	var ip = r.Header.Get("x-forwarded-for")
 	if ip == "" {
 		ip = r.RemoteAddr
-		return regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`).FindString(ip)
+		return regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|::1`).FindString(ip)
 	}
 	return ip
 }

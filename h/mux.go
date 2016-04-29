@@ -3,8 +3,6 @@ package h
 import (
 	"net/http"
 	"strings"
-	"os"
-	"log"
 	"regexp"
 )
 
@@ -42,19 +40,9 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var remoteaddr = getIp(r)
 	//Slurp
 	if strings.Contains(useragent, "bot") || strings.Contains(useragent, "spider") || strings.Contains(useragent, "slurp") {
-		if f, err := os.OpenFile(spiderFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
-			panic(err.Error())
-		} else {
-			defer f.Close()
-			log.New(f, "[Spider]", log.LstdFlags).Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
-		}
+		spiderlogger.Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
 	} else {
-		if f, err := os.OpenFile(accessFilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666); err != nil {
-			panic(err.Error())
-		} else {
-			defer f.Close()
-			log.New(f, "[Access]", log.LstdFlags).Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
-		}
+		accesslogger.Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
 	}
 
 	route, params := mux.Router.Match(r.URL.Path)
