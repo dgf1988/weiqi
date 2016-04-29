@@ -59,5 +59,6 @@ type Table interface {
 	Query(query string, args ...interface{}) (Rows, error)
 
 	//统计
-	Count(query string, args ...interface{}) (int64, error)
+	Count(args ...interface{}) (int64, error)
+	CountBy(query string, args ...interface{}) (int64, error)
 }

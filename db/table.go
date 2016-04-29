@@ -208,8 +208,27 @@ func (t *typeTable) Query(query string, args ...interface{}) (Rows, error) {
 	}, nil
 }
 
+func (t typeTable) Count(args ...interface{}) (int64, error) {
+	var err error
+	var keys = make([]string, 0)
+	var param = make([]interface{}, 0)
+	for i := range args {
+		if args[i] == nil {
+			continue
+		}
+		keys = append(keys, t.Columns[i].FullName + "=?")
+		param = append(param, args[i])
+	}
+	var strSql = fmt.Sprintf("%s WHERE %s ", t.sqlSelectCount, strings.Join(keys, " AND "))
+	var num int64
+	if err = dbQueryRow(strSql, param...).Scan(&num); err != nil {
+		return -1, err
+	}
+	return num, nil
+}
+
 // Count 统计
-func (t typeTable) Count(query string, args ...interface{}) (int64, error) {
+func (t typeTable) CountBy(query string, args ...interface{}) (int64, error) {
 	var num int64
 	err := dbQueryRow(fmt.Sprintf("%s %s", t.sqlSelectCount, query), args...).Scan(&num)
 	if err != nil {

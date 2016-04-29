@@ -141,7 +141,3 @@ func listSgfByNamesOrderByTimeDesc(names ...string) ([]Sgf, error) {
 	sort.Sort(sgfOrderByTimeDesc(sgfs))
 	return sgfs, nil
 }
-
-func countSgfNumberByPlayerName(name string) (int64, error) {
-	return Db.Sgf.Count("where sgf.black = ? or sgf.white = ?", name, name)
-}
