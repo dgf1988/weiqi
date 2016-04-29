@@ -52,10 +52,10 @@ type Table interface {
 	Get(args ...interface{}) Row
 
 	//查询多条记录
-	FindAll(args ...interface{}) (Rows, error)
-	FindAny(args ...interface{}) (Rows, error)
 	List(take, skip int) (Rows, error)
 	ListDesc(take, skip int) (Rows, error)
+	FindAll(args ...interface{}) (Rows, error)
+	FindAny(args ...interface{}) (Rows, error)
 	Query(query string, args ...interface{}) (Rows, error)
 
 	//统计

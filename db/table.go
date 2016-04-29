@@ -23,7 +23,7 @@ func GetTable(databasename, tablename string) (Table, error) {
 	t.Columns = cols
 	t.ColumnNumbers = len(cols)
 	if t.ColumnNumbers <= 0 {
-		return nil, newErrorf("db: table not found")
+		return nil, newErrorf("db: table (%s) not found", tablename)
 	}
 
 	//遍历字段，读取其它信息。

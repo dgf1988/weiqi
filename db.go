@@ -64,7 +64,7 @@ func init() {
 	}
 	Db.Text = Texts
 
-	TextPlayer, err = db.GetTable(config.DbName, "text_player")
+	TextPlayer, err = db.GetTable(config.DbName, "textplayer")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9e58f444-858e-43a0-af91-59b55ab8fae1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/funcs.go" afterPath="$PROJECT_DIR$/funcs.go" />
-    </list>
+    <list default="true" id="9e58f444-858e-43a0-af91-59b55ab8fae1" name="Default" comment="" />
     <ignored path="weiqi.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -370,7 +368,7 @@
     <option name="totallyTimeSpent" value="21743000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="54" y="-8" width="1320" height="784" extended-state="7" />
+    <frame x="54" y="-8" width="1320" height="784" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
