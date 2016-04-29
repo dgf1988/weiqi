@@ -14,6 +14,9 @@
     #weiqi-header p{
         text-align: center;
     }
+    #weiqi-header p time{
+        margin: auto 10px;
+    }
     #weiqi-header table{
         margin-left: 28%;
         margin-bottom: 10px;
@@ -21,9 +24,16 @@
     }
     #weiqi-header table th{
         width: 50px;
+        background: #ededed;
+        border: 1px solid black;
     }
     #weiqi-header table td{
         text-align: left;
+        border: 1px solid black;
+    }
+    #weiqi-header table td a{
+        color: blue;
+        text-decoration: none;
     }
 
 
@@ -82,15 +92,15 @@
     <article id="weiqi">
         <header id="weiqi-header">
             <h1 class="article-header-h1">{{.Sgf.Event}} - {{.Sgf.Black}} VS {{.Sgf.White}}</h1>
-            <p>更新于:<time>{{.Sgf.Update.Format "2006-01-02 15:04"}}</time></p>
+            <p>更新于:<time>{{.Sgf.Update.Format "2006-01-02 15:04"}}</time>{{if $.User}}<a href="/user/sgf/{{.Sgf.Id}}">编辑</a>{{end}}</p>
             <table>
-                <tr><th>日期:</th><td><time>{{.Sgf.Time.Format "2006-01-02"}}</time></td></tr>
-                <tr><th>地点:</th><td>{{.Sgf.Place}}</td></tr>
-                <tr><th>黑棋:</th><td>{{if .Black}}<a href="/player/{{.Black.Id}}" title="{{.Black.Name}}">{{.Black.Name}}</a>{{else}}{{.Sgf.Black}}{{end}}</td></tr>
-                <tr><th>白棋:</th><td>{{if .White}}<a href="/player/{{.White.Id}}" title="{{.White.Name}}">{{.White.Name}}</a>{{else}}{{.Sgf.White}}{{end}}</td></tr>
-                <tr><th>赛事:</th><td>{{.Sgf.Event}}</td></tr>
-                <tr><th>规则:</th><td>{{.Sgf.Rule}}</td></tr>
-                <tr><th>结果:</th><td>{{.Sgf.Result}}</td></tr>
+                <tr><th>日期</th><td><time>{{.Sgf.Time.Format "2006-01-02"}}</time></td></tr>
+                <tr><th>地点</th><td>{{.Sgf.Place}}</td></tr>
+                <tr><th>黑棋</th><td>{{if .Black}}<a href="/player/{{.Black.Id}}" title="查看{{.Black.Name}}">{{.Black.Name}}</a>{{else}}{{.Sgf.Black}}{{end}}</td></tr>
+                <tr><th>白棋</th><td>{{if .White}}<a href="/player/{{.White.Id}}" title="查看{{.White.Name}}">{{.White.Name}}</a>{{else}}{{.Sgf.White}}{{end}}</td></tr>
+                <tr><th>赛事</th><td>{{.Sgf.Event}}</td></tr>
+                <tr><th>规则</th><td>{{.Sgf.Rule}}</td></tr>
+                <tr><th>结果</th><td>{{.Sgf.Result}}</td></tr>
             </table>
         </header>
         <div id="weiqi-content"></div>

@@ -6,6 +6,10 @@
         border: 1px solid #dddddd;
         padding: 10px 20px;
     }
+    #content #player header .title {
+        display: inline-block;
+        margin: 20px 10px;
+    }
     #content #player section {
         text-align: center;
     }
@@ -51,7 +55,7 @@
     {{with .Content}}
     <article id="player">
         <header>
-            <h1 class="article-header-h1">{{.Player.Name}}</h1>
+            <h1 class="title">{{.Player.Name}}</h1>{{if $.User}}<a href="/user/player/{{.Player.Id}}">编辑</a>{{end}}
         </header>
         <table>
             <tr>

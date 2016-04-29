@@ -8,6 +8,9 @@
     body > #content > article > header {
         margin: auto;
     }
+    body > #content > article > header time {
+        margin: auto 10px;
+    }
     body > #content > article > header > h1 {
         text-align: center;
         font-size: 24px;
@@ -22,7 +25,7 @@
     <article id="article">
         <header>
             <h1>{{.Post.Title}}</h1>
-            <time>{{.Post.Posted.Format "2006-01-02 15:04" }}</time>
+            <time>{{.Post.Posted.Format "2006-01-02 15:04" }}</time>{{if $.User}}<a href="/user/post/{{.Post.Id}}">编辑</a>{{end}}
         </header>
         {{.Post.HtmlText }}
     </article>
