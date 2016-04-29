@@ -44,7 +44,7 @@ func TestCount(t *testing.T) {
 		return
 	}
 
-	if rows, err := Players.Find(nil, nil, nil, "中国"); err != nil {
+	if rows, err := Players.FindAll(nil, nil, nil, "中国"); err != nil {
 		t.Error(err.Error())
 		return
 	} else {

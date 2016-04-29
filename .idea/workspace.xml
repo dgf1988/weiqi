@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9e58f444-858e-43a0-af91-59b55ab8fae1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler_player.go" afterPath="$PROJECT_DIR$/handler_player.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/handler_post.go" afterPath="$PROJECT_DIR$/handler_post.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html.go" afterPath="$PROJECT_DIR$/html.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html/content/userpostedit.html" afterPath="$PROJECT_DIR$/html/content/userpostedit.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/html/layout/default.html" afterPath="$PROJECT_DIR$/html/layout/default.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/axjx.js" afterPath="$PROJECT_DIR$/static/js/axjx.js" />
-    </list>
+    <list default="true" id="9e58f444-858e-43a0-af91-59b55ab8fae1" name="Default" comment="" />
     <ignored path="weiqi.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -294,16 +287,16 @@
       <workItem from="1461675035029" duration="4086000" />
       <workItem from="1461728464316" duration="5413000" />
       <workItem from="1461820078103" duration="6585000" />
-      <workItem from="1461838235714" duration="2969000" />
+      <workItem from="1461838235714" duration="3564000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19053000" />
+    <option name="totallyTimeSpent" value="19648000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="54" y="-8" width="1320" height="784" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />

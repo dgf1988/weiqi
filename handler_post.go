@@ -257,7 +257,7 @@ func handlePostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
-	_, err := Posts.Update(p.Id).Values(nil, p.Title, p.Text, p.Status)
+	_, err := Posts.Update(p.Id).Values(nil, p.Title, p.Text)
 	if err != nil {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return

@@ -137,7 +137,7 @@ func (t *typeTable) Get(args ...interface{}) Row {
 	}
 }
 
-func (t *typeTable) Find(args ...interface{}) (Rows, error) {
+func (t *typeTable) FindAll(args ...interface{}) (Rows, error) {
 	listwhere := make([]string, 0)
 	listparam := make([]interface{}, 0)
 	for i := range args {
@@ -157,7 +157,7 @@ func (t *typeTable) Find(args ...interface{}) (Rows, error) {
 	}, nil
 }
 
-func (t *typeTable) Any(args ...interface{}) (Rows, error) {
+func (t *typeTable) FindAny(args ...interface{}) (Rows, error) {
 	listwhere := make([]string, 0)
 	listparam := make([]interface{}, 0)
 	for i := range args {

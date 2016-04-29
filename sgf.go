@@ -95,7 +95,7 @@ func listSgfOrderByTimeDesc(take, skip int) ([]Sgf, error) {
 
 func listSgfByNameOrderByTimeDesc(name string) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
-	if rows, err := Db.Sgf.Any(nil, nil, nil, nil, name, name); err != nil {
+	if rows, err := Db.Sgf.FindAny(nil, nil, nil, nil, name, name); err != nil {
 		return nil, err
 	} else {
 		defer rows.Close()
