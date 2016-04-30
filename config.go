@@ -28,7 +28,9 @@ const (
   "DbHost":"localhost",
   "DbPort":3306,
   "DbName":"weiqi_2",
-  "DbCharset":"utf8"
+  "DbCharset":"utf8",
+
+  "UploadPath":"D:/upload/"
 }
 	`
 )
@@ -52,6 +54,8 @@ type Config struct {
 	DbPort     int
 	DbName     string
 	DbCharset  string
+
+	UploadPath string
 }
 
 var (
