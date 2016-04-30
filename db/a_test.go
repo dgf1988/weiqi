@@ -17,20 +17,22 @@ func TestCount(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	if rows, err := db.Query("show tables"); err != nil {
-		t.Fatal(err.Error())
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var table string
-			if err = rows.Scan(&table); err != nil {
-				t.Fatal(err.Error())
-			} else {
-				t.Log(table)
-			}
-		}
-		if err = rows.Err(); err != nil {
-			t.Fatal(err.Error())
-		}
+	type Post struct {
+		Id float64
+		Title string
+		Text string
+		Status int64
+		Posted string
+		Update string
 	}
+
+	Posts, err := GetTable("weiqi_2", "post")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	var post = new(Post)
+	if err = Posts.Get(9).Struct(post); err != nil {
+		t.Fatal(err.Error())
+	}
+	t.Log(post.Id, post.Title, post.Status, post.Posted, post.Update)
 }

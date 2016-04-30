@@ -21,7 +21,7 @@ ENGINE=InnoDB
 */
 
 var (
-	rankMap = map[int]string{
+	rankMap = map[int64]string{
 		109: "九段",
 		108: "八段",
 		107: "七段",
@@ -34,7 +34,7 @@ var (
 	}
 )
 
-func rankToChinese(rank int) string {
+func rankToChinese(rank int64) string {
 	ch, ok := rankMap[rank]
 	if ok {
 		return ch
@@ -43,7 +43,7 @@ func rankToChinese(rank int) string {
 	}
 }
 
-func chineseToRank( chRank string) int {
+func chineseToRank( chRank string) int64 {
 	switch chRank {
 	case "九段":
 		return 109
@@ -73,7 +73,7 @@ type Player struct {
 	Name    string
 	Sex     int64
 	Country string
-	Rank    int
+	Rank    int64
 	Birth   time.Time
 }
 

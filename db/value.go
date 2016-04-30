@@ -1,12 +1,17 @@
 package db
 
 import (
+	"fmt"
 	"reflect"
+	"strconv"
 	"time"
+	"database/sql/driver"
+	"database/sql"
+	"errors"
 )
 
 func parseValue(src interface{}) interface{} {
-	if s, ok := src.(iNullable); ok {
+	if s, ok := src.(driver.Valuer); ok {
 		src, _ = s.Value()
 	}
 	if src == nil {
@@ -15,21 +20,27 @@ func parseValue(src interface{}) interface{} {
 	return reflect.Indirect(reflect.ValueOf(src)).Interface()
 }
 
-func copyValue(dest interface{}, src interface{}) error {
-	if s, ok := src.(iNullable); ok {
+func convertValue(dest interface{}, src interface{}) error {
+	if s, ok := src.(driver.Valuer); ok {
 		src, _ = s.Value()
 	}
+	if d, ok := dest.(sql.Scanner); ok {
+		return d.Scan(src)
+	}
 	switch s := src.(type) {
-	//int64
 	case *int64:
-		switch d := dest.(type) {
-		case *int64:
-			if d == nil {
-				return errNilPtr
-			}
-			*d = *s
-			return nil
-		}
+		return convertValue(dest, *s)
+	case *bool:
+		return convertValue(dest, *s)
+	case *float64:
+		return convertValue(dest, *s)
+	case *string:
+		return convertValue(dest, *s)
+	case *time.Time:
+		return convertValue(dest, *s)
+	case *[]byte:
+		return convertValue(dest, *s)
+	//int64
 	case int64:
 		switch d := dest.(type) {
 		case *int64:
@@ -38,14 +49,29 @@ func copyValue(dest interface{}, src interface{}) error {
 			}
 			*d = s
 			return nil
-		}
-	case *float64:
-		switch d := dest.(type) {
+		case *string:
+			if d == nil {
+				return errNilPtr
+			}
+			*d = fmt.Sprint(s)
+			return nil
+		case *bool:
+			if d == nil {
+				return errNilPtr
+			}
+			if s == 0 {
+				*d = false
+				return nil
+			} else if s == 1 {
+				*d = true
+				return nil
+			}
+			return errors.New(fmt.Sprintf("db: the int64(%v) can't convert value to bool.", s))
 		case *float64:
 			if d == nil {
 				return errNilPtr
 			}
-			*d = *s
+			*d = float64(s)
 			return nil
 		}
 	case float64:
@@ -56,15 +82,24 @@ func copyValue(dest interface{}, src interface{}) error {
 			}
 			*d = s
 			return nil
-		}
-	case *bool:
-		switch d := dest.(type) {
+		case *string:
+			if d == nil {
+				return errNilPtr
+			}
+			*d = fmt.Sprint(s)
+			return nil
 		case *bool:
 			if d == nil {
 				return errNilPtr
 			}
-			*d = *s
-			return nil
+			if s == 0.0 {
+				*d = false
+				return nil
+			} else if s == 1.0 {
+				*d = true
+				return nil
+			}
+			return errors.New(fmt.Sprintf("db: the float64(%v) can't convert value to bool.", s))
 		}
 	case bool:
 		switch d := dest.(type) {
@@ -74,14 +109,31 @@ func copyValue(dest interface{}, src interface{}) error {
 			}
 			*d = s
 			return nil
-		}
-	case *string:
-		switch d := dest.(type) {
 		case *string:
 			if d == nil {
 				return errNilPtr
 			}
-			*d = *s
+			*d = fmt.Sprint(s)
+			return nil
+		case *float64:
+			if d == nil {
+				return errNilPtr
+			}
+			if s {
+				*d = 1.0
+			} else {
+				*d = 0.0
+			}
+			return nil
+		case *int64:
+			if d == nil {
+				return errNilPtr
+			}
+			if s {
+				*d = 1
+			} else {
+				*d = 0
+			}
 			return nil
 		}
 	case string:
@@ -92,14 +144,51 @@ func copyValue(dest interface{}, src interface{}) error {
 			}
 			*d = s
 			return nil
-		}
-	case *[]byte:
-		switch d := dest.(type) {
-		case *[]byte:
+		case *int64:
 			if d == nil {
 				return errNilPtr
 			}
-			*d = *s
+			value, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return err
+			} else {
+				*d = value
+				return nil
+			}
+		case *float64:
+			if d == nil {
+				return errNilPtr
+			}
+			value, err := strconv.ParseFloat(s, 64)
+			if err != nil {
+				return err
+			} else {
+				*d = value
+				return nil
+			}
+		case *bool:
+			if d == nil {
+				return errNilPtr
+			}
+			value, err := strconv.ParseBool(s)
+			if err != nil {
+				return err
+			} else {
+				*d = value
+				return nil
+			}
+		case *time.Time:
+			if d == nil {
+				return errNilPtr
+			}
+			value, err := time.Parse("2006-01-02 15:04:05", s)
+			if err != nil {
+				value, err = time.Parse("2006-01-02", s)
+				if err != nil {
+					return err
+				}
+			}
+			*d = value
 			return nil
 		}
 	case []byte:
@@ -110,18 +199,17 @@ func copyValue(dest interface{}, src interface{}) error {
 			}
 			*d = s
 			return nil
-		}
-	case *time.Time:
-		switch d := dest.(type) {
-		case *time.Time:
-			if d == nil {
-				return errNilPtr
-			}
-			*d = *s
-			return nil
+		default:
+			return convertValue(dest, string(s))
 		}
 	case time.Time:
 		switch d := dest.(type) {
+		case *string:
+			if d == nil {
+				return errNilPtr
+			}
+			*d = s.Format("2006-01-02 15:04:05")
+			return nil
 		case *time.Time:
 			if d == nil {
 				return errNilPtr
@@ -130,5 +218,5 @@ func copyValue(dest interface{}, src interface{}) error {
 			return nil
 		}
 	}
-	return newErrorf("db: type error %s => %s", reflect.TypeOf(src), reflect.TypeOf(dest))
+	return newErrorf("db: convertValue: type error: %T(%v) => %T", src, src, dest)
 }

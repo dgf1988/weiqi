@@ -44,3 +44,36 @@ func (l Logger) Printf(format string, v ...interface{}) {
 func (l Logger) Println(v ...interface{}) {
 	l.Output(fmt.Sprintln(v...))
 }
+
+func (l Logger) Fatal(v ...interface{}) {
+	l.Output(fmt.Sprint(v...))
+	os.Exit(1)
+}
+
+func (l Logger) Fatalf(format string, v ...interface{}) {
+	l.Output(fmt.Sprintf(format, v...))
+	os.Exit(1)
+}
+
+func (l Logger) Fatalln(v ...interface{}) {
+	l.Output(fmt.Sprintln(v...))
+	os.Exit(1)
+}
+
+func (l Logger) Panic(v ...interface{}) {
+	var s = fmt.Sprint(v...)
+	l.Output(s)
+	panic(s)
+}
+
+func (l Logger) Panicf(format string, v ...interface{}) {
+	var s = fmt.Sprintf(format, v...)
+	l.Output(s)
+	panic(s)
+}
+
+func (l Logger) Panicln(v ...interface{}) {
+	var s = fmt.Sprintln(v...)
+	l.Output(s)
+	panic(s)
+}

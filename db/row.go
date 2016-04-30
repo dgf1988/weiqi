@@ -22,7 +22,7 @@ func (r *typeRow) Scan(dest ...interface{}) error {
 		if dest[i] == nil {
 			continue
 		}
-		err = copyValue(dest[i], scans[i])
+		err = convertValue(dest[i], scans[i])
 		if err != nil {
 			return err
 		}
@@ -31,11 +31,29 @@ func (r *typeRow) Scan(dest ...interface{}) error {
 }
 
 func (r *typeRow) Struct(dest interface{}) error {
-	scans, err := r.t.makeStructScans(dest)
-	if err != nil {
+	rv := reflect.ValueOf(dest)
+	if rv.Kind() != reflect.Ptr {
+		return newErrorf("db: the object (%s) is not a pointer", rv.Kind())
+	}
+	rv = rv.Elem()
+	if rv.Kind() != reflect.Struct {
+		return newErrorf("db: the pointer (%s) is not point to a struct object", rv.Kind())
+	}
+	if rv.NumField() != r.t.ColumnNumbers {
+		return newErrorf("db: the object field numbers (%d) not equals table column numbers (%d)", rv.NumField(), r.t.ColumnNumbers)
+	}
+
+	var err error
+	var scans = r.t.makeNullableScans()
+	if err = r.Row.Scan(scans...); err != nil {
 		return err
 	}
-	return r.Row.Scan(scans...)
+	for i := range scans {
+		if err = convertValue(rv.Field(i).Addr().Interface(), scans[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *typeRow) Slice() ([]interface{}, error) {
@@ -71,7 +89,7 @@ func (rs *typeRows) Scan(dest ...interface{}) error {
 		if dest[i] == nil {
 			continue
 		}
-		err = copyValue(dest[i], rs.scans[i])
+		err = convertValue(dest[i], rs.scans[i])
 		if err != nil {
 			return err
 		}
@@ -86,15 +104,22 @@ func (rs *typeRows) Struct(dest interface{}) error {
 	}
 	rv = rv.Elem()
 	if rv.Kind() != reflect.Struct {
-		return newErrorf("db: the pointer (%s) can't point to a struct object", rv.Kind())
+		return newErrorf("db: the pointer (%s) is not point to a struct object", rv.Kind())
 	}
 	if rv.NumField() != rs.t.ColumnNumbers {
 		return newErrorf("db: the object field numbers (%d) not equals table column numbers (%d)", rv.NumField(), rs.t.ColumnNumbers)
 	}
-	for i := range rs.scans {
-		rs.scans[i] = rv.Field(i).Addr().Interface()
+
+	var err error
+	if err = rs.Rows.Scan(rs.scans...); err != nil {
+		return err
 	}
-	return rs.Rows.Scan(rs.scans...)
+	for i := range rs.scans {
+		if err = convertValue(rv.Field(i).Addr().Interface(), rs.scans[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (rs *typeRows) Slice() ([]interface{}, error) {

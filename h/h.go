@@ -5,11 +5,10 @@ import (
 	"log"
 )
 
-
 var (
-	errorlogger = logger.Logger{"error", &log.Logger{}}
-	accesslogger = logger.Logger{"access", &log.Logger{}}
-	spiderlogger = logger.Logger{"spider", &log.Logger{}}
+	errorlogger = logger.New("error")
+	accesslogger = logger.New("access")
+	spiderlogger = logger.New("spider")
 )
 
 func init() {

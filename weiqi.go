@@ -9,7 +9,7 @@ const (
 )
 
 type State struct {
-	Value int
+	Value int64
 	Name string
 }
 
@@ -17,7 +17,7 @@ var weiqiStatus = []State{
 	State{0, "草稿"}, State{1, "发布"}, State{2, "删除"},
 }
 
-func statusToString(statusValue int) string {
+func statusToString(statusValue int64) string {
 	for _, s := range weiqiStatus {
 		if s.Value == statusValue {
 			return s.Name
@@ -26,7 +26,7 @@ func statusToString(statusValue int) string {
 	panic(fmt.Sprint("status:", statusValue, " no found"))
 }
 
-func stringToStatus(statusName string) int {
+func stringToStatus(statusName string) int64 {
 	for _, s := range weiqiStatus {
 		if s.Name == statusName {
 			return s.Value

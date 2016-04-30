@@ -15,7 +15,7 @@ type Post struct {
 	Id     int64
 	Title  string
 	Text   string
-	Status int
+	Status int64
 	Posted time.Time
 	Update time.Time
 }

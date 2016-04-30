@@ -5,7 +5,7 @@ import (
 	"github.com/dgf1988/weiqi/logger"
 )
 var (
-	errlogger = logger.Logger{"weiqierror", &log.Logger{}}
+	errlogger = logger.New("weiqierror")
 )
 
 func init() {
