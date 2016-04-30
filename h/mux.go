@@ -40,9 +40,9 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var remoteaddr = getIp(r)
 	//Slurp
 	if strings.Contains(useragent, "bot") || strings.Contains(useragent, "spider") || strings.Contains(useragent, "slurp") {
-		spiderlogger.Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
+		spiderlogger.Println(remoteaddr, r.Method, r.URL, r.UserAgent())
 	} else {
-		accesslogger.Printf("%s %s %s %s", remoteaddr, r.Method, r.URL, r.UserAgent())
+		accesslogger.Println(remoteaddr, r.Method, r.URL, r.Header.Get("referer"), r.UserAgent())
 	}
 
 	route, params := mux.Router.Match(r.URL.Path)
