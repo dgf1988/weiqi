@@ -31,6 +31,29 @@ const (
 	c_img_jpeg
 )
 
+func parseImgType(content_type string) int {
+	switch content_type {
+	case "image/jpeg":
+		return c_img_jpeg
+	case "image/gif":
+		return c_img_gif
+	case "image/bmp":
+		return c_img_bmp
+	case "image/png":
+		return c_img_png
+	}
+	return 0
+}
+
+func parseTypeSuffix(img_type int) string {
+	switch img_type {
+	case c_img_bmp:
+		return ".bmp"
+	case c_img_gif:
+		return ".gif"
+	}
+}
+
 type Img struct {
 	Id     int64
 	Title  string

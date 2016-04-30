@@ -14,6 +14,8 @@ type weiqiDb struct {
 
 	Text db.Table
 	TextPlayer db.Table
+
+	Img db.Table
 }
 
 var Db weiqiDb = weiqiDb{}
@@ -69,4 +71,10 @@ func init() {
 		log.Fatal(err.Error())
 	}
 	Db.TextPlayer = TextPlayer
+
+	Db.Img, err = db.GetTable(config.DbName, "img")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 }

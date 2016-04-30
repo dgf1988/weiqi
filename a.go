@@ -55,6 +55,9 @@ func Run() {
 	m.HandleFunc(handlePlayerDel, "/user/player/del", POST)
 	m.HandleFunc(handlePlayerUpdate, "/user/player/update", POST)
 
+	m.HandleFunc(img_editor_handler, "/user/img/", GET)
+	m.HandleFunc(img_upload_handler, "/user/img/upload", POST)
+
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath)), "/static/*", GET)
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath+"static/site/")), "/+", GET)
 

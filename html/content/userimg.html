@@ -1,0 +1,20 @@
+{{define "content"}}
+<style>
+    body > #content {
+        margin: 10px 20px;
+    }
+    body > #content > section > form > label > .file {
+        border: 1px solid #9accf0
+    }
+</style>
+<div id="content">
+    <section>
+        <form action="/user/img/upload" method="post" enctype="multipart/form-data">
+            <label>
+                upload img: <input type="file" name="file" class="file">
+            </label>
+            <button onclick="this.submit()">提交</button>
+        </form>
+    </section>
+</div>
+{{end}}

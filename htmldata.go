@@ -17,7 +17,7 @@ func defNavItems() []NavItem {
 
 //用户管理导航
 func userNavItems() []NavItem {
-	return []NavItem{NavItem{"首页", "/"}, NavItem{"用户", "/user"}, NavItem{"文章", "/user/post/"}, NavItem{"棋谱", "/user/sgf/"}, NavItem{"棋手", "/user/player/"}}
+	return []NavItem{NavItem{"首页", "/"}, NavItem{"用户", "/user"}, NavItem{"文章", "/user/post/"}, NavItem{"棋谱", "/user/sgf/"}, NavItem{"棋手", "/user/player/"}, NavItem{"图片", "/user/img/"}}
 }
 
 const (
