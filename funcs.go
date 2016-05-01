@@ -130,7 +130,7 @@ func removeFile(filename string) error {
 
 
 
-func GetBytes(urlget string) ([]byte, int, error) {
+func httpGetBytes(urlget string) ([]byte, int, error) {
 	var err error
 	var resp *http.Response
 	var client http.Client
@@ -153,4 +153,29 @@ func GetBytes(urlget string) ([]byte, int, error) {
 		return nil, resp.StatusCode, err
 	}
 	return bytes, resp.StatusCode, nil
+}
+
+func httpGetString(urlget string) (string, int, error) {
+	var err error
+	var resp *http.Response
+	var client http.Client
+	client.Timeout = 30 * time.Second
+
+	for i := 0; i < 3; i++ {
+		if resp, err = client.Get(urlget); err != nil {
+			time.Sleep(3 * time.Second)
+			continue
+		} else {
+			break
+		}
+	}
+	if err != nil {
+		return "", resp.StatusCode, err
+	}
+	defer resp.Body.Close()
+	var bytes []byte
+	if bytes, err = ioutil.ReadAll(resp.Body); err != nil {
+		return "", resp.StatusCode, err
+	}
+	return string(bytes), resp.StatusCode, nil
 }

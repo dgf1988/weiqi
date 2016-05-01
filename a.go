@@ -32,6 +32,7 @@ func Run() {
 	m.HandleFunc(handleSgfId, "/sgf/+", GET)
 	m.HandleFunc(handleSgfEdit, "/user/sgf/", GET)
 	m.HandleFunc(handleSgfEdit, "/user/sgf/+", GET)
+	m.HandleFunc(sgf_remote_handler, "/user/sgf/remote", POST)
 	m.HandleFunc(handleSgfAdd, "/user/sgf/add", POST)
 	m.HandleFunc(handleSgfDel, "/user/sgf/del", POST)
 	m.HandleFunc(handleSgfUpdate, "/user/sgf/update", POST)

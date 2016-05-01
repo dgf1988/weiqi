@@ -15,6 +15,7 @@ import (
 	"database/sql"
 	"errors"
 	"path/filepath"
+	"strconv"
 )
 
 func img_list_handler(w http.ResponseWriter, r *http.Request, args []string) {
@@ -285,11 +286,11 @@ func img_add_remote(title string, src string) (int64, error) {
 	var imgbytes []byte
 	var err error
 	var code int
-	if imgbytes, code, err = GetBytes(src); err != nil {
+	if imgbytes, code, err = httpGetBytes(src); err != nil {
 		return -1, err
+	} else if code != 200 {
+		return -1, errors.New("img: http get remote sgf error: code = " + strconv.Itoa(code))
 	}
-	fmt.Println(code, src)
-
 
 	//解析文件
 	var imgconf image.Config
@@ -297,7 +298,6 @@ func img_add_remote(title string, src string) (int64, error) {
 	if imgconf, suffix, err = image.DecodeConfig(bytes.NewReader(imgbytes)); err != nil {
 		return -1, err
 	}
-	fmt.Println(suffix, imgconf.Height, imgconf.Width)
 
 	var imgtype = parseImgType(suffix)
 	if imgtype <= 0 {

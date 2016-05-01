@@ -1,5 +1,14 @@
 {{define "content"}}
 <style>
+    body > #content > #remotesgf {
+        margin: 20px;
+    }
+    body > #content > #remotesgf .charset{
+        width: 100px;
+    }
+    body > #content > #remotesgf .src {
+        width: 400px;
+    }
     body > #content > #editor {
         float: left;
         margin: auto 10px;
@@ -30,6 +39,17 @@
     }
 </style>
 <div id="content">
+    <section id="remotesgf">
+        <form action="/user/sgf/remote" method="post">
+            <label>
+                字符集：<input type="text" name="charset" value="gb18030" class="charset">
+            </label>
+            <label>
+                链接地址：<input type="text" name="src" value="" class="src">
+            </label>
+            <input type="submit" value="提交远程棋谱">
+        </form>
+    </section>
     {{with .Content}}
     <section id="editor">
         <form action="{{.Editor.Action}}" method="post">

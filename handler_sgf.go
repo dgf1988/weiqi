@@ -238,3 +238,29 @@ func handleSgfDel(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", "?editormsg=删除成功"))
 }
+
+func sgf_remote_handler(w http.ResponseWriter, r *http.Request, args []string) {
+	if getSessionUser(r) == nil {
+		h.SeeOther(w, r, "/login")
+		return
+	}
+
+	var err error
+	if err = r.ParseForm(); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+
+	var sgf *Sgf
+	if sgf, err = remoteSgf(r.FormValue("src"), r.FormValue("charset")); err != nil {
+		h.NotFound(w, err.Error())
+		return
+	}
+
+	var id int64
+	if id, err = Db.Sgf.Add(nil, sgf.Time, sgf.Place, sgf.Event, sgf.Black, sgf.White, sgf.Rule, sgf.Result, sgf.Steps); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", id))
+}

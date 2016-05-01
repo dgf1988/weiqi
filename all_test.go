@@ -5,5 +5,5 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	t.Log(img_add_remote("hello", "http://k.sinaimg.cn/n/sports/transform/20160501/lY75-fxrtztr3647179.jpg/w570995.jpg"))
+	t.Log(remoteSgf("http://duiyi.sina.com.cn/cgibo/20164/700e13-04292.sgf", "gb18030"))
 }
