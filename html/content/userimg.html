@@ -3,6 +3,9 @@
     body > #content {
         margin: 10px 20px;
     }
+    body > #content > section > form {
+        margin: 10px;
+    }
     body > #content > section > form > label > .file {
         border: 1px solid #9accf0
     }
@@ -11,7 +14,7 @@
     }
     body > #content > section > ol > li {
         display: inline-block;
-        margin: auto 10px;
+        margin: 10px 10px;
         text-align: center;
     }
     body > #content > section > ol > li > a > img {
@@ -38,13 +41,22 @@
             </label>
             <input type="submit" value="提交">
         </form>
+        <form action="/user/img/remote" method="post">
+            <label>
+                标题: <input type="text" name="title" value="">
+            </label>
+            <label>
+                远程地址: <input type="text" name="src" value="">
+            </label>
+            <input type="submit" value="提交远程图片">
+        </form>
     </section>
     {{with .Content}}
     <section>
         <ol>
             {{range .Imgs}}
-            <li><a href="/user/img/{{.Id}}" title="{{.Title}}"><img src="{{.Src}}" alt="{{.Alt}}" width="120"/></a>
-                <span>{{.Title}}</span>
+            <li><a href="{{.Src}}" title="{{.Title}}"><img src="{{.Src}}" alt="{{.Alt}}" width="150"/></a>
+                <span><a href="/user/img/{{.Id}}" title="编辑">{{.Title}}</a></span>
                 <time>{{.Upload.Format "2006-01-02 15:04:05"}}</time>
                 <label>
                     <textarea><a href="{{.Src}}" title="{{.Title}}"  target="_blank"><img src="{{.Src}}" alt="{{.Alt}}" width="450"/></a></textarea>

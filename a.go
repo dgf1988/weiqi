@@ -59,9 +59,10 @@ func Run() {
 	m.HandleFunc(img_editor_handler, "/user/img/+", GET, POST)
 	m.HandleFunc(img_upload_handler, "/user/img/upload", POST)
 	m.HandleFunc(img_remove_handler, "/user/img/remove", POST)
+	m.HandleFunc(img_remote_handler, "/user/img/remote", POST)
+	m.HandleStd(http.FileServer(http.Dir(config.UploadPath)), "/img/*", GET)
 
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath)), "/static/*", GET)
-	m.HandleStd(http.FileServer(http.Dir(config.UploadPath)), "/img/*", GET)
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath+"static/site/")), "/+", GET)
 
 	http.Handle("/", m)

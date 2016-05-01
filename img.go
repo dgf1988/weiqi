@@ -3,6 +3,7 @@ package weiqi
 import (
 	"fmt"
 	"time"
+	"strings"
 )
 
 const (
@@ -36,14 +37,14 @@ const (
 )
 
 func parseImgType(content_type string) int {
-	switch content_type {
-	case "image/jpeg":
+	switch strings.ToLower(content_type) {
+	case "image/jpeg", "jpeg", ".jpeg":
 		return c_img_jpeg
-	case "image/gif":
+	case "image/gif", "gif", ".gif":
 		return c_img_gif
-	case "image/bmp":
+	case "image/bmp", "bmp", ".bmp":
 		return c_img_bmp
-	case "image/png":
+	case "image/png", "png", ".png":
 		return c_img_png
 	}
 	return 0
