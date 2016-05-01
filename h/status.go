@@ -22,6 +22,7 @@ func Forbidden(w http.ResponseWriter, msg string) {
 
 //NotFound 404 找不到页面
 func NotFound(w http.ResponseWriter, msg string) {
+	notfoundlogger.Print(msg)
 	textStatus(w, msg, http.StatusNotFound)
 }
 

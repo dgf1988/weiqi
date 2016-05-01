@@ -9,6 +9,7 @@ var (
 	errorlogger = logger.New("error")
 	accesslogger = logger.New("access")
 	spiderlogger = logger.New("spider")
+	notfoundlogger = logger.New("notfound")
 )
 
 func init() {
@@ -20,4 +21,7 @@ func init() {
 
 	spiderlogger.SetPrefix("[Spider]")
 	spiderlogger.SetFlags(log.LstdFlags)
+
+	notfoundlogger.SetPrefix("[Notfound: 404]")
+	notfoundlogger.SetFlags(log.LstdFlags)
 }
