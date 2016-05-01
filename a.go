@@ -59,6 +59,7 @@ func Run() {
 	m.HandleFunc(img_upload_handler, "/user/img/upload", POST)
 
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath)), "/static/*", GET)
+	m.HandleStd(http.FileServer(http.Dir(config.UploadPath)), "/img/*", GET)
 	m.HandleStd(http.FileServer(http.Dir(config.BasePath+"static/site/")), "/+", GET)
 
 	http.Handle("/", m)

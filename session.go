@@ -90,7 +90,7 @@ func sessionId() string {
 	nano := time.Now().UnixNano()
 	rand.Seed(nano)
 	rndNum := rand.Int63()
-	return getMd5(strconv.FormatInt(nano, 10) + strconv.FormatInt(rndNum, 10))
+	return md5String(strconv.FormatInt(nano, 10) + strconv.FormatInt(rndNum, 10))
 }
 
 func (s *Session) Add(w http.ResponseWriter) {

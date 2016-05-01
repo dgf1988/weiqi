@@ -6,15 +6,53 @@
     body > #content > section > form > label > .file {
         border: 1px solid #9accf0
     }
+    body > #content > section > ol  {
+        list-style-type: none;
+    }
+    body > #content > section > ol > li {
+        display: inline-block;
+        margin: auto 10px;
+        text-align: center;
+    }
+    body > #content > section > ol > li > a > img {
+        border: 1px solid black;
+    }
+    body > #content > section > ol > li > span {
+        display: block;
+    }
+    body > #content > section > ol > li > time {
+        display: block;
+    }
+    body > #content > section > ol > li > label > textarea {
+        height: 50px;
+    }
 </style>
 <div id="content">
     <section>
         <form action="/user/img/upload" method="post" enctype="multipart/form-data">
             <label>
+                img title: <input type="text" name="title" value="">
+            </label>
+            <label>
                 upload img: <input type="file" name="file" class="file">
             </label>
-            <button onclick="this.submit()">提交</button>
+            <input type="submit" value="提交">
         </form>
     </section>
+    {{with .Content}}
+    <section>
+        <ol>
+            {{range .Imgs}}
+            <li><a href="{{.Src}}" title="{{.Title}}"><img src="{{.Src}}" alt="{{.Alt}}" width="120"/></a>
+                <span>{{.Title}}</span>
+                <time>{{.Upload.Format "2006-01-02 15:04:05"}}</time>
+                <label>
+                    <textarea><a href="{{.Src}}" title="{{.Title}}"  target="_blank"><img src="{{.Src}}" alt="{{.Alt}}" width="400"/></a></textarea>
+                </label>
+            </li>
+            {{end}}
+        </ol>
+    </section>
+    {{end}}
 </div>
 {{end}}

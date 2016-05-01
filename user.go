@@ -33,8 +33,8 @@ var (
 	ErrUserPasswordNotTheSame = newWeiqiError("密码不一致")
 )
 
-func encryptPassword(password, ip string) string {
-	return getMd5(password + ip)
+func md5Password(password, ip string) string {
+	return md5String(password + ip)
 }
 
 //注册用户
@@ -54,7 +54,7 @@ func registerUser(username, password, password2, email, ip string) (int64, error
 	if err == nil {
 		return user.Id, ErrUserExisted
 	} else if err == sql.ErrNoRows {
-		return Users.Add(nil, username, encryptPassword(password, ip), email, ip)
+		return Users.Add(nil, username, md5Password(password, ip), email, ip)
 	} else {
 		return -1, err
 	}
@@ -77,7 +77,7 @@ func loginUser(username, password string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if user.Password != encryptPassword(password, user.Ip) {
+	if user.Password != md5Password(password, user.Ip) {
 		return nil, ErrUserPassword
 	}
 	return &user, nil

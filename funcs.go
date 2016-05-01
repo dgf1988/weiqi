@@ -8,6 +8,8 @@ import (
 	"time"
 	"net/http"
 	"regexp"
+	"os"
+	"path/filepath"
 )
 
 const (
@@ -36,13 +38,22 @@ func parseDate(dateStr string) (time.Time, error) {
 	return date, err
 }
 
-func getMd5(data string) string {
+func md5String(data string) string {
 	hashMd5 := md5.New()
 	io.WriteString(hashMd5, data)
 	return fmt.Sprintf("%x", hashMd5.Sum(nil))
 }
 
-func getIp(r *http.Request) string {
+func md5Bytes(data []byte) string {
+	hashmd5 := md5.New()
+	if _, err := hashmd5.Write(data); err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%x", hashmd5.Sum(nil))
+}
+
+
+func ipFromRequest(r *http.Request) string {
 	var ip = r.Header.Get("x-forwarded-for")
 	if ip == "" {
 		ip = r.RemoteAddr
@@ -65,4 +76,49 @@ func atoi64(num string) int64 {
 		return 0
 	}
 	return n
+}
+
+
+func mkdirIfNotExist(pathname string) error {
+	var dirinfo os.FileInfo
+	var err error
+	if dirinfo, err = os.Stat(pathname); err != nil {
+		if os.IsNotExist(err) {
+			return os.MkdirAll(pathname, 0666)
+		} else {
+			return err
+		}
+	} else if !dirinfo.IsDir() {
+		return os.MkdirAll(pathname, 0666)
+	}
+	return nil
+}
+
+func addFile(filename string, data []byte) error {
+	var pathname = filepath.Dir(filename)
+	var err error
+	var pathinfo os.FileInfo
+	if pathinfo, err = os.Stat(pathname); err != nil {
+		if os.IsNotExist(err) {
+			if err = os.MkdirAll(pathname, 0666); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	} else if !pathinfo.IsDir() {
+		if err = os.MkdirAll(pathname, 0666); err != nil {
+			return err
+		}
+	}
+	var savef *os.File
+	if savef, err = os.OpenFile(filename, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0666); err != nil {
+		return err
+	} else {
+		defer savef.Close()
+		if _, err = savef.Write(data); err != nil {
+			return err
+		}
+		return nil
+	}
 }

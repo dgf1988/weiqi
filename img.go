@@ -13,14 +13,18 @@ const (
 CREATE TABLE `img` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`title` VARCHAR(100) NOT NULL,
+	`name` VARCHAR(100) NOT NULL,
+	`md5` CHAR(32) NOT NULL,
 	`height` INT(11) NOT NULL,
 	`width` INT(11) NOT NULL,
-	`type` INT(11) NOT NULL DEFAULT '0',
+	`type` INT(11) NOT NULL,
 	`status` INT(11) NOT NULL DEFAULT '0',
-	`upload` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`upload` DATETIME NOT NULL,
 	PRIMARY KEY (`id`)
 )
+COLLATE='utf8_general_ci'
 ENGINE=InnoDB
+;
 */
 
 const (
@@ -45,27 +49,8 @@ func parseImgType(content_type string) int {
 	return 0
 }
 
-func parseTypeSuffix(img_type int) string {
+func formatImgType(img_type int) string {
 	switch img_type {
-	case c_img_bmp:
-		return ".bmp"
-	case c_img_gif:
-		return ".gif"
-	}
-}
-
-type Img struct {
-	Id     int64
-	Title  string
-	Height int64
-	Width  int64
-	Type   int64
-	Status int64
-	Upload time.Time
-}
-
-func (i Img) GetSuffix() string {
-	switch i.Type {
 	case c_img_gif:
 		return ".gif"
 	case c_img_jpeg:
@@ -80,6 +65,35 @@ func (i Img) GetSuffix() string {
 	return ""
 }
 
-func (i Img) GetPath() string {	return fmt.Sprintf("%s/%s/", i.Upload.Year(), i.Upload.Month()) }
-func (i Img) GetFilename() string {	return getMd5(fmt.Sprint(i.Title, i.Upload.UnixNano())) }
-func (i Img) GetSrc() string { return fmt.Sprint(config.UploadPath, c_ImgBasePath, i.GetPath(), i.GetFilename(), i.GetSuffix()) }
+type Img struct {
+	Id     int64
+	Title  string
+	Name   string
+	Md5    string
+	Height int64
+	Width  int64
+	Type   int64
+	Status int64
+	Upload time.Time
+}
+
+func (i Img) GetSuffix() string {
+	return formatImgType(int(i.Type))
+}
+
+func (i Img) GetPath() string {
+	return fmt.Sprintf("%s%s%d/%d/", config.UploadPath, c_ImgBasePath, i.Upload.Year(), i.Upload.Month())
+}
+func (i Img) GetFilename() string {
+	return i.Md5
+}
+
+func (i Img) Alt() string {
+	return i.Title
+}
+
+func (i Img) Src() string {
+	return fmt.Sprintf("/%s%d/%d/%s%s", c_ImgBasePath, i.Upload.Year(), i.Upload.Month(), i.GetFilename(), i.GetSuffix())
+}
+
+func (i Img) GetFullname() string { return fmt.Sprint(i.GetPath(), i.GetFilename(), i.GetSuffix()) }
