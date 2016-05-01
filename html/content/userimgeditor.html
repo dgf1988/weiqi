@@ -1,0 +1,31 @@
+{{define "content"}}
+<style>
+    body > #content {
+        margin: 10px 20px;
+    }
+    body > #content > section > form .imgtitle {
+        width: 300px;
+    }
+</style>
+<div id="content">
+    {{with .Content}}
+    <section>
+        {{with .Img}}
+        <form action="/user/img/{{.Id}}" method="post">
+            <table>
+                <tr>
+                    <th>标题</th><td><label><input class="imgtitle" type="text" name="title" value="{{.Title}}"></label></td>
+                </tr>
+                <tr>
+                    <th>图片</th><td><a href="{{.Src}}" title="{{.Title}}" target="_blank"><img src="{{.Src}}" alt="{{.Alt}}" width="300px"></a></td>
+                </tr>
+                <tr>
+                    <th></th><td><input type="submit"></td>
+                </tr>
+            </table>
+        </form>
+        {{end}}
+    </section>
+    {{end}}
+</div>
+{{end}}

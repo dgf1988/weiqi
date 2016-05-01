@@ -122,3 +122,7 @@ func addFile(filename string, data []byte) error {
 		return nil
 	}
 }
+
+func removeFile(filename string) error {
+	return os.Remove(filename)
+}

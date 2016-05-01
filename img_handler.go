@@ -15,7 +15,7 @@ import (
 	"database/sql"
 )
 
-func img_editor_handler(w http.ResponseWriter, r *http.Request, args []string) {
+func img_list_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var user = getSessionUser(r)
 	if user == nil {
 		h.SeeOther(w, r, "/login")
@@ -56,6 +56,51 @@ func img_editor_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 }
 
+func img_editor_handler( w http.ResponseWriter, r *http.Request, args []string) {
+	var user = getSessionUser(r)
+	if user == nil {
+		h.SeeOther(w, r, "/login")
+		return
+	}
+	var err error
+	var id = atoi64(args[0])
+	var img Img
+	if err := Db.Img.Get(id).Struct(&img); err == sql.ErrNoRows {
+		h.NotFound(w, "找不到图片")
+		return
+	} else if err != nil {
+		h.ServerError(w, err)
+		return
+	}
+
+	if r.Method == POST {
+		r.ParseForm()
+		var title = r.FormValue("title")
+		if title == "" {
+			h.NotFound(w, "标题不能为空")
+			return
+		}
+		if _, err = Db.Img.Update(id).Values(nil, title); err != nil {
+			h.ServerError(w, err)
+			return
+		}
+		h.SeeOther(w, r, "/user/img/"+args[0])
+		return
+	}
+	var data = defData()
+	data.User = user
+	data.Head.Title = "编辑图片"
+	data.Header.Navs = userNavItems()
+	data.Content["Img"] = img
+	var html = defHtmlLayout().Append(
+		defHtmlHead(), defHtmlHeader(), defHtmlFooter(), newHtmlContent("userimgeditor"),
+	)
+	if err = html.Execute(w, data, nil); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+}
+
 func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	if getSessionUser(r) == nil {
 		h.SeeOther(w, r, "/login")
@@ -70,6 +115,10 @@ func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 
+	if r.FormValue("title") == "" {
+		h.NotFound(w, "标题不能为空")
+		return
+	}
 	//保存POST文件对象
 	var srcf multipart.File
 	//保存POST文件信息对象
@@ -104,7 +153,7 @@ func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 			}
 		default:
 			//不支持的图片类型
-			h.Text(w, "Unsupported file type: " + header.Filename, 200)
+			h.NotFound(w, "Unsupported file type: " + header.Filename)
 			return
 		}
 
@@ -152,16 +201,39 @@ func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 				h.ServerError(w, err)
 				return
 			}
-			Db.Img.Get(id).Struct(getimg)
-			h.Text(w, fmt.Sprint("上传成功:", getimg), 200)
+			h.SeeOther(w, r, fmt.Sprint("/user/img/", id))
 			return
 		} else if err == nil {
-			h.Text(w, fmt.Sprint("文件已经存在：", getimg), 200)
+			h.SeeOther(w, r, fmt.Sprint("/user/img/", getimg.Id))
 			return
 		} else {
 			h.ServerError(w, err)
 			return
 		}
 	}
+}
+
+func img_remove_handler(w http.ResponseWriter, r *http.Request, args []string) {
+	if getSessionUser(r) == nil {
+		h.SeeOther(w, r, "/login")
+		return
+	}
+	r.ParseForm()
+	var id = atoi64(r.FormValue("id"))
+	var img Img
+	if err := Db.Img.Get(id).Struct(&img); err != nil {
+		h.ServerError(w, err)
+		return
+	} else {
+		if err = removeFile(img.GetFullname()); err != nil {
+			h.ServerError(w, err)
+			return
+		}
+		if _, err = Db.Img.Del(id); err != nil {
+			h.ServerError(w, err)
+			return
+		}
+	}
+	h.SeeOther(w, r, "/user/img/")
 }
 

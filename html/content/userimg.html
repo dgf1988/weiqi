@@ -31,10 +31,10 @@
     <section>
         <form action="/user/img/upload" method="post" enctype="multipart/form-data">
             <label>
-                img title: <input type="text" name="title" value="">
+                标题: <input type="text" name="title" value="">
             </label>
             <label>
-                upload img: <input type="file" name="file" class="file">
+                上传图片: <input type="file" name="file" class="file">
             </label>
             <input type="submit" value="提交">
         </form>
@@ -43,12 +43,16 @@
     <section>
         <ol>
             {{range .Imgs}}
-            <li><a href="{{.Src}}" title="{{.Title}}"><img src="{{.Src}}" alt="{{.Alt}}" width="120"/></a>
+            <li><a href="/user/img/{{.Id}}" title="{{.Title}}"><img src="{{.Src}}" alt="{{.Alt}}" width="120"/></a>
                 <span>{{.Title}}</span>
                 <time>{{.Upload.Format "2006-01-02 15:04:05"}}</time>
                 <label>
-                    <textarea><a href="{{.Src}}" title="{{.Title}}"  target="_blank"><img src="{{.Src}}" alt="{{.Alt}}" width="400"/></a></textarea>
+                    <textarea><a href="{{.Src}}" title="{{.Title}}"  target="_blank"><img src="{{.Src}}" alt="{{.Alt}}" width="450"/></a></textarea>
                 </label>
+                <form action="/user/img/remove" method="post">
+                    <input type="hidden" name="id" value="{{.Id}}">
+                    <input type="submit" value="删除">
+                </form>
             </li>
             {{end}}
         </ol>
