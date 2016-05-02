@@ -1,9 +1,19 @@
 {{define "content"}}
 <style>
+    body > #content {
+        margin: 10px;
+        text-align: center;
+    }
     body > #content > table {
-        margin: auto;
+        margin: auto 5px;
         border-collapse: collapse;
         font-size: 18px;
+        display: inline-block;
+        vertical-align: top;
+    }
+    body > #content > table > caption {
+        font-weight: bold;
+        margin: 5px auto;
     }
     body > #content > table td,  body > #content > table th{
         text-align: center;
@@ -26,28 +36,71 @@
 </style>
 <div id="content">
     {{with .Content}}
+    {{with .Cn}}
     <table>
-        <thead>
-        <tr>
-            <th>姓名</th>
-            <th>性别</th>
-            <th>国籍</th>
-            <th>段位</th>
-            <th>生日</th>
-        </tr>
-        </thead>
+        <caption>中国</caption>
+        <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
         <tbody>
-        {{range .Players}}
-        <tr onclick="location.href='/player/{{.Id}}'">
+            {{range .}}
+            <tr onclick="location.href='/player/{{.Id}}'">
             <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
             <td>{{.StrSex}}</td>
-            <td>{{.Country}}</td>
             <td>{{.StrRank}}</td>
-            <td>{{.Birth.Format "2006-01-02"}}</td>
-        </tr>
-        {{end}}
+            <td>{{.Birth.Format "2006"}}</td>
+            </tr>
+            {{end}}
         </tbody>
     </table>
+    {{end}}
+    {{with .Kr}}
+    <table>
+        <caption>韩国</caption>
+        <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
+        <tbody>
+            {{range .}}
+            <tr onclick="location.href='/player/{{.Id}}'">
+            <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+            <td>{{.StrSex}}</td>
+            <td>{{.StrRank}}</td>
+            <td>{{.Birth.Format "2006"}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{end}}
+    {{with .Jp}}
+    <table>
+        <caption>日本</caption>
+        <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
+        <tbody>
+            {{range .}}
+            <tr onclick="location.href='/player/{{.Id}}'">
+            <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+            <td>{{.StrSex}}</td>
+            <td>{{.StrRank}}</td>
+            <td>{{.Birth.Format "2006"}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{end}}
+    {{with .Other}}
+    <table>
+        <caption>其它</caption>
+        <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th><th>国籍</th></tr></thead>
+        <tbody>
+            {{range .}}
+            <tr onclick="location.href='/player/{{.Id}}'">
+            <td><a href="/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
+            <td>{{.StrSex}}</td>
+            <td>{{.StrRank}}</td>
+            <td>{{.Birth.Format "2006"}}</td>
+            <td>{{.Country}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{end}}
     {{end}}
 </div>
 {{end}}

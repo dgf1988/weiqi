@@ -8,7 +8,7 @@ import (
 )
 
 //player list
-func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
+func player_list_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var err error
 	var data = defData()
 	data.User = getSessionUser(r)
@@ -21,7 +21,26 @@ func handlePlayerList(w http.ResponseWriter, r *http.Request, args []string) {
 		h.ServerError(w, err)
 		return
 	}
-	data.Content["Players"] = players
+	var cn = make([]Player, 0)
+	var kr = make([]Player, 0)
+	var jp = make([]Player, 0)
+	var other = make([]Player, 0)
+	for _, player := range players {
+		switch player.Country {
+		case "中国":
+			cn = append(cn, player)
+		case "日本":
+			jp = append(jp, player)
+		case "韩国":
+			kr = append(kr, player)
+		default:
+			other = append(other, player)
+		}
+	}
+	data.Content["Cn"] = cn
+	data.Content["Jp"] = jp
+	data.Content["Kr"] = kr
+	data.Content["Other"] = other
 
 	var html = defHtmlLayout().Append(defHtmlHead(), defHtmlHeader(), defHtmlFooter(), newHtmlContent("playerlist"))
 	if err = html.Execute(w, data, nil); err != nil {
