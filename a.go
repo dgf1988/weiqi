@@ -49,7 +49,7 @@ func Run() {
 	m.HandleFunc(handlePostDel, "/user/post/del", POST)
 
 	m.HandleFunc(player_list_handler, "/player/", GET)
-	m.HandleFunc(handlePlayerId, "/player/+", GET)
+	m.HandleFunc(player_info_handler, "/player/+", GET)
 	m.HandleFunc(handlePlayerEdit, "/user/player/", GET)
 	m.HandleFunc(handlePlayerEdit, "/user/player/+", GET)
 	m.HandleFunc(handlePlayerAdd, "/user/player/add", POST)

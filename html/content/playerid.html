@@ -6,49 +6,65 @@
         border: 1px solid #dddddd;
         padding: 10px 20px;
     }
+    
     #content #player header .title {
         display: inline-block;
         margin: 20px 10px;
     }
+    
     #content #player section {
         text-align: center;
     }
+    
     #content #player section table {
         border-collapse: collapse;
         margin: 10px auto;
     }
+    
     #content #player section table caption {
         font-weight: bold;
         margin: 5px auto;
     }
+    
     #content #player section table th {
         background-color: #036ab1;
     }
+    
     #content #player section table td {
         border: 1px solid black;
         padding: 3px 5px;
     }
+    
     #content #player section table tr:hover {
         background-color: #eeeeee;
     }
+    
     #content #player section table th {
         border: 1px solid black;
     }
-
+    
     body > #content > article > p {
         text-indent: 2em;
         font-size: 18px;
     }
+    
     #content #player > table {
         border-collapse: collapse;
+        display: inline;
     }
-    #content #player > table th{
+    
+    #content #player > table th {
         background: #f1f1f1;
     }
+    
     #content #player > table td,
-    #content #player > table th{
+    #content #player > table th {
         border: 1px solid black;
         padding: 3px 5px;
+    }
+    
+    #content > #player > img {
+        float: right;
     }
 </style>
 <div id="content">
@@ -59,44 +75,49 @@
         </header>
         <table>
             <tr>
-                <th>性别</th><td>{{.Player.StrSex}}</td>
+                <th>性别</th>
+                <td>{{.Player.StrSex}}</td>
             </tr>
             <tr>
-                <th>国籍</th><td>{{.Player.Country}}</td>
+                <th>国籍</th>
+                <td>{{.Player.Country}}</td>
             </tr>
             <tr>
-                <th>段位</th><td>{{.Player.StrRank}}</td>
+                <th>段位</th>
+                <td>{{.Player.StrRank}}</td>
             </tr>
             <tr>
-                <th>生日</th><td>{{.Player.Birth.Format "2006-01-02"}}</td>
+                <th>生日</th>
+                <td>{{.Player.Birth.Format "2006-01-02"}}</td>
             </tr>
         </table>
-        {{.Text.HtmlText}}
+        {{with .Img}}<img src="{{.Src}}" alt="{{.Alt}}" width="150">{{end}}
+        {{.Text.HtmlText}} 
         {{if .Sgfs}}
         <section>
             <table>
-            <caption>棋谱列表</caption>
-            <thead>
-            <tr>
-                <th>比赛</th>
-                <th>黑棋</th>
-                <th>白棋</th>
-                <th>结果</th>
-                <th>日期</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{range .Sgfs}}
-            <tr>
-                <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
-                <td>{{.Black}}</td>
-                <td>{{.White}}</td>
-                <td>{{.Result}}</td>
-                <td>{{.Time.Format "2006-01-02"}}</td>
-            </tr>
-            {{end}}
-            </tbody>
-        </table>
+                <caption>棋谱列表</caption>
+                <thead>
+                    <tr>
+                        <th>比赛</th>
+                        <th>黑棋</th>
+                        <th>白棋</th>
+                        <th>结果</th>
+                        <th>日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Sgfs}}
+                    <tr>
+                        <td><a href="/sgf/{{.Id}}" title="{{.Event}}">{{.Event}}</a></td>
+                        <td>{{.Black}}</td>
+                        <td>{{.White}}</td>
+                        <td>{{.Result}}</td>
+                        <td>{{.Time.Format "2006-01-02"}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
         </section>
         {{end}}
     </article>

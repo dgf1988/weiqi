@@ -50,7 +50,7 @@ func player_list_handler(w http.ResponseWriter, r *http.Request, args []string) 
 }
 
 //player id
-func handlePlayerId(w http.ResponseWriter, r *http.Request, args []string) {
+func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var err error
 	var data = defData()
 	data.User = getSessionUser(r)
@@ -82,6 +82,14 @@ func handlePlayerId(w http.ResponseWriter, r *http.Request, args []string) {
 		return
 	}
 	data.Content["Text"] = text
+
+	var img Img
+	if err = Db.Img.Get(nil, player.Name).Struct(&img); err == nil {
+		data.Content["Img"] = img
+	} else if err != sql.ErrNoRows {
+		h.ServerError(w, err)
+		return
+	}
 
 	var sgfs []Sgf
 	if sgfs, err = listSgfByNameOrderByTimeDesc(player.Name); err != nil {
