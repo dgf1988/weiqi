@@ -1,9 +1,9 @@
 package db
 
 import (
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"testing"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 //Config("mysql", "weiqi", "tKWywchAVKxjLb4F", "www.weiqi163.com", 3306, "weiqi_2", "utf8")
@@ -18,9 +18,9 @@ func TestCount(t *testing.T) {
 	}
 
 	type Post struct {
-		Id float64
-		Title string
-		Text string
+		Id     float64
+		Title  string
+		Text   string
 		Status int64
 		Posted string
 		Update string

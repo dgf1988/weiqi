@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	errorlogger = logger.New("error")
-	accesslogger = logger.New("access")
-	spiderlogger = logger.New("spider")
+	errorlogger    = logger.New("error")
+	accesslogger   = logger.New("access")
+	spiderlogger   = logger.New("spider")
 	notfoundlogger = logger.New("notfound")
 )
 

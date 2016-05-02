@@ -67,7 +67,6 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-
 	err = defHtmlLayout().Append(
 		defHtmlHead(),
 		defHtmlHeader(),

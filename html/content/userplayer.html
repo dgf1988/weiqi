@@ -1,0 +1,144 @@
+{{define "content"}}
+<style>
+    body > #content {
+        margin: auto;
+        padding: 15px;
+    }
+    body > #content > section {
+        margin: 10px auto;
+    }
+    body > #content > #addplayer .input {
+        font-size: 18px;
+    }
+    body > #content > #addplayer label {
+        margin: auto 5px;
+        font-weight: bold;
+    }
+    body > #content > #addplayer .name {
+        width: 150px;
+    }
+    body > #content > #addplayer .country {
+        width: 80px;
+    }
+    body > #content > #addplayer .birth {
+        width: 150px;
+    }
+    body > #content > #list {
+        margin: auto;
+    }
+    body > #content > #list table {
+        border-collapse: collapse;
+        display: inline-block;
+        vertical-align: top;
+        margin: auto 10px;
+    }
+    body > #content > #list table tr:hover {
+        background: #cccccc
+    }
+    body > #content > #list table caption {
+        font-weight: bold;
+        margin: 5px auto;
+    }
+    body > #content > #list table th{
+        border: 1px solid black;
+        background: #0394ea;
+        padding: 2px 3px;
+    }
+    body > #content > #list table td{
+        border: 1px solid black;
+        padding: 2px 3px;
+    }
+</style>
+<div id="content">
+    {{with .Content}}
+        <section id="addplayer">
+            <form action="/user/player/add" method="post">
+                <label>姓名：<input name="name" type="text" class="input name" value=""></label>
+                <label>性别：<select name="sex" class="input"><option value="0">无</option><option value="1">男</option><option value="2">女</option></select></label>
+                <label>段位：<select name="rank" class="input">
+                    <option value="0">无</option>
+                    <option value="109">九段</option>
+                    <option value="108">八段</option>
+                    <option value="107">七段</option>
+                    <option value="106">六段</option>
+                    <option value="105">五段</option>
+                    <option value="104">四段</option>
+                    <option value="103">三段</option>
+                    <option value="102">二段</option>
+                    <option value="101">初段</option>
+                </select></label>
+                <label>国籍：<input name="country" type="text" class="input country" value=""></label>
+                <label>出生年月：<input name="birth" type="text" class="input birth" value=""></label>
+                <input type="submit" value="提交新棋手">
+            </form>
+        </section>
+        <section id="list">
+            {{with .Cn}}
+            <table>
+                <caption>中国</caption>
+                <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
+                <tbody>
+                    {{range .}}
+                    <tr onclick="location.href='/user/player/{{.Id}}'">
+                    <td><a href="/player/{{.Id}}" title="浏览">{{.Name}}</a></td>
+                    <td>{{.StrSex}}</td>
+                    <td>{{.StrRank}}</td>
+                    <td>{{.Birth.Format "2006"}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{end}}
+            {{with .Kr}}
+            <table>
+                <caption>韩国</caption>
+                <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
+                <tbody>
+                    {{range .}}
+                    <tr onclick="location.href='/user/player/{{.Id}}'">
+                    <td><a href="/player/{{.Id}}" title="浏览">{{.Name}}</a></td>
+                    <td>{{.StrSex}}</td>
+                    <td>{{.StrRank}}</td>
+                    <td>{{.Birth.Format "2006"}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{end}}
+            {{with .Jp}}
+            <table>
+                <caption>日本</caption>
+                <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th></tr></thead>
+                <tbody>
+                    {{range .}}
+                    <tr onclick="location.href='/user/player/{{.Id}}'">
+                    <td><a href="/player/{{.Id}}" title="浏览">{{.Name}}</a></td>
+                    <td>{{.StrSex}}</td>
+                    <td>{{.StrRank}}</td>
+                    <td>{{.Birth.Format "2006"}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{end}}
+            {{with .Other}}
+            <table>
+                <caption>其它</caption>
+                <thead><tr><th>姓名</th><th>性别</th><th>段位</th><th>年份</th><th>国籍</th></tr></thead>
+                <tbody>
+                    {{range .}}
+                    <tr onclick="location.href='/user/player/{{.Id}}'">
+                    <td><a href="/player/{{.Id}}" title="浏览">{{.Name}}</a></td>
+                    <td>{{.StrSex}}</td>
+                    <td>{{.StrRank}}</td>
+                    <td>{{.Birth.Format "2006"}}</td>
+                    <td>{{.Country}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            {{end}}
+        </section>
+    {{end}}
+</div>
+{{end}}

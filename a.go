@@ -50,11 +50,10 @@ func Run() {
 
 	m.HandleFunc(player_list_handler, "/player/", GET)
 	m.HandleFunc(player_info_handler, "/player/+", GET)
-	m.HandleFunc(handlePlayerEdit, "/user/player/", GET)
-	m.HandleFunc(handlePlayerEdit, "/user/player/+", GET)
-	m.HandleFunc(handlePlayerAdd, "/user/player/add", POST)
-	m.HandleFunc(handlePlayerDel, "/user/player/del", POST)
-	m.HandleFunc(handlePlayerUpdate, "/user/player/update", POST)
+	m.HandleFunc(player_manage_handler, "/user/player/", GET)
+	m.HandleFunc(player_editor_handler, "/user/player/+", GET, POST)
+	m.HandleFunc(player_add_handler, "/user/player/add", POST)
+	m.HandleFunc(player_del_handler, "/user/player/del", POST)
 
 	m.HandleFunc(img_list_handler, "/user/img/", GET)
 	m.HandleFunc(img_editor_handler, "/user/img/+", GET, POST)

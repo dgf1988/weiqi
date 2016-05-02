@@ -1,13 +1,13 @@
 package db
 
 import (
+	"database/sql"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
 	"time"
-	"database/sql/driver"
-	"database/sql"
-	"errors"
 )
 
 func parseValue(src interface{}) interface{} {

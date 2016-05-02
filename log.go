@@ -1,9 +1,10 @@
 package weiqi
 
 import (
-	"log"
 	"github.com/dgf1988/weiqi/logger"
+	"log"
 )
+
 var (
 	errlogger = logger.New("weiqierror")
 )

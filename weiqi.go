@@ -10,7 +10,7 @@ const (
 
 type State struct {
 	Value int64
-	Name string
+	Name  string
 }
 
 var weiqiStatus = []State{

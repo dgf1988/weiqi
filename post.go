@@ -69,7 +69,7 @@ func parseTextToHtml(text string) string {
 
 func listPostByStatusOrderDesc(status, take, skip int) ([]Post, error) {
 	var posts = make([]Post, 0)
-	if rows, err := Db.Post.Query("where post.status = ? order by post.id desc limit ?, ?", status, skip , take); err != nil {
+	if rows, err := Db.Post.Query("where post.status = ? order by post.id desc limit ?, ?", status, skip, take); err != nil {
 		return nil, err
 	} else {
 		defer rows.Close()

@@ -216,7 +216,7 @@ func (t typeTable) Count(args ...interface{}) (int64, error) {
 		if args[i] == nil {
 			continue
 		}
-		keys = append(keys, t.Columns[i].FullName + "=?")
+		keys = append(keys, t.Columns[i].FullName+"=?")
 		param = append(param, args[i])
 	}
 	var strSql = fmt.Sprintf("%s WHERE %s ", t.sqlSelectCount, strings.Join(keys, " AND "))

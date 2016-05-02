@@ -4,13 +4,13 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
-	"strconv"
-	"time"
+	"io/ioutil"
 	"net/http"
-	"regexp"
 	"os"
 	"path/filepath"
-	"io/ioutil"
+	"regexp"
+	"strconv"
+	"time"
 )
 
 const (
@@ -53,7 +53,6 @@ func md5Bytes(data []byte) string {
 	return fmt.Sprintf("%x", hashmd5.Sum(nil))
 }
 
-
 func ipFromRequest(r *http.Request) string {
 	var ip = r.Header.Get("x-forwarded-for")
 	if ip == "" {
@@ -78,7 +77,6 @@ func atoi64(num string) int64 {
 	}
 	return n
 }
-
 
 func mkdirIfNotExist(pathname string) error {
 	var dirinfo os.FileInfo
@@ -127,8 +125,6 @@ func addFile(filename string, data []byte) error {
 func removeFile(filename string) error {
 	return os.Remove(filename)
 }
-
-
 
 func httpGetBytes(urlget string) ([]byte, int, error) {
 	var err error

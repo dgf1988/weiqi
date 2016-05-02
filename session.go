@@ -29,7 +29,7 @@ func newSession(u *User) *Session {
 	return &Session{
 		sessionId(),
 		u,
-		time.Now().Add(time.Hour*24),
+		time.Now().Add(time.Hour * 24),
 	}
 }
 

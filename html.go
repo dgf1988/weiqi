@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	c_HtmlBasePath = "html/"
-	c_HtmlSuffix = "html"
-	c_HtmlDefClsname = "layout"
+	c_HtmlBasePath    = "html/"
+	c_HtmlSuffix      = "html"
+	c_HtmlDefClsname  = "layout"
 	c_HtmlDefFilename = "default"
 )
 

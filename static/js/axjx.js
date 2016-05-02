@@ -129,4 +129,3 @@ function httpSend(action,method,listKeyValue){
     document.body.appendChild(form);
     form.submit();
 }
-

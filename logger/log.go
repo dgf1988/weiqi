@@ -1,13 +1,13 @@
 package logger
 
 import (
-	"os"
-	"log"
 	"fmt"
+	"log"
+	"os"
 )
 
 type Logger struct {
-	Name string
+	Name   string
 	logger *log.Logger
 }
 

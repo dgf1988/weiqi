@@ -2,8 +2,8 @@ package weiqi
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 )
 
 const (

@@ -17,15 +17,14 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-
 	cutPostTextMany(posts)
 	var indexpages *IndexPages
 	if count, err := Db.Post.Count(nil, nil, nil, c_statusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
-		var total int = int(count/ c_postPageSize)
-		if count% c_postPageSize > 0 {
+		var total int = int(count / c_postPageSize)
+		if count%c_postPageSize > 0 {
 			total += 1
 		}
 		indexpages = newIndexPages(1, total)
@@ -70,8 +69,8 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 		h.ServerError(w, err)
 		return
 	} else {
-		var total int = int(count/ c_postPageSize)
-		if count% c_postPageSize > 0 {
+		var total int = int(count / c_postPageSize)
+		if count%c_postPageSize > 0 {
 			total += 1
 		}
 		if current > total {
@@ -105,7 +104,7 @@ func handlePostId(w http.ResponseWriter, r *http.Request, args []string) {
 			if err = postIdHtml().Execute(w, postIdData(getSessionUser(r), post), nil); err != nil {
 				logError("%s %s html.execute %s", r.Method, r.URL, err.Error())
 			}
-		} else if err == sql.ErrNoRows{
+		} else if err == sql.ErrNoRows {
 			h.NotFound(w, "找不到文章")
 		} else {
 			h.ServerError(w, err)

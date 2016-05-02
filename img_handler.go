@@ -1,21 +1,21 @@
 package weiqi
 
 import (
-	"net/http"
-	"github.com/dgf1988/weiqi/h"
-	"mime/multipart"
-	"fmt"
-	"image/png"
-	"image"
-	"image/jpeg"
-	"image/gif"
 	"bytes"
-	"io"
-	"time"
 	"database/sql"
 	"errors"
+	"fmt"
+	"github.com/dgf1988/weiqi/h"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
+	"io"
+	"mime/multipart"
+	"net/http"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 func img_list_handler(w http.ResponseWriter, r *http.Request, args []string) {
@@ -59,7 +59,7 @@ func img_list_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 }
 
-func img_editor_handler( w http.ResponseWriter, r *http.Request, args []string) {
+func img_editor_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var user = getSessionUser(r)
 	if user == nil {
 		h.SeeOther(w, r, "/login")
@@ -113,7 +113,7 @@ func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var err error
 
 	//解析POST对象文件。
-	if err = r.ParseMultipartForm(2<<20); err != nil {
+	if err = r.ParseMultipartForm(2 << 20); err != nil {
 		h.ServerError(w, err)
 		return
 	}
@@ -156,7 +156,7 @@ func img_upload_handler(w http.ResponseWriter, r *http.Request, args []string) {
 			}
 		default:
 			//不支持的图片类型
-			h.NotFound(w, "Unsupported file type: " + header.Filename)
+			h.NotFound(w, "Unsupported file type: "+header.Filename)
 			return
 		}
 
@@ -301,7 +301,7 @@ func img_add_remote(title string, src string) (int64, error) {
 
 	var imgtype = parseImgType(suffix)
 	if imgtype <= 0 {
-		return -1, errors.New("img: Unsupported img type: "+suffix)
+		return -1, errors.New("img: Unsupported img type: " + suffix)
 	}
 
 	//保存图片信息
@@ -332,4 +332,3 @@ func img_add_remote(title string, src string) (int64, error) {
 		return -1, nil
 	}
 }
-

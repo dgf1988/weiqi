@@ -1,14 +1,14 @@
 package weiqi
 
 import (
+	"errors"
 	"fmt"
+	"github.com/dgf1988/mahonia"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
-	"sort"
-	"errors"
-	"regexp"
-	"strconv"
-	"github.com/dgf1988/mahonia"
 )
 
 /*
@@ -72,9 +72,9 @@ func (this Sgf) ToSgf() string {
 
 type sgfOrderByTimeDesc []Sgf
 
-func (arr sgfOrderByTimeDesc) Len() int { return len(arr)}
-func (arr sgfOrderByTimeDesc) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i]}
-func (arr sgfOrderByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time)}
+func (arr sgfOrderByTimeDesc) Len() int           { return len(arr) }
+func (arr sgfOrderByTimeDesc) Swap(i, j int)      { arr[i], arr[j] = arr[j], arr[i] }
+func (arr sgfOrderByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr[j].Time) }
 
 func listSgfOrderByTimeDesc(take, skip int) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
@@ -241,4 +241,3 @@ func remoteSgf(src string, charset string) (*Sgf, error) {
 	}
 	return sgf, nil
 }
-

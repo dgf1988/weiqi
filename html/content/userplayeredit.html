@@ -1,99 +1,118 @@
 {{define "content"}}
 <style>
-    body > #content > #editor {
-        float: left;
+    body > #content > .editor  {
+        margin: 10px 20px;
+    }
+    body > #content > .editor table {
+        display: inline-block;
+        vertical-align: top;
+    }
+    body #content .editor table caption {
+        font-weight: bold;
+    }
+    body #content .editor table th {
+        text-align: right;
+    }
+    body #content .editor table td .input {
+        width: 300px;
+        font-size: 18px;
+    }
+    body #content .editor table td select {
+        font-size: 18px;
+    }
+    body #content .editor table td .button {
         margin: auto 10px;
     }
-    body > #content > #editor .input {
-        width: 500px;
-        font-size: 18px;
+    body #content .editor section {
+        display: inline-block;
+        margin: auto 10px;
     }
-    body > #content > #editor .text {
-        height: 500px;
+    body #content .editor section label {
+        display: block;
+        font-weight: bold;
+        margin: 1px auto;
+        width: 100px;
+    }
+    body #content .editor section textarea {
         font-size: 18px;
+        width: 700px;
+        height: 700px;
         resize: none;
-    }
-    body > #content > #list {
-        float: left;
-    }
-    body > #content > #list table {
-        border-collapse: collapse;
-    }
-    body > #content > #list table th{
-        border: 1px solid black;
-        background: #0394ea;
-        padding: 2px 3px;
-    }
-    body > #content > #list table td{
-        border: 1px solid black;
-        padding: 2px 3px;
     }
 </style>
 <div id="content">
     {{with .Content}}
-    <section id="editor">
-        <form action="{{.Editor.Action}}" method="post">
-            <input type="hidden" name="id" value="{{.Player.Id}}">
+    <section class="editor">
+            {{with .Player}}
+        <form action="/user/player/{{.Id}}" method="post">
             <table>
                 <caption>棋手编辑</caption>
                 <tr>
-                    <th>姓名</th><td><label><input name="name" type="text" class="input" value='{{.Player.Name }}'></label></td>
+                    <th>姓名</th><td><input name="name" type="text" class="input name" value="{{.Name}}"></td>
                 </tr>
                 <tr>
-                    <th>性别</th><td><label><input name="sex" type="text" class="input" value="{{.Player.StrSex}}"></label></td>
+                    <th>性别</th><td><select name="sex">
+                        <option value="0" {{if eq .Sex 0}}selected="selected"{{end}}>无</option>
+                        <option value="1" {{if eq .Sex 1}}selected="selected"{{end}}>男</option>
+                        <option value="2" {{if eq .Sex 2}}selected="selected"{{end}}>女</option>
+                    </select></td>
                 </tr>
                 <tr>
-                    <th>国籍</th><td><label><input name="country" type="text" class="input" value="{{.Player.Country}}"></label></td>
+                    <th>段位</th><td><select name="rank">
+                        <option value="0" {{if eq .Rank 0}}selected="selected"{{end}}>无</option>
+                        <option value="109" {{if eq .Rank 109}}selected="selected"{{end}}>九段</option>
+                        <option value="108" {{if eq .Rank 108}}selected="selected"{{end}}>八段</option>
+                        <option value="107" {{if eq .Rank 107}}selected="selected"{{end}}>七段</option>
+                        <option value="106" {{if eq .Rank 106}}selected="selected"{{end}}>六段</option>
+                        <option value="105" {{if eq .Rank 105}}selected="selected"{{end}}>五段</option>
+                        <option value="104" {{if eq .Rank 104}}selected="selected"{{end}}>四段</option>
+                        <option value="103" {{if eq .Rank 103}}selected="selected"{{end}}>三段</option>
+                        <option value="102" {{if eq .Rank 102}}selected="selected"{{end}}>二段</option>
+                        <option value="101" {{if eq .Rank 101}}selected="selected"{{end}}>初段</option>
+                    </select></td>
                 </tr>
                 <tr>
-                    <th>段位</th><td><label><input name="rank" type="text" class="input" value="{{.Player.StrRank}}"></label></td>
+                    <th>国籍</th><td><input name="country" type="text" class="input country" value="{{.Country}}"></td>
                 </tr>
                 <tr>
-                    <th>生日</th><td><label><input name="birth" type="text" class="input" value='{{.Player.Birth.Format "2006-01-02"}}'></label></td>
+                    <th>出生年月</th><td><input name="birth" type="text" class="input birth" value="{{.Birth.Format "2006-01-02"}}"></td>
                 </tr>
                 <tr>
-                    <th>介绍</th><td><label><textarea name="text" class="input text">{{.Text.Text}}</textarea></label></td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <td>
-                        <button onclick="this.submit()">提交</button>
-                        <span style="color: red;">{{.Editor.Msg}}</span>
+                    <th></th><td>
+                        <input type="submit" value="更新" class="button">
+                        <input class="button" type="button" value="删除" onclick="removePlayer({{.Id}})">
                     </td>
                 </tr>
             </table>
+            {{end}}
+            {{with .Text}}
+            <section>
+                <label for="text">个人介绍 </label>
+                <textarea id="text" name="text" class="input text">{{.Text}}</textarea>
+            </section>
+            {{end}}
         </form>
     </section>
-    <section id="list">
-        <table>
-            <caption>棋手列表</caption>
-            <thead>
-            <tr>
-                <th>姓名</th>
-                <th>性别</th>
-                <th>国籍</th>
-                <th>段位</th>
-                <th>生日</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{range .Players}}
-            <tr>
-                <td><a href="/user/player/{{.Id}}" title="{{.Name}}">{{.Name}}</a></td>
-                <td>{{.StrSex}}</td>
-                <td>{{.Country}}</td>
-                <td>{{.StrRank}}</td>
-                <td>{{.Birth.Format "2006-01-02"}}</td>
-                <td>
-                    <form action="/user/player/del" method="post"><label><input name="id" type="hidden" value="{{.Id}}"></label><button onclick="this.submit()">删除</button></form>
-                </td>
-            </tr>
-            {{end}}
-            </tbody>
-        </table>
-    </section>
     {{end}}
-    <div style="clear:both;"></div>
 </div>
+<script>
+    function removePlayer(id) {
+        if (confirm("是否删除")) {         
+            var listKeyValue = {"id": id};
+            var form = document.createElement('form');
+            form.style.display = 'none';
+            form.action = "/user/player/del";
+            form.method=  "post";
+
+            for( var key in listKeyValue){
+                var input = document.createElement('input');
+                input.name = key;
+                input.value = listKeyValue[key];
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
 {{end}}

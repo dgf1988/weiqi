@@ -43,7 +43,7 @@ func rankToChinese(rank int64) string {
 	}
 }
 
-func chineseToRank( chRank string) int64 {
+func chineseToRank(chRank string) int64 {
 	switch chRank {
 	case "九段":
 		return 109

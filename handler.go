@@ -23,7 +23,7 @@ func renderDefault(w http.ResponseWriter, u *User) error {
 		posts   []Post
 		players []Player
 		sgfs    []Sgf
-		err error
+		err     error
 	)
 
 	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {

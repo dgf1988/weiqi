@@ -8,11 +8,11 @@ import (
 
 type weiqiDb struct {
 	Player db.Table
-	User db.Table
-	Post db.Table
-	Sgf db.Table
+	User   db.Table
+	Post   db.Table
+	Sgf    db.Table
 
-	Text db.Table
+	Text       db.Table
 	TextPlayer db.Table
 
 	Img db.Table

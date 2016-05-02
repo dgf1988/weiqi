@@ -31,13 +31,13 @@ type IndexPageItem struct {
 }
 
 type IndexPages struct {
-	First *IndexPageItem
-	Last *IndexPageItem
+	First  *IndexPageItem
+	Last   *IndexPageItem
 	Indexs []IndexPageItem
 }
 
 func newIndexPages(currnet, last int) *IndexPages {
-	if currnet > last || last < 1{
+	if currnet > last || last < 1 {
 		return nil
 	}
 	if last == 1 {
@@ -47,22 +47,22 @@ func newIndexPages(currnet, last int) *IndexPages {
 		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == 2, 2}, nil}
 	}
 	if last <= c_lengthFy {
-		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1 + last)}
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1+last)}
 	}
-	var harf int = c_lengthFy/2
+	var harf int = c_lengthFy / 2
 	if currnet <= harf {
-		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1 + c_lengthFy)}
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2, -1+c_lengthFy)}
 	}
-	if currnet >= last - harf {
-		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2 + last - c_lengthFy, -1 + last)}
+	if currnet >= last-harf {
+		return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, 2+last-c_lengthFy, -1+last)}
 	}
-	return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, currnet - harf + 1, currnet + harf - 1)}
+	return &IndexPages{&IndexPageItem{currnet == 1, 1}, &IndexPageItem{currnet == last, last}, makeIndexPageItems(currnet, currnet-harf+1, currnet+harf-1)}
 }
 
 func makeIndexPageItems(current, beg, end int) []IndexPageItem {
 	indexpages := make([]IndexPageItem, 0)
-	for i := beg ; i <= end ; i++ {
-		indexpages = append(indexpages, IndexPageItem{i==current,i})
+	for i := beg; i <= end; i++ {
+		indexpages = append(indexpages, IndexPageItem{i == current, i})
 	}
 	return indexpages
 }
