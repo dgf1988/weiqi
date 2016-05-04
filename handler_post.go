@@ -135,7 +135,7 @@ func postIdData(u *User, post *Post) *Data {
 }
 
 //post edit
-func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
+func editPostHandler(w http.ResponseWriter, r *http.Request, args []string) {
 
 	//登录验证
 	var user *User
@@ -181,7 +181,6 @@ func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
 			}
 		}
 	}
-
 	err = userPostEditHtml().Execute(w, userPostEditData(user, action, msg, post, posts), nil)
 	if err != nil {
 		h.ServerError(w, err)
