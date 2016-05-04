@@ -11,7 +11,7 @@ const (
 
 type route struct {
 	Pattern string
-	Methods []string
+	Methods int
 	Handler Handler
 
 	DefRoute   *route
@@ -24,7 +24,7 @@ func newRoute() *route {
 	return &route{Routes: make(map[string]*route)}
 }
 
-func (this *route) Handle(handler Handler, pattern string, methods ...string) {
+func (this *route) Handle(handler Handler, pattern string, methods int) {
 	listPath := strings.Split(pattern, pathSplit)
 	cr := this
 	for i := range listPath {

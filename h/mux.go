@@ -2,7 +2,6 @@ package h
 
 import (
 	"net/http"
-	"regexp"
 	"strings"
 )
 
@@ -15,24 +14,24 @@ func NewMux() *Mux {
 	return &Mux{Router: newRoute()}
 }
 
-func (mux *Mux) Handle(h Handler, pattern string, methods ...string) {
-	mux.Router.Handle(h, pattern, methods...)
+func (mux *Mux) Handle(h Handler, pattern string, methods int) {
+	mux.Router.Handle(h, pattern, methods)
 }
 
-func (mux *Mux) HandleFunc(f HandlerFunc, pattern string, methods ...string) {
-	mux.Router.Handle(HandlerFunc(f), pattern, methods...)
+func (mux *Mux) HandleFunc(f HandlerFunc, pattern string, methods int) {
+	mux.Router.Handle(HandlerFunc(f), pattern, methods)
 }
 
-func (mux *Mux) HandleStd(h http.Handler, pattern string, methods ...string) {
+func (mux *Mux) HandleStd(h http.Handler, pattern string, methods int) {
 	mux.Router.Handle(HandlerFunc(func(w http.ResponseWriter, r *http.Request, p []string) {
 		h.ServeHTTP(w, r)
-	}), pattern, methods...)
+	}), pattern, methods)
 }
 
-func (mux *Mux) HandleFuncStd(f http.HandlerFunc, pattern string, methods ...string) {
+func (mux *Mux) HandleFuncStd(f http.HandlerFunc, pattern string, methods int) {
 	mux.Router.Handle(HandlerFunc(func(w http.ResponseWriter, r *http.Request, p []string) {
 		f(w, r)
-	}), pattern, methods...)
+	}), pattern, methods)
 }
 
 func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -47,24 +46,14 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	route, params := mux.Router.Match(r.URL.Path)
 
-	if route == nil || route.Handler == nil || route.Methods == nil || len(route.Methods) == 0 {
+	if route == nil || route.Handler == nil {
 		NotFound(w, "page not found")
 	} else {
-		for _, m := range route.Methods {
-			if r.Method == m {
-				route.Handler.ServeHTTP(w, r, params)
-				return
-			}
+		if ( parseMethod(r.Method) & route.Methods ) > 0 {
+			route.Handler.ServeHTTP(w, r, params)
+		} else {
+			MethodNotAllowed(w, "method not allowed", formatMethods(route.Methods))
 		}
-		MethodNotAllowed(w, "method not allowed", route.Methods)
 	}
 }
 
-func getIp(r *http.Request) string {
-	var ip = r.Header.Get("x-forwarded-for")
-	if ip == "" {
-		ip = r.RemoteAddr
-		return regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|::1`).FindString(ip)
-	}
-	return ip
-}
