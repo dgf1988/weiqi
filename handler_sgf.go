@@ -54,13 +54,13 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var black = new(Player)
 	var white = new(Player)
-	if err = Players.Get(nil, sgf.Black).Struct(black); err == sql.ErrNoRows {
+	if err = Db.Player.Get(nil, sgf.Black).Struct(black); err == sql.ErrNoRows {
 		black = nil
 	} else if err != nil {
 		h.ServerError(w, err)
 		return
 	}
-	if err = Players.Get(nil, sgf.White).Struct(white); err == sql.ErrNoRows {
+	if err = Db.Player.Get(nil, sgf.White).Struct(white); err == sql.ErrNoRows {
 		white = nil
 	} else if err != nil {
 		h.ServerError(w, err)
@@ -72,13 +72,13 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 		defHtmlHeader(),
 		defHtmlFooter(),
 		newHtmlContent("sgfid"),
-	).Execute(w, sgfIdData(getSessionUser(r), sgf, black, white), nil)
+	).Execute(w, sgfIDDAta(getSessionUser(r), sgf, black, white), nil)
 	if err != nil {
 		h.ServerError(w, err)
 	}
 }
 
-func sgfIdData(u *User, sgf *Sgf, black, white *Player) *Data {
+func sgfIDDAta(u *User, sgf *Sgf, black, white *Player) *Data {
 	data := defData()
 	data.User = u
 	data.Head.Title = fmt.Sprintf("%s - %s VS %s", sgf.Event, sgf.Black, sgf.White)

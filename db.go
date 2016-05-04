@@ -2,6 +2,7 @@ package weiqi
 
 import (
 	"github.com/dgf1988/weiqi/db"
+	//mysql
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
@@ -18,10 +19,10 @@ type weiqiDb struct {
 	Img db.Table
 }
 
-var Db weiqiDb = weiqiDb{}
+//Db 数据库
+var Db weiqiDb
 
 var (
-	Players db.Table
 	Users   db.Table
 	Posts   db.Table
 	Sgfs    db.Table
@@ -36,11 +37,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	Players, err = db.GetTable(config.DbName, "player")
+	Db.Player, err = db.GetTable(config.DbName, "player")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	Db.Player = Players
 
 	Users, err = db.GetTable(config.DbName, "user")
 	if err != nil {

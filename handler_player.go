@@ -295,7 +295,7 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	)
 	if len(p) > 0 {
 		action = "/user/player/update"
-		if err := Players.Get(p[0]).Struct(player); err == nil {
+		if err := Db.Player.Get(p[0]).Struct(player); err == nil {
 			var textid int64
 			if err = TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
 				if err = Texts.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
@@ -315,7 +315,7 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 		}
 	}
 
-	if rows, err := Players.ListDesc(40, 0); err == nil {
+	if rows, err := Db.Player.ListDesc(40, 0); err == nil {
 		defer rows.Close()
 		for rows.Next() {
 			var a Player
@@ -443,7 +443,7 @@ func player_del_handler(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 	var n int64
-	n, err = Players.Del(playerid)
+	n, err = Db.Player.Del(playerid)
 	if err != nil {
 		h.ServerError(w, err)
 		return
