@@ -297,8 +297,8 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 		action = "/user/player/update"
 		if err := Db.Player.Get(p[0]).Struct(player); err == nil {
 			var textid int64
-			if err = TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
-				if err = Texts.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
+			if err = Db.TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
+				if err = Db.Text.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
 					h.ServerError(w, err)
 					return
 				}
@@ -426,14 +426,14 @@ func player_del_handler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var playertextid int64
 	var textid int64
-	err = TextPlayer.Get(nil, playerid).Scan(&playertextid, nil, &textid)
+	err = Db.TextPlayer.Get(nil, playerid).Scan(&playertextid, nil, &textid)
 	if err == nil {
-		_, err = Texts.Del(textid)
+		_, err = Db.Text.Del(textid)
 		if err != nil {
 			h.ServerError(w, err)
 			return
 		}
-		_, err = TextPlayer.Del(playertextid)
+		_, err = Db.TextPlayer.Del(playertextid)
 		if err != nil {
 			h.ServerError(w, err)
 			return

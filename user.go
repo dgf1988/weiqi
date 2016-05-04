@@ -50,11 +50,11 @@ func registerUser(username, password, password2, email, ip string) (int64, error
 	}
 
 	user := User{}
-	err := Users.Get(nil, username).Struct(&user)
+	err := Db.User.Get(nil, username).Struct(&user)
 	if err == nil {
 		return user.Id, ErrUserExisted
 	} else if err == sql.ErrNoRows {
-		return Users.Add(nil, username, md5Password(password, ip), email, ip)
+		return Db.User.Add(nil, username, md5Password(password, ip), email, ip)
 	} else {
 		return -1, err
 	}
@@ -70,7 +70,7 @@ func loginUser(username, password string) (*User, error) {
 	}
 
 	var user User
-	err := Users.Get(nil, username).Struct(&user)
+	err := Db.User.Get(nil, username).Struct(&user)
 	if err == sql.ErrNoRows {
 		return nil, ErrUserNotFound
 	}

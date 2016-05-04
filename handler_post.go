@@ -154,7 +154,7 @@ func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
 
 	if len(args) > 0 {
 		action = "/user/post/update"
-		err := Posts.Get(args[0]).Struct(post)
+		err := Db.Post.Get(args[0]).Struct(post)
 		if err == sql.ErrNoRows {
 			h.NotFound(w, "找不到文章")
 			return
@@ -166,7 +166,7 @@ func handlePostEdit(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var posts = make([]Post, 0)
-	if rows, err := Posts.ListDesc(40, 0); err != nil {
+	if rows, err := Db.Post.ListDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -223,7 +223,7 @@ func handlePostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	p.Text = r.FormValue("text")
 
 	if len(p.Title) > 0 && len(p.Text) > 0 {
-		_, err := Posts.Add(nil, p.Title, p.Text)
+		_, err := Db.Post.Add(nil, p.Title, p.Text)
 		if err == nil {
 			h.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
@@ -256,7 +256,7 @@ func handlePostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
-	_, err := Posts.Update(p.Id).Values(nil, p.Title, p.Text)
+	_, err := Db.Post.Update(p.Id).Values(nil, p.Title, p.Text)
 	if err != nil {
 		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return
@@ -279,7 +279,7 @@ func handlePostDel(w http.ResponseWriter, r *http.Request, args []string) {
 		h.NotFound(w, "找不找文章")
 		return
 	}
-	_, err := Posts.Del(id)
+	_, err := Db.Post.Del(id)
 	if err != nil {
 		h.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
 	} else {

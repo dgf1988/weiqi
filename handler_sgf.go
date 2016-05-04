@@ -44,7 +44,7 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var sgf = new(Sgf)
 	var err error
-	if err = Sgfs.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
+	if err = Db.Sgf.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
 		h.NotFound(w, "找不到棋谱")
 		return
 	} else if err != nil {
@@ -101,7 +101,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	r.ParseForm()
 	var err error
 	var sgfs = make([]Sgf, 0)
-	if rows, err := Sgfs.ListDesc(40, 0); err != nil {
+	if rows, err := Db.Sgf.ListDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -120,7 +120,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var sgf = new(Sgf)
 	var action string
 	if len(p) > 0 {
-		if err = Sgfs.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
+		if err = Db.Sgf.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
 			h.NotFound(w, "找不到棋手")
 			return
 		} else if err != nil {
@@ -183,7 +183,7 @@ func handleSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	id, err := Sgfs.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	id, err := Db.Sgf.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -208,7 +208,7 @@ func handleSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	_, err := Sgfs.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	_, err := Db.Sgf.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -230,7 +230,7 @@ func handleSgfDel(w http.ResponseWriter, r *http.Request, p []string) {
 		return
 	}
 
-	_, err := Sgfs.Del(id)
+	_, err := Db.Sgf.Del(id)
 	if err != nil {
 		h.ServerError(w, err)
 		return
