@@ -6,46 +6,35 @@ import (
 )
 
 //默认处理器。处理首页访问
-func handleDefault(w http.ResponseWriter, r *http.Request, args []string) {
+func defaultHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	//从会话中获取用户信息，如果没登录，则为nil。
+	var err error
+	var data = defData()
+	data.User = getSessionUser(r)
 
-	err := renderDefault(w, getSessionUser(r))
-	if err != nil {
+	var posts []Post
+	if posts, err = listPostByStatusOrderDesc(constStatusRelease, 40, 0); err != nil {
 		h.ServerError(w, err)
+		return
 	}
-}
-
-func renderDefault(w http.ResponseWriter, u *User) error {
-	data := defData()
-	data.User = u
-
-	var (
-		posts   []Post
-		players []Player
-		sgfs    []Sgf
-		err     error
-	)
-
-	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
-		return err
-	}
-
-	if posts, err = listPostByStatusOrderDesc(c_statusRelease, 40, 0); err != nil {
-		return err
-	}
-
-	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
-		return err
-	}
-
 	data.Content["Posts"] = posts
-	data.Content["Sgfs"] = sgfs
+
+	var players []Player
+	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
+		h.ServerError(w, err)
+		return
+	}
 	data.Content["Players"] = players
 
-	return defHtmlLayout().Append(
-		defHtmlHead(),
-		defHtmlHeader(),
-		defHtmlContent(),
-		defHtmlFooter(),
-	).Execute(w, data, nil)
+	var sgfs []Sgf
+	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
+		h.ServerError(w, err)
+		return
+	}
+	data.Content["Sgfs"] = sgfs
+
+	var html = defHtmlLayout().Append(defHtmlHead(), defHtmlHeader(), defHtmlFooter(), defHtmlContent())
+	if err = html.Execute(w, data, nil); err != nil {
+		logError(err.Error())
+	}
 }

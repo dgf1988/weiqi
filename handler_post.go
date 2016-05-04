@@ -12,14 +12,14 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var posts []Post
 	var err error
-	if posts, err = listPostByStatusOrderDesc(c_statusRelease, c_postPageSize, 0); err != nil {
+	if posts, err = listPostByStatusOrderDesc(constStatusRelease, c_postPageSize, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	}
 
 	cutPostTextMany(posts)
 	var indexpages *IndexPages
-	if count, err := Db.Post.Count(nil, nil, nil, c_statusRelease); err != nil {
+	if count, err := Db.Post.Count(nil, nil, nil, constStatusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -65,7 +65,7 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var fy *IndexPages
-	if count, err := Db.Post.Count(nil, nil, nil, c_statusRelease); err != nil {
+	if count, err := Db.Post.Count(nil, nil, nil, constStatusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -82,7 +82,7 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 
 	var posts []Post
 	var err error
-	if posts, err = listPostByStatusOrderDesc(c_statusRelease, c_postPageSize, (current-1)*c_postPageSize); err != nil {
+	if posts, err = listPostByStatusOrderDesc(constStatusRelease, c_postPageSize, (current-1)*c_postPageSize); err != nil {
 		h.ServerError(w, err)
 		return
 	}

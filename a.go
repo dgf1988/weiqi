@@ -21,7 +21,7 @@ func Run() {
 
 	//
 	m := h.NewMux()
-	m.HandleFunc(handleDefault, "/", GET)
+	m.HandleFunc(defaultHandler, "/", GET)
 
 	m.HandleFunc(handleLogin, "/login", GET, POST)
 	m.HandleFunc(handleLogout, "/logout", GET)

@@ -3,21 +3,22 @@ package weiqi
 import "fmt"
 
 const (
-	c_statusDraft = iota
-	c_statusRelease
-	c_statusDelete
+	constStatusDraft = iota
+	constStatusRelease
+	constStatusDelete
 )
 
-type State struct {
+//Status 状态定义
+type Status struct {
 	Value int64
 	Name  string
 }
 
-var weiqiStatus = []State{
-	State{0, "草稿"}, State{1, "发布"}, State{2, "删除"},
+var weiqiStatus = []Status{
+	Status{constStatusDraft, "草稿"}, Status{constStatusRelease, "发布"}, Status{constStatusDelete, "删除"},
 }
 
-func statusToString(statusValue int64) string {
+func formatStatus(statusValue int64) string {
 	for _, s := range weiqiStatus {
 		if s.Value == statusValue {
 			return s.Name
@@ -26,7 +27,7 @@ func statusToString(statusValue int64) string {
 	panic(fmt.Sprint("status:", statusValue, " no found"))
 }
 
-func stringToStatus(statusName string) int64 {
+func parseStatus(statusName string) int64 {
 	for _, s := range weiqiStatus {
 		if s.Name == statusName {
 			return s.Value

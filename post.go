@@ -25,7 +25,7 @@ func (p *Post) HtmlText() template.HTML {
 }
 
 func (p Post) StrStatus() string {
-	return statusToString(p.Status)
+	return formatStatus(p.Status)
 }
 
 const c_CutTextLength = 140
