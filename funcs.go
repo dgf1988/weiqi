@@ -14,26 +14,26 @@ import (
 )
 
 const (
-	c_shortDate   string = "2006年1月2日"
-	c_longDate    string = "2006年01月02日"
-	c_stdDate     string = "2006-01-02"
-	c_stdDatetime string = "2006-01-02 15:04"
+	constParseDateCnS     string = "2006年1月2日"
+	constParseDateCnL     string = "2006年01月02日"
+	constParseDateStd     string = "2006-01-02"
+	constParseDatetimeStd string = "2006-01-02 15:04"
 )
+
+var parseDatetimeStrings = []string{
+	"2006-01-02 15:04",
+	"2006-01-02",
+	"2006年01月02日",
+	"2006年1月2日",
+}
 
 //ParseDate 解析日期字符串
 func parseDate(dateStr string) (time.Time, error) {
-	var (
-		date time.Time
-		err  error
-	)
-	date, err = time.Parse(c_stdDate, dateStr)
-	if err != nil {
-		date, err = time.Parse(c_longDate, dateStr)
-		if err != nil {
-			date, err = time.Parse(c_shortDate, dateStr)
-			if err != nil {
-				return time.Time{}, err
-			}
+	var date time.Time
+	var err error
+	for _, p := range parseDatetimeStrings {
+		if date, err = time.Parse(p, dateStr); err == nil {
+			break
 		}
 	}
 	return date, err
@@ -140,10 +140,10 @@ func httpGetBytes(urlget string) ([]byte, int, error) {
 			break
 		}
 	}
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, resp.StatusCode, err
 	}
-	defer resp.Body.Close()
 	var bytes []byte
 	if bytes, err = ioutil.ReadAll(resp.Body); err != nil {
 		return nil, resp.StatusCode, err
@@ -152,26 +152,9 @@ func httpGetBytes(urlget string) ([]byte, int, error) {
 }
 
 func httpGetString(urlget string) (string, int, error) {
+	var b []byte
 	var err error
-	var resp *http.Response
-	var client http.Client
-	client.Timeout = 30 * time.Second
-
-	for i := 0; i < 3; i++ {
-		if resp, err = client.Get(urlget); err != nil {
-			time.Sleep(3 * time.Second)
-			continue
-		} else {
-			break
-		}
-	}
-	if err != nil {
-		return "", resp.StatusCode, err
-	}
-	defer resp.Body.Close()
-	var bytes []byte
-	if bytes, err = ioutil.ReadAll(resp.Body); err != nil {
-		return "", resp.StatusCode, err
-	}
-	return string(bytes), resp.StatusCode, nil
+	var code int
+	b, code, err = httpGetBytes(urlget)
+	return string(b), code, err
 }

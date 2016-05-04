@@ -251,7 +251,7 @@ func sgf_remote_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var sgf *Sgf
-	if sgf, err = remoteSgf(r.FormValue("src"), r.FormValue("charset")); err != nil {
+	if sgf, err = httpGetSgf(r.FormValue("src"), r.FormValue("charset")); err != nil {
 		h.NotFound(w, err.Error())
 		return
 	}

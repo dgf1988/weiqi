@@ -359,17 +359,6 @@ func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, pl
 	).Execute(w, data, nil)
 }
 
-func getPlayerFromRequest(r *http.Request) *Player {
-	var p Player
-	p.Id = atoi64(r.FormValue("id"))
-	p.Name = r.FormValue("name")
-	p.Sex = chineseToSex(r.FormValue("sex"))
-	p.Country = r.FormValue("country")
-	p.Rank = chineseToRank(r.FormValue("rank"))
-	p.Birth, _ = parseDate(r.FormValue("birth"))
-	return &p
-}
-
 //player add
 func player_add_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	if getSessionUser(r) == nil {

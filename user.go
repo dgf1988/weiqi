@@ -21,7 +21,7 @@ type User struct {
 }
 
 func (this User) RegisterTime() string {
-	return this.Register.Format(c_stdDatetime)
+	return this.Register.Format(constParseDatetimeStd)
 }
 
 var (

@@ -225,7 +225,7 @@ func parseSgf(strSgf string) (*Sgf, error) {
 	return &sgf, nil
 }
 
-func remoteSgf(src string, charset string) (*Sgf, error) {
+func httpGetSgf(src string, charset string) (*Sgf, error) {
 	var strsgf string
 	var err error
 	var code int
