@@ -5,7 +5,6 @@ import (
 	"github.com/dgf1988/weiqi/h"
 	"log"
 	"net/http"
-	"strings"
 )
 
 const (
