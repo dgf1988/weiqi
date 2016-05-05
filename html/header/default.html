@@ -2,37 +2,47 @@
 <style>
     /* header */
     body > header {
-        margin: 10px;
-        border-bottom: 1px solid black;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: #fff;            
+        border-bottom: 1px solid #eeeeee;
+        box-shadow: 3px 3px 6px #888888;
+    }
+    body > header > a {
+        height: 100%;
+        display: inline-block;
+        margin: 5px 50px auto 100px;
     }
     body > header > a > img {
         height: 50px;
     }
+    body > header > nav {
+        display: inline-block;
+        vertical-align: top;
+        margin: 15px;
+    }
     /* header nav */
     body > header > nav > ul {
+
         list-style: none;
-        background: linear-gradient(to right, #03467a, #0579cb);
-        box-shadow: -1px 1px 3px #000000;
-        border-radius: 2px;
         margin: 0;
+        padding: 0;
     }
     body > header > nav > ul > li {
         display: inline-block;
         margin: auto 10px;
-
-        height: 30px;
-        line-height: 30px;
-        vertical-align: middle;
-
-        font-size: 18px;
+        font-size: 24px;
     }
     body > header > nav > ul > li > a {
-        color: #dfdfdf;
+        color: #000000;
         text-decoration: none;
     }
     body > header > nav > ul > li > a:hover {
-        color: #dfdfdf;
-        text-decoration: underline;
+        color: #f00;
+        text-decoration: none;
     }
 </style>
 <header>
