@@ -1,7 +1,7 @@
 {{define "header"}}
 <style>
     /* header */
-    body > header {
+    #header {
         position: fixed;
         top: 0;
         left: 0;
@@ -11,48 +11,47 @@
         border-bottom: 1px solid #eeeeee;
         box-shadow: 3px 3px 6px #888888;
     }
-    body > header > a {
-        height: 100%;
+    #header > a {
         display: inline-block;
         margin: 5px 50px auto 100px;
     }
-    body > header > a > img {
+    #header > a > img {
         height: 50px;
     }
-    body > header > nav {
+    #header > nav {
         display: inline-block;
         vertical-align: top;
         margin: 15px;
     }
     /* header nav */
-    body > header > nav > ul {
+    #header > nav > ul {
 
         list-style: none;
         margin: 0;
         padding: 0;
     }
-    body > header > nav > ul > li {
+    #header > nav > ul > li {
         display: inline-block;
         margin: auto 10px;
         font-size: 24px;
     }
-    body > header > nav > ul > li > a {
+    #header > nav > ul > li > a {
         color: #000000;
         text-decoration: none;
     }
-    body > header > nav > ul > li > a:hover {
+    #header > nav > ul > li > a:hover {
         color: #f00;
         text-decoration: none;
     }
 </style>
-<header>
-    {{with .Header}}
-    <a href="/"><img src="/static/site/logo.png"></a>
+{{with .Header}}
+<header id="header">
+    <a href="/" title="首页"><img src="/static/site/logo.png"></a>
     <nav>
         <ul>
             {{range .Navs}}<li><a href="{{.Url}}" title="{{.Title}}">{{.Title}}</a></li>{{end}}
         </ul>
     </nav>
-    {{end}}
 </header>
+{{end}}
 {{end}}
