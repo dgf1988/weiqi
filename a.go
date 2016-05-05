@@ -23,7 +23,7 @@ func Run() {
 	m := h.NewMux()
 	m.HandleFunc(defaultHandler, "/", h.GET)
 
-	m.HandleFunc(handleLogin, "/login", h.GET | h.POST)
+	m.HandleFunc(handleLogin, "/login", h.GET|h.POST)
 	m.HandleFunc(handleLogout, "/logout", h.GET)
 	m.HandleFunc(handleRegister, "/register", h.POST)
 	m.HandleFunc(handleUser, "/user", h.GET)
@@ -51,12 +51,12 @@ func Run() {
 	m.HandleFunc(player_list_handler, "/player/", h.GET)
 	m.HandleFunc(player_info_handler, "/player/+", h.GET)
 	m.HandleFunc(player_manage_handler, "/user/player/", h.GET)
-	m.HandleFunc(player_editor_handler, "/user/player/+", h.GET | h.POST )
+	m.HandleFunc(player_editor_handler, "/user/player/+", h.GET|h.POST)
 	m.HandleFunc(player_add_handler, "/user/player/add", h.POST)
 	m.HandleFunc(player_del_handler, "/user/player/del", h.POST)
 
 	m.HandleFunc(img_list_handler, "/user/img/", h.GET)
-	m.HandleFunc(img_editor_handler, "/user/img/+", h.GET| h.POST)
+	m.HandleFunc(img_editor_handler, "/user/img/+", h.GET|h.POST)
 	m.HandleFunc(img_upload_handler, "/user/img/upload", h.POST)
 	m.HandleFunc(img_remove_handler, "/user/img/remove", h.POST)
 	m.HandleFunc(img_remote_handler, "/user/img/remote", h.POST)
