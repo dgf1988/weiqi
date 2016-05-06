@@ -1,41 +1,57 @@
 {{define "content"}}
 <style>
     body > #content {
-        padding: 5px 10px;
-        width: 600px;
+        padding: auto;
+        margin: 70px auto 10px auto;
+        background: white;
+        border-radius: 3px;
+        width: 300px;
     }
-
-    body > #content > form {
+    #content > .login > p {
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin: 5px;
+    }
+    #content > .login {
+        padding: 20px;
+    }
+    #content > .login > ul {
+        list-style: none;
+        padding: 0;
         margin: auto;
+        
+    }
+    #content > .login > ul input {
         width: 250px;
-        padding: 10px;
-        border: 1px solid #8c8c8c;
-        border-radius: 5px;
-        box-shadow: 1px 1px 1px black;
+        margin: 5px auto;
+        height: 25px;
+        font-size: 18px;
     }
-    body > #content > form > table {
-        margin: auto;
-        border-collapse: collapse;
+    #content > .login > ul button {
+        color: white;
+        width: 254px;   
+        border: 0;
+        height: 30px;
+        font-size: 18px;
+        margin: 5px auto;
+        background: #104E8B;
     }
-    body > #content > form > table td input {
-        width: 150px ;
+    #content > .login > ul button:hover {
+        background: #1874CD;
     }
+    
 </style>
 <div id="content">
     {{with .Content}}
-    <form method="post" action="/login" id="login">
-        <table>
-            <caption>登录</caption>
-            <tr><td>用户名:</td><td><label><input type="text" name="username"></label></td></tr>
-            <tr><td>密码:</td><td><label><input type="password" name="password"></label></td></tr>
-            <tr>
-                <td></td>
-                <td >
-                    <button onclick="this.submit()">登录</button>
-                    <span style="color: red;">{{.LoginMsg}}</span>
-                </td>
-            </tr>
-        </table>
+    <form method="post" action="/login" class="login" id="login">
+        <p>后台登录</p>
+        <ul>
+            <li><label><input type="text" name="username" placeholder="用户名"></label></li>
+            <li><label><input type="password" name="password" placeholder="密码"></label></li>
+            <li><button type="submit">登录</button></li>
+            <li><span style="color: red;">{{.LoginMsg}}</span></li>
+        </ul>
     </form>
     <!--
     <h4>注册</h4>
