@@ -30,7 +30,7 @@ var (
 		104: "四段",
 		103: "三段",
 		102: "二段",
-		101: "一段",
+		101: "初段",
 	}
 )
 
@@ -61,7 +61,7 @@ func chineseToRank(chRank string) int64 {
 		return 103
 	case "二段":
 		return 102
-	case "一段":
+	case "一段", "初段":
 		return 101
 	default:
 		return 0
