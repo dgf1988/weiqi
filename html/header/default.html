@@ -11,6 +11,7 @@
         border-bottom: 1px solid #eeeeee;
         box-shadow: 3px 3px 6px #888888;
     }
+    /* 网站LOGO */
     #header > a {
         display: inline-block;
         margin: 5px 50px auto 100px;
@@ -18,12 +19,12 @@
     #header > a > img {
         height: 50px;
     }
+    /* 网站导航 */
     #header > nav {
         display: inline-block;
         vertical-align: top;
         margin: 15px;
     }
-    /* header nav */
     #header > nav > ul {
 
         list-style: none;
@@ -52,6 +53,7 @@
             {{range .Navs}}<li><a href="{{.Url}}" title="{{.Title}}">{{.Title}}</a></li>{{end}}
         </ul>
     </nav>
+    <div style="clear:both;"></div>
 </header>
 {{end}}
 {{end}}

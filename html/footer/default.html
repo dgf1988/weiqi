@@ -1,24 +1,23 @@
 {{define "footer"}}
 <style>
     /* footer */
-    body > footer {
-        text-align: center;
-        border-top: 1px solid;
+    #footer {
+        border-top: 1px solid #aaaaaa;
         margin: 10px;
     }
-    body > footer > ul {
+    #footer > ul {
         list-style: none;
     }
-    body > footer > ul > li {
+    #footer > ul > li {
         display: inline;
         font-size: 12px;
         margin: auto 5px;
     }
-    body > footer > ul > li span{
+    #footer > ul > li span{
         margin: auto 5px;
     }
 </style>
-<footer>
+<footer id="footer">
     <ul>
         {{with .Footer}}
         <li><strong>CopyRight</strong>©<span>2015-2016</span></li>
@@ -30,7 +29,7 @@
         {{else}}<li><strong>管理</strong>:<span><a href="/login" title="用户登录">登录</a></span></li>
         {{end}}
     </ul>
-    <div style="width:300px;margin:0 auto; font-size: 12px;">
+    <div style="width:300px;margin:0 200px; font-size: 12px;">
         <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35098202000006" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="/static/beian/gongan.png" style="float:left;"/><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">闽公网安备 35098202000006号</p></a>
     </div>
 </footer>

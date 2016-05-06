@@ -1,37 +1,39 @@
 {{define "content"}}
 <style>
-    body > #content {
+    #content {
+        margin: 70px 10px 10px 10px;
+        padding: 10px;
         width: 700px;
+        background: #ffffff;
     }
-    body > #content > section > header > h4 {
-        margin: 5px 0;
-        padding: 0;
-    }
-    body > #content > section > p {
-        margin: 5px 0;
-        padding: 0;
-    }
-    body > #content > section {
+    #content > section {
         margin: 5px auto;
         padding: 5px 10px;
         border: 1px solid #d4d4d4;
-        border-radius: 5px;
         background: #ffffff;
     }
-    
-    body > #content > section:hover header h4 a {
-        color: #f00;
-        font-weight:bold;
+    #content > section > header > h4 {
+        margin: 5px 0;
+        padding: 0;
     }
-    body > #content > section > header > h4 > a {
+    #content > section > header > h4 > a {
         text-decoration: none;
         color: blue;
 
     }
-    body > #content > .indexpages {
+    #content > section:hover > header h4 a {
+        color: #f00;
+        font-weight:bold;
+    }
+    #content > section > p {
+        margin: 5px 0;
+        padding: 0;
+    }
+    /* 翻页 */
+    #content > .indexpages {
         list-style-type: none;
     }
-    body > #content > .indexpages > li {
+    #content > .indexpages > li {
         border: 1px solid #cacaca;
         display: inline-block;
         padding: 4px 10px;
@@ -39,14 +41,14 @@
         text-align: center;
         background: #ffffff;
     }
-    body > #content > .indexpages > li a {
+    #content > .indexpages > li a {
         color: blue;
         text-decoration: none;
     }
-    body > #content > .indexpages > li:hover {
+    #content > .indexpages > li:hover {
         background: #e2e2e2;
     }
-    body > #content > .indexpages > .is-current a {
+    #content > .indexpages > .is-current a {
         color: black;
         font-weight: bold;
     }
@@ -69,11 +71,11 @@
             <p>{{.Text}}</p>
         </section>
         {{end}}
-    <ol class="indexpages">
+        <ol class="indexpages">
             {{with .IndexPages}}
-            {{if .First}}<li class="{{if .First.IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.First.Number}}'"><a href="/post/page/{{.First.Number}}">首页</a></li>{{end}}
-            {{range .Indexs}}<li class="{{if .IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.Number}}'"><a href="/post/page/{{.Number}}">{{.Number}}</a></li>{{end}}
-            {{if .Last}}<li class="{{if .Last.IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.Last.Number}}'"><a href="/post/page/{{.Last.Number}}">尾页</a></li>{{end}}
+                {{if .First}}<li class="{{if .First.IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.First.Number}}'"><a href="/post/page/{{.First.Number}}">首页</a></li>{{end}}
+                {{range .Indexs}}<li class="{{if .IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.Number}}'"><a href="/post/page/{{.Number}}">{{.Number}}</a></li>{{end}}
+                {{if .Last}}<li class="{{if .Last.IsCurrent}}is-current{{end}}" onclick="location.href='/post/page/{{.Last.Number}}'"><a href="/post/page/{{.Last.Number}}">尾页</a></li>{{end}}
             {{end}}
         </ol>
     {{end}}

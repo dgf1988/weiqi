@@ -1,10 +1,14 @@
 {{define "content"}}
-<style>
+<style>    
     #content {
-        background: white;
+        padding: 0;
+        margin: 62px 10px 10px 10px;
         display: inline-block;
+        background: white;
     }
-    
+    #content > section {
+        float: left;
+    }
     #content > section > h4 {
         margin: 10px;
     }
@@ -18,6 +22,9 @@
         padding: 2px 5px;
         border: 1px solid #b6b6b6;
     }
+    #content > section > ol > li > time {
+        margin: auto 5px;
+    }
     #content > section > ol > li > a {
         color: blue ;
         text-decoration: none;
@@ -28,22 +35,9 @@
     #content > section > ol > li:hover a {
         color: red;
     }
-    #content > section > ol > li > time {
-        margin: auto 5px;
-    }
-
-    #content > #posts {
-        float: left;
-    }
-    #content > #sgfs {
-        float: left;
-    }
-    #content > #players {
-        float: left;
-    }
 </style>
+{{with .Content}}
 <div id="content">
-    {{with .Content}}
     <section id="posts">
         <h4>文章</h4>
         <ol>
@@ -70,5 +64,4 @@
     </section>
     {{end}}
     <div style="clear:both;"></div>
-</div>
-{{end}}
+</div>{{end}}
