@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 /*
 	tm timelimit
@@ -49,7 +50,7 @@ type Sgf struct {
 	Sgf    string
 	Update time.Time
 }
-/*
+
 func (this Sgf) ToSgf() string {
 	if this.Sgf == "" {
 		return ""
@@ -72,7 +73,7 @@ func (this Sgf) ToSgf() string {
 	items_sgf = append(items_sgf, ")")
 	return strings.Join(items_sgf, "")
 }
-*/
+
 type sgfOrderByTimeDesc []Sgf
 
 func (arr sgfOrderByTimeDesc) Len() int           { return len(arr) }
