@@ -195,32 +195,33 @@ func parseSgf(strSgf string) (*Sgf, error) {
 	strSgf = strings.TrimSpace(strSgf)
 
 	var sgf Sgf
-	var re = regexp.MustCompile(`[A-Za-z]{1,2}\[([^\]]+)\]`)
+	var re = regexp.MustCompile(`([A-Za-z]{1,2})\[([^\]]+)\]`)
 
 	var titles = regexp.MustCompile(`([A-Za-z]{2}\[[^\]]+\])`).FindAllString(strSgf, -1)
 	for _, title := range titles {
-		if strings.HasPrefix(title, "TE") {
-			sgf.Event = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "EV") {
-			sgf.Event = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "RD") {
-			sgf.Time, _ = time.Parse("2006-01-02", re.FindStringSubmatch(title)[1])
-		} else if strings.HasPrefix(title, "DT") {
-			sgf.Time, _ = time.Parse("2006-01-02", re.FindStringSubmatch(title)[1])
-		} else if strings.HasPrefix(title, "PC") {
-			sgf.Place = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "PB") {
-			sgf.Black = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "PW") {
-			sgf.White = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "RE") {
-			sgf.Result = re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "TM") {
-			sgf.Rule += "用时：" + re.FindStringSubmatch(title)[1]
-		} else if strings.HasPrefix(title, "LT") {
-			sgf.Rule += "  读秒：" + re.FindStringSubmatch(title)[1] + "  "
-		} else if strings.HasPrefix(title, "LC") {
-			sgf.Rule += re.FindStringSubmatch(title)[1] + "次"
+		var match = re.FindStringSubmatch(title)
+		if len(match) != 3 {
+			continue
+		}
+		switch match[1] {
+		case "TE", "EV":
+			sgf.Event = match[2]
+		case "RD", "DT":
+			sgf.Time, _ = time.Parse("2006-01-02", match[2])
+		case "PC":
+			sgf.Place = match[2]
+		case "PB":
+			sgf.Black = match[2]
+		case "PW":
+			sgf.White = match[2]
+		case "RE":
+			sgf.Result = match[2]
+		case "TM":
+			sgf.Rule += "用时：" + match[2] + "  "
+		case "LT":
+			sgf.Rule += "读秒：" + match[2] + "  "
+		case "LC":
+			sgf.Rule += match[2] + "次"
 		}
 	}
 	sgf.Sgf = strSgf
