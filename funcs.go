@@ -14,9 +14,6 @@ import (
 )
 
 const (
-	constParseDateCnS     string = "2006年1月2日"
-	constParseDateCnL     string = "2006年01月02日"
-	constParseDateStd     string = "2006-01-02"
 	constParseDatetimeStd string = "2006-01-02 15:04"
 )
 

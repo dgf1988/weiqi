@@ -82,7 +82,7 @@ func (arr sgfOrderByTimeDesc) Less(i, j int) bool { return arr[i].Time.After(arr
 
 func listSgfOrderByTimeDesc(take, skip int) ([]Sgf, error) {
 	var sgfs = make([]Sgf, 0)
-	if rows, err := Db.Sgf.Query("order by sgf.time desc limit ?, ?", skip, take); err != nil {
+	if rows, err := Db.Sgf.Query("order by sgf.time desc, sgf.id desc limit ?, ?", skip, take); err != nil {
 		return nil, err
 	} else {
 		defer rows.Close()
@@ -208,7 +208,7 @@ func parseSgf(strSgf string) (*Sgf, error) {
 		case "TE", "EV":
 			sgf.Event = match[2]
 		case "RD", "DT":
-			sgf.Time, _ = time.Parse("2006-01-02", match[2])
+			sgf.Time, _ = parseDate(match[2])
 		case "PC":
 			sgf.Place = match[2]
 		case "PB":
