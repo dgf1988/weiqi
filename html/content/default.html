@@ -42,7 +42,7 @@
         <h4>文章</h4>
         <ol>
             {{range .Posts}}
-            <li onclick="location.href='/post/{{.Id}}'"><time>{{.Posted.Format "01-02"}}</time><a href="/post/{{.Id}}" title="{{.Id}}">{{.Title}}</a></li>
+            <li onclick="location.href='/post/{{.Id}}'"><time>{{.Posted.Format "01-02"}}</time><a href="/post/{{.Id}}" title="{{.Title}}">{{.Title}}</a></li>
             {{end}}
         </ol>
     </section>
