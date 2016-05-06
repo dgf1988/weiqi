@@ -2,7 +2,6 @@ package weiqi
 
 import (
 	"errors"
-	"fmt"
 	"github.com/dgf1988/mahonia"
 	"regexp"
 	"sort"
@@ -10,6 +9,10 @@ import (
 	"strings"
 	"time"
 )
+/*
+	tm timelimit
+	
+*/
 
 /*
 CREATE TABLE `sgf` (
@@ -43,12 +46,12 @@ type Sgf struct {
 	White  string
 	Rule   string
 	Result string
-	Steps  string
+	Sgf    string
 	Update time.Time
 }
-
+/*
 func (this Sgf) ToSgf() string {
-	if this.Steps == "" {
+	if this.Sgf == "" {
 		return ""
 	}
 	items_sgf := make([]string, 0)
@@ -65,11 +68,11 @@ func (this Sgf) ToSgf() string {
 	items_sgf = append(items_sgf, fmt.Sprintf("RL[%s]", this.Rule))
 	items_sgf = append(items_sgf, fmt.Sprintf("RE[%s]", this.Result))
 	items_sgf = append(items_sgf, "\n")
-	items_sgf = append(items_sgf, this.Steps)
+	items_sgf = append(items_sgf, this.Sgf)
 	items_sgf = append(items_sgf, ")")
 	return strings.Join(items_sgf, "")
 }
-
+*/
 type sgfOrderByTimeDesc []Sgf
 
 func (arr sgfOrderByTimeDesc) Len() int           { return len(arr) }
@@ -220,8 +223,7 @@ func parseSgf(strSgf string) (*Sgf, error) {
 			sgf.Rule += re.FindStringSubmatch(title)[1] + "次"
 		}
 	}
-	var steps = regexp.MustCompile(`;[BW]{1}\[[a-t]{2}\]`).FindAllString(strSgf, -1)
-	sgf.Steps = strings.Join(steps, "")
+	sgf.Sgf = strSgf
 	return &sgf, nil
 }
 

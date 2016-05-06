@@ -166,7 +166,7 @@ func getSgfFromRequest(r *http.Request) *Sgf {
 	s.White = r.FormValue("white")
 	s.Rule = r.FormValue("rule")
 	s.Result = r.FormValue("result")
-	s.Steps = r.FormValue("steps")
+	s.Sgf = r.FormValue("sgf")
 	return &s
 }
 
@@ -178,12 +178,12 @@ func handleSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 
 	r.ParseForm()
 	s := getSgfFromRequest(r)
-	if s.Steps == "" {
+	if s.Sgf == "" {
 		h.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
 		return
 	}
 
-	id, err := Db.Sgf.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	id, err := Db.Sgf.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Sgf)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -203,12 +203,12 @@ func handleSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 		h.NotFound(w, "sgf id less than 0")
 		return
 	}
-	if s.Steps == "" {
+	if s.Sgf == "" {
 		h.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
 		return
 	}
 
-	_, err := Db.Sgf.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Steps)
+	_, err := Db.Sgf.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Sgf)
 	if err != nil {
 		h.ServerError(w, err)
 		return
@@ -257,7 +257,7 @@ func sgf_remote_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var id int64
-	if id, err = Db.Sgf.Add(nil, sgf.Time, sgf.Place, sgf.Event, sgf.Black, sgf.White, sgf.Rule, sgf.Result, sgf.Steps); err != nil {
+	if id, err = Db.Sgf.Add(nil, sgf.Time, sgf.Place, sgf.Event, sgf.Black, sgf.White, sgf.Rule, sgf.Result, sgf.Sgf); err != nil {
 		h.ServerError(w, err)
 		return
 	}
