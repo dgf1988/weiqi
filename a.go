@@ -2,7 +2,7 @@ package weiqi
 
 import (
 	"flag"
-	"github.com/dgf1988/weiqi/h"
+	"github.com/dgf1988/weiqi/mux"
 	"log"
 	"net/http"
 )
@@ -20,51 +20,50 @@ func Run() {
 	flag.Parse()
 
 	//
-	m := h.NewMux()
-	m.HandleFunc(defaultHandler, "/", h.GET)
+	var mymux = mux.New()
+	mymux.HandleFuncOld(mux.GET, "/", defaultHandler)
 
-	m.HandleFunc(handleLogin, "/login", h.GET|h.POST)
-	m.HandleFunc(handleLogout, "/logout", h.GET)
-	m.HandleFunc(handleRegister, "/register", h.POST)
-	m.HandleFunc(handleUser, "/user", h.GET)
+	mymux.HandleFuncOld(mux.GET|mux.POST, "/login", handleLogin)
+	mymux.HandleFuncOld(mux.GET, "/logout", handleLogout)
+	mymux.HandleFuncOld(mux.POST, "/register", handleRegister)
+	mymux.HandleFuncOld(mux.GET, "/user", handleUser)
 
-	m.HandleFunc(handleSgfList, "/sgf/", h.GET)
-	m.HandleFunc(handleSgfId, "/sgf/+", h.GET)
-	m.HandleFunc(handleSgfEdit, "/user/sgf/", h.GET)
-	m.HandleFunc(handleSgfEdit, "/user/sgf/+", h.GET)
-	m.HandleFunc(sgf_remote_handler, "/user/sgf/remote", h.POST)
-	m.HandleFunc(handleSgfAdd, "/user/sgf/add", h.POST)
-	m.HandleFunc(handleSgfDel, "/user/sgf/del", h.POST)
-	m.HandleFunc(handleSgfUpdate, "/user/sgf/update", h.POST)
+	mymux.HandleFuncOld(mux.GET, "/sgf/", handleSgfList)
+	mymux.HandleFuncOld(mux.GET, "/sgf/+", handleSgfId)
+	mymux.HandleFuncOld(mux.GET, "/user/sgf/", handleSgfEdit)
+	mymux.HandleFuncOld(mux.GET, "/user/sgf/+", handleSgfEdit)
+	mymux.HandleFuncOld(mux.POST, "/user/sgf/remote", sgf_remote_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/sgf/add", handleSgfAdd)
+	mymux.HandleFuncOld(mux.POST, "/user/sgf/del", handleSgfDel)
+	mymux.HandleFuncOld(mux.POST, "/user/sgf/update", handleSgfUpdate)
 
-	m.HandleFunc(handlePostList, "/post/", h.GET)
-	m.HandleFunc(handlePostId, "/post/+", h.GET)
-	m.HandleFunc(handlePostListPage, "/post/page/+", h.GET)
-	m.HandleFunc(editPostHandler, "/user/post/", h.GET)
-	m.HandleFunc(editPostHandler, "/user/post/+", h.GET)
-	m.HandleFunc(handlePostAdd, "/user/post/add", h.POST)
-	m.HandleFunc(handlePostStatus, "/user/post/status", h.POST)
-	///user/post/status
-	m.HandleFunc(handlePostUpdate, "/user/post/update", h.POST)
-	m.HandleFunc(handlePostDel, "/user/post/del", h.POST)
+	mymux.HandleFuncOld(mux.GET, "/post/", handlePostList)
+	mymux.HandleFuncOld(mux.GET, "/post/+", handlePostId)
+	mymux.HandleFuncOld(mux.GET, "/post/page/+", handlePostListPage)
+	mymux.HandleFuncOld(mux.GET, "/user/post/", editPostHandler)
+	mymux.HandleFuncOld(mux.GET, "/user/post/+", editPostHandler)
+	mymux.HandleFuncOld(mux.POST, "/user/post/add", handlePostAdd)
+	mymux.HandleFuncOld(mux.POST, "/user/post/status", handlePostStatus)
+	mymux.HandleFuncOld(mux.POST, "/user/post/update", handlePostUpdate)
+	mymux.HandleFuncOld(mux.POST, "/user/post/del", handlePostDel)
 
-	m.HandleFunc(player_list_handler, "/player/", h.GET)
-	m.HandleFunc(player_info_handler, "/player/+", h.GET)
-	m.HandleFunc(player_manage_handler, "/user/player/", h.GET)
-	m.HandleFunc(player_editor_handler, "/user/player/+", h.GET|h.POST)
-	m.HandleFunc(player_add_handler, "/user/player/add", h.POST)
-	m.HandleFunc(player_del_handler, "/user/player/del", h.POST)
+	mymux.HandleFuncOld(mux.GET, "/player/", player_list_handler)
+	mymux.HandleFuncOld(mux.GET, "/player/+", player_info_handler)
+	mymux.HandleFuncOld(mux.GET, "/user/player/", player_manage_handler)
+	mymux.HandleFuncOld(mux.GET|mux.POST, "/user/player/+", player_editor_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/player/add", player_add_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/player/del", player_del_handler)
 
-	m.HandleFunc(img_list_handler, "/user/img/", h.GET)
-	m.HandleFunc(img_editor_handler, "/user/img/+", h.GET|h.POST)
-	m.HandleFunc(img_upload_handler, "/user/img/upload", h.POST)
-	m.HandleFunc(img_remove_handler, "/user/img/remove", h.POST)
-	m.HandleFunc(img_remote_handler, "/user/img/remote", h.POST)
-	m.HandleStd(http.FileServer(http.Dir(config.UploadPath)), "/img/*", h.GET)
+	mymux.HandleFuncOld(mux.GET, "/user/img/", img_list_handler)
+	mymux.HandleFuncOld(mux.GET|mux.POST, "/user/img/+", img_editor_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/img/upload", img_upload_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/img/remove", img_remove_handler)
+	mymux.HandleFuncOld(mux.POST, "/user/img/remote", img_remote_handler)
 
-	m.HandleStd(http.FileServer(http.Dir(config.BasePath)), "/static/*", h.GET)
-	m.HandleStd(http.FileServer(http.Dir(config.BasePath+"static/site/")), "/+", h.GET)
+	mymux.HandleStd(mux.GET, "/img/*", http.FileServer(http.Dir(config.UploadPath)))
+	mymux.HandleStd(mux.GET, "/static/*", http.FileServer(http.Dir(config.BasePath)))
+	mymux.HandleStd(mux.GET, "/+", http.FileServer(http.Dir(config.BasePath+"static/site/")))
 
-	http.Handle("/", m)
+	http.Handle("/", mymux)
 	log.Fatal(http.ListenAndServe(*port, nil))
 }
