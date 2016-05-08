@@ -1,17 +1,17 @@
 package mux
 
 import (
-	"net/http"
-	"strings"
 	"github.com/dgf1988/weiqi/logger"
 	"log"
+	"net/http"
 	"regexp"
+	"strings"
 )
 
 var (
-	errorlogger    = logger.New("error")
-	accesslogger   = logger.New("access")
-	spiderlogger   = logger.New("spider")
+	errorlogger  = logger.New("error")
+	accesslogger = logger.New("access")
+	spiderlogger = logger.New("spider")
 )
 
 func init() {
@@ -25,7 +25,6 @@ func init() {
 	spiderlogger.SetFlags(log.LstdFlags)
 }
 
-
 const (
 	GET = 1 << iota
 	POST
@@ -33,10 +32,10 @@ const (
 
 func formatMethods(methods int) []string {
 	var list_method = make([]string, 0)
-	if methods & GET > 0 {
+	if methods&GET > 0 {
 		list_method = append(list_method, "GET")
 	}
-	if methods & POST > 0 {
+	if methods&POST > 0 {
 		list_method = append(list_method, "POST")
 	}
 	return list_method
@@ -62,7 +61,6 @@ func getIp(r *http.Request) string {
 	return ip
 }
 
-
 //Mux
 type Mux struct {
 	router *route
@@ -81,19 +79,19 @@ func (m Mux) HandleFunc(methods int, pattern string, f func(h *Http)) {
 }
 
 func (m Mux) HandleStd(methods int, pattern string, handler http.Handler) {
-	m.HandleFunc(methods, pattern, func(h *Http){
+	m.HandleFunc(methods, pattern, func(h *Http) {
 		handler.ServeHTTP(h.ResponseWriter, h.Request)
 	})
 }
 
 func (m Mux) HandleFuncStd(methods int, pattern string, f func(w http.ResponseWriter, h *http.Request)) {
-	m.HandleFunc(methods, pattern, func(h *Http){
+	m.HandleFunc(methods, pattern, func(h *Http) {
 		f(h.ResponseWriter, h.Request)
 	})
 }
 
 func (m Mux) HandleFuncOld(methods int, pattern string, f func(w http.ResponseWriter, h *http.Request, args []string)) {
-	m.HandleFunc(methods, pattern, func(h *Http){
+	m.HandleFunc(methods, pattern, func(h *Http) {
 		f(h.ResponseWriter, h.Request, h.Param)
 	})
 }
@@ -113,8 +111,8 @@ func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if route == nil || route.Handler == nil {
 		NotFound(w, "page not found")
 	} else {
-		if ( parseMethod(r.Method) & route.Methods ) > 0 {
-			route.Handler.ServeHTTP(NewHttp(w, r, params))
+		if (parseMethod(r.Method) & route.Methods) > 0 {
+			route.Handler.ServeHTTP(newHttp(w, r, params))
 		} else {
 			MethodNotAllowed(w, "method not allowed", formatMethods(route.Methods))
 		}
