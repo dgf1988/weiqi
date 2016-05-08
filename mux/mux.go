@@ -49,7 +49,7 @@ func parseMethod(method string) int {
 	case "POST":
 		return POST
 	default:
-		panic("http: method error")
+		return 0
 	}
 }
 
