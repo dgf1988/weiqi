@@ -1,0 +1,20 @@
+{{define "content"}}
+<style>
+    #content {
+        margin: 62px 10px 10px 10px;
+        padding: 10px;
+        width: 700px;
+        background: white;
+    }
+    #content > article {
+        border: 1px solid #eeeeee;
+    }
+
+</style>
+<div id="content">{{with .Content}}
+    <article>
+        <header><h1>{{.Title}}</h1><time>{{.Time}}</time></header>
+        {{.Text}}
+    </article>
+</div>{{end}}
+{{end}}

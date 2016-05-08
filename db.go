@@ -16,6 +16,11 @@ type weiqiDb struct {
 	Text       db.Table
 	TextPlayer db.Table
 
+	Item db.Table
+
+	Project db.Table
+	ProjectItem db.Table
+
 	Img db.Table
 }
 
@@ -59,6 +64,21 @@ func init() {
 	}
 
 	Db.Img, err = db.GetTable(config.DbName, "img")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	Db.Item, err = db.GetTable(config.DbName, "item")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	Db.Project, err = db.GetTable(config.DbName, "project")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	Db.ProjectItem, err = db.GetTable(config.DbName, "projectitem")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
