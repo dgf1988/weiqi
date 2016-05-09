@@ -3,44 +3,31 @@ package weiqi
 import (
     "database/sql"
     "github.com/dgf1988/weiqi/db"
-    "fmt"
 )
 
 /*
-CREATE TABLE `item` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`key` CHAR(40) NOT NULL,
-	`vlaue` VARCHAR(255) NOT NULL DEFAULT '',
-	PRIMARY KEY (`id`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-;
 CREATE TABLE `project` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`name` CHAR(50) NOT NULL,
-	`text` INT(11) NOT NULL DEFAULT '0',
+	`textid` INT(11) NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
+AUTO_INCREMENT=2
 ;
+
 CREATE TABLE `projectitem` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-	`projectid` INT(11) NOT NULL,
-	`itemid` INT(11) NOT NULL,
-	PRIMARY KEY (`id`)
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `projectid` INT(11) NOT NULL,
+        `itemid` INT(11) NOT NULL,
+        PRIMARY KEY (`id`)
 )
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 ;
 
 */
-
-type Item struct {
-    Key string
-    Value string
-}
 
 type Project struct {
     Id int64
@@ -49,39 +36,70 @@ type Project struct {
     Items []Item
 }
 
-func (p *Project) AddItem(key, value string) {
-    p.Items = append(p.Items, Item{key, value})
+func (p *Project) AppendItem(item Item) {
+    p.Items = append(p.Items, item)
 }
 
-func addProject(project Project) (int64, error) {
-    var err error
-    if project.Id <= 0 {
+func (p *Project) AddItem(key, value string) {
+    p.Items = append(p.Items, Item{Key:key, Value:value})
+}
+
+func (p *Project) Save() (id int64, err error) {
+    if p.Id > 0 {
+        //先更新名称
+        if _, err = Db.Project.Update(p.Id).Values(nil, p.Name); err != nil {
+            return
+        }
+
+        //再更新文本
         var textid int64
-        textid, err = Db.Text.Add(nil, project.Text)
-        if err != nil {
-            return -1, err
+        if err = Db.Project.Get(p.Id).Scan(nil, nil, &textid); err == nil {
+            if _, err = Db.Text.Update(textid).Values(nil, p.Text); err != nil {
+                return
+            }
+        } else if err == sql.ErrNoRows {
+            if textid, err = Db.Text.Add(nil, p.Text); err != nil {
+                return
+            }
+            if _, err = Db.Project.Update(p.Id).Values(nil, nil, textid); err != nil {
+                return
+            }
+        } else {
+            return
+        }
+    } else {
+        if err = Db.Project.Get(nil, p.Name).Scan(&p.Id); err == nil {
+            //名称已经存在
+            return p.Save()
+        } else if err != sql.ErrNoRows {
+            return
         }
 
-        var id int64
-        id, err = Db.Project.Add(nil, project.Name, textid)
-        if err != nil {
-            return -1, err
+        //添加文本
+        var textid int64
+        if textid, err = Db.Text.Add(nil, p.Text); err != nil {
+            return
         }
-
-        var itemid int64
-        for _, item := range project.Items {
-            itemid, err = Db.Item.Add(nil, item.Key, item.Value)
-            if err != nil {
-                return -1, err
-            }
-            _, err = Db.ProjectItem.Add(nil, id, itemid)
-            if err != nil {
-                return -1, err
-            }
+        //再添加项目
+        if id, err = Db.Project.Add(nil, p.Name, textid); err != nil {
+            return
         }
-        return id, nil
     }
-    return -1, fmt.Errorf("add project: id error %d", project.Id)
+
+    var itemid int64
+    for _, item := range p.Items {
+        itemid, err = item.Save()
+        if err != nil {
+            return
+        }
+        if itemid > 0 {
+            _, err = Db.ProjectItem.Add(nil, p.Id, itemid)
+            if err != nil {
+                return
+            }
+        }
+    }
+    return
 }
 
 func getProject(id int64) (*Project, error ) {
@@ -113,7 +131,7 @@ func getProject(id int64) (*Project, error ) {
                 return nil, err
             } else {
                 var item Item
-                if err = Db.Item.Get(itemid).Scan(nil, &item.Key, &item.Value); err == nil {
+                if err = Db.Item.Get(itemid).Struct(&item); err == nil {
                     project.Items = append(project.Items, item)
                 } else if err == sql.ErrNoRows {
                     continue

@@ -16,15 +16,15 @@ func player_list_handler(w http.ResponseWriter, r *http.Request, args []string) 
 	data.Head.Desc = "围棋棋手列表"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料"}
 
-	var players []Player
+	var players []PlayerTable
 	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	}
-	var cn = make([]Player, 0)
-	var kr = make([]Player, 0)
-	var jp = make([]Player, 0)
-	var other = make([]Player, 0)
+	var cn = make([]PlayerTable, 0)
+	var kr = make([]PlayerTable, 0)
+	var jp = make([]PlayerTable, 0)
+	var other = make([]PlayerTable, 0)
 	for _, player := range players {
 		switch player.Country {
 		case "中国":
@@ -55,8 +55,9 @@ func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) 
 	var data = defData()
 	data.User = getSessionUser(r)
 
-	var player = new(Player)
-	if err = Db.Player.Get(atoi(args[0])).Struct(player); err == sql.ErrNoRows {
+	var player *Player
+	player, err = GetPlayer(atoi64(args[0]))
+	if err == sql.ErrNoRows {
 		h.NotFound(w, "找不到棋手")
 		return
 	} else if err != nil {
@@ -67,21 +68,6 @@ func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) 
 	data.Head.Desc = "围棋棋手"
 	data.Head.Keywords = []string{"围棋", "棋手", "资料", player.Name}
 	data.Content["Player"] = player
-
-	var textid int64
-	var text = new(Text)
-	if err = Db.TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
-		if err = Db.Text.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
-			h.ServerError(w, err)
-			return
-		} else {
-			text.Text = parseTextToHtml(text.Text)
-		}
-	} else if err != sql.ErrNoRows {
-		h.ServerError(w, err)
-		return
-	}
-	data.Content["Text"] = text
 
 	var img Img
 	if err = Db.Img.Get(nil, player.Name).Struct(&img); err == nil {
@@ -117,14 +103,14 @@ func player_manage_handler(w http.ResponseWriter, r *http.Request, args []string
 	data.Head.Title = "棋手管理"
 	data.Header.Navs = userNavItems()
 
-	var players = make([]Player, 0)
+	var players = make([]PlayerTable, 0)
 	if rows, err := Db.Player.ListDesc(100, 0); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
 		defer rows.Close()
 		for rows.Next() {
-			var player Player
+			var player PlayerTable
 			if err = rows.Struct(&player); err != nil {
 				h.ServerError(w, err)
 				return
@@ -136,10 +122,10 @@ func player_manage_handler(w http.ResponseWriter, r *http.Request, args []string
 			h.ServerError(w, err)
 			return
 		}
-		var cn = make([]Player, 0)
-		var kr = make([]Player, 0)
-		var jp = make([]Player, 0)
-		var other = make([]Player, 0)
+		var cn = make([]PlayerTable, 0)
+		var kr = make([]PlayerTable, 0)
+		var jp = make([]PlayerTable, 0)
+		var other = make([]PlayerTable, 0)
 		for _, player := range players {
 			switch player.Country {
 			case "中国":
@@ -172,7 +158,7 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 	}
 
 	var playerid = atoi64(args[0])
-	var player Player
+	var player PlayerTable
 	var err error
 	if err = Db.Player.Get(playerid).Struct(&player); err == sql.ErrNoRows {
 		h.NotFound(w, "找不到棋手")
@@ -210,14 +196,14 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 		var textid int64
 		var textplayerid int64
 		//是否有个人介绍
-		if err = Db.TextPlayer.Get(nil, playerid).Scan(&textplayerid, nil, &textid); err == sql.ErrNoRows {
+		if err = Db.PlayerText.Get(nil, playerid).Scan(&textplayerid, nil, &textid); err == sql.ErrNoRows {
 			//没有
 			if text != "" {
 				if textid, err = Db.Text.Add(nil, text); err != nil {
 					h.ServerError(w, err)
 					return
 				}
-				if _, err = Db.TextPlayer.Add(nil, playerid, textid); err != nil {
+				if _, err = Db.PlayerText.Add(nil, playerid, textid); err != nil {
 					h.ServerError(w, err)
 					return
 				}
@@ -229,7 +215,7 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 					h.ServerError(w, err)
 					return
 				}
-				if _, err = Db.TextPlayer.Del(textplayerid); err != nil {
+				if _, err = Db.PlayerText.Del(textplayerid); err != nil {
 					h.ServerError(w, err)
 					return
 				}
@@ -253,7 +239,7 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 
 	var textid int64
 	var text = new(Text)
-	if err = Db.TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == sql.ErrNoRows {
+	if err = Db.PlayerText.Get(nil, player.Id).Scan(nil, nil, &textid); err == sql.ErrNoRows {
 
 	} else if err == nil {
 		if err = Db.Text.Get(textid).Struct(text); err == sql.ErrNoRows {
@@ -289,15 +275,15 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 		action = "/user/player/add"
 		msg    = r.FormValue("editormsg")
 
-		player  = new(Player)
+		player  = new(PlayerTable)
 		text    = new(Text)
-		players = make([]Player, 0)
+		players = make([]PlayerTable, 0)
 	)
 	if len(p) > 0 {
 		action = "/user/player/update"
 		if err := Db.Player.Get(p[0]).Struct(player); err == nil {
 			var textid int64
-			if err = Db.TextPlayer.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
+			if err = Db.PlayerText.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
 				if err = Db.Text.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
 					h.ServerError(w, err)
 					return
@@ -318,7 +304,7 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	if rows, err := Db.Player.ListDesc(40, 0); err == nil {
 		defer rows.Close()
 		for rows.Next() {
-			var a Player
+			var a PlayerTable
 			if err = rows.Struct(&a); err == nil {
 				players = append(players, a)
 			} else {
@@ -341,7 +327,7 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 }
 
-func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, player *Player, text *Text, playerlist []Player) error {
+func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, player *PlayerTable, text *Text, playerlist []PlayerTable) error {
 	var editor = Editor{action, msg}
 	data := defData()
 	data.User = u
@@ -415,14 +401,14 @@ func player_del_handler(w http.ResponseWriter, r *http.Request, p []string) {
 
 	var playertextid int64
 	var textid int64
-	err = Db.TextPlayer.Get(nil, playerid).Scan(&playertextid, nil, &textid)
+	err = Db.PlayerText.Get(nil, playerid).Scan(&playertextid, nil, &textid)
 	if err == nil {
 		_, err = Db.Text.Del(textid)
 		if err != nil {
 			h.ServerError(w, err)
 			return
 		}
-		_, err = Db.TextPlayer.Del(playertextid)
+		_, err = Db.PlayerText.Del(playertextid)
 		if err != nil {
 			h.ServerError(w, err)
 			return

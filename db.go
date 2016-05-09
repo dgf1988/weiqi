@@ -8,20 +8,20 @@ import (
 )
 
 type weiqiDb struct {
-	Player db.Table
-	User   db.Table
-	Post   db.Table
-	Sgf    db.Table
+	User        db.Table
+	Post        db.Table
+	Sgf         db.Table
+    Img         db.Table
 
-	Text       db.Table
-	TextPlayer db.Table
+	Text        db.Table
+	Item        db.Table
 
-	Item db.Table
+	Player      db.Table
+	PlayerText  db.Table
 
-	Project db.Table
+	Project     db.Table
 	ProjectItem db.Table
 
-	Img db.Table
 }
 
 //Db 数据库
@@ -33,45 +33,44 @@ func init() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+    Db.User, err = db.GetTable(config.DbName, "user")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    Db.Post, err = db.GetTable(config.DbName, "post")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    Db.Sgf, err = db.GetTable(config.DbName, "sgf")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    Db.Text, err = db.GetTable(config.DbName, "text")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    Db.Img, err = db.GetTable(config.DbName, "img")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
+
+    Db.Item, err = db.GetTable(config.DbName, "item")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
 	Db.Player, err = db.GetTable(config.DbName, "player")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
-	Db.User, err = db.GetTable(config.DbName, "user")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.Post, err = db.GetTable(config.DbName, "post")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.Sgf, err = db.GetTable(config.DbName, "sgf")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.Text, err = db.GetTable(config.DbName, "text")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.TextPlayer, err = db.GetTable(config.DbName, "textplayer")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.Img, err = db.GetTable(config.DbName, "img")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	Db.Item, err = db.GetTable(config.DbName, "item")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+    Db.PlayerText, err = db.GetTable(config.DbName, "playertext")
+    if err != nil {
+        log.Fatal(err.Error())
+    }
 
 	Db.Project, err = db.GetTable(config.DbName, "project")
 	if err != nil {

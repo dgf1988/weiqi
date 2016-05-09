@@ -19,7 +19,7 @@ func defaultHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 	data.Content["Posts"] = posts
 
-	var players []Player
+	var players []PlayerTable
 	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
 		h.ServerError(w, err)
 		return

@@ -81,7 +81,7 @@
         <table>
             <tr>
                 <th>性别</th>
-                <td>{{.Player.StrSex}}</td>
+                <td>{{.Player.Sex}}</td>
             </tr>
             <tr>
                 <th>国籍</th>
@@ -89,15 +89,15 @@
             </tr>
             <tr>
                 <th>段位</th>
-                <td>{{.Player.StrRank}}</td>
+                <td>{{.Player.Rank}}</td>
             </tr>
             <tr>
                 <th>生日</th>
-                <td>{{.Player.Birth.Format "2006-01-02"}}</td>
+                <td>{{.Player.StrBirth}}</td>
             </tr>
         </table>
         {{with .Img}}<img src="{{.Src}}" alt="{{.Alt}}" width="180">{{end}}
-        {{.Text.HtmlText}} 
+        {{.Player.HtmlText}}
         {{if .Sgfs}}
         <section>
             <table>
