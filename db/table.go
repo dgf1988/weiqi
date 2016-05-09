@@ -97,7 +97,7 @@ func (t typeTable) Del(args ...interface{}) (int64, error) {
 		listparam = append(listparam, args[i])
 	}
 
-	res, err := dbExec(fmt.Sprintf("%s WHERE %s limit 1", t.sqlDelete, strings.Join(listwhere, " AND ")), listparam...)
+	res, err := dbExec(fmt.Sprintf("%s WHERE %s", t.sqlDelete, strings.Join(listwhere, " AND ")), listparam...)
 	if err != nil {
 		return -1, err
 	}

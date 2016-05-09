@@ -81,9 +81,10 @@ func (p *Project) Save() (id int64, err error) {
             return
         }
         //再添加项目
-        if id, err = Db.Project.Add(nil, p.Name, textid); err != nil {
+        if p.Id, err = Db.Project.Add(nil, p.Name, textid); err != nil {
             return
         }
+        id = p.Id
     }
 
     var itemid int64
@@ -102,7 +103,49 @@ func (p *Project) Save() (id int64, err error) {
     return
 }
 
-func getProject(id int64) (*Project, error ) {
+func DelProject(id int64) (err error) {
+    var textid int64
+    err = Db.Project.Get(id).Scan(nil, nil, &textid)
+    if err == nil {
+        //删除文本
+        _, err = Db.Text.Del(textid)
+        if err != nil {
+            return
+        }
+        var rows db.Rows
+        if rows, err = Db.ProjectItem.FindAll(nil, id); err != nil {
+            return
+        } else {
+            defer rows.Close()
+            var itemid int64
+            for rows.Next() {
+                err = rows.Scan(nil, nil, &itemid)
+                if err != nil {
+                    return
+                }
+                //删除
+                _, err = Db.Item.Del(itemid)
+                if err != nil {
+                    return
+                }
+            }
+            err = rows.Err()
+            if err != nil {
+                return
+            }
+        }
+        //删除
+        _, err = Db.ProjectItem.Del(nil, id)
+        if err != nil {
+            return
+        }
+        _, err = Db.Project.Del(id)
+        return
+    }
+    return
+}
+
+func GetProject(id int64) (*Project, error ) {
     var err error
 
     var project Project
@@ -145,5 +188,62 @@ func getProject(id int64) (*Project, error ) {
         }
     }
     return &project, nil
+}
+
+func ListProject(take, skip int) (listproject []Project, err error) {
+    listproject = make([]Project, 0)
+    var rows db.Rows
+    rows, err = Db.Project.List(take, skip)
+    if err != nil {
+        return
+    }
+    defer rows.Close()
+    for rows.Next() {
+        var p Project
+
+        var textid int64
+        err = rows.Scan(&p.Id, &p.Name, &textid)
+        if err != nil {
+            return
+        }
+        err = Db.Text.Get(textid).Scan(nil, &p.Text)
+        if err != nil && err != sql.ErrNoRows {
+            return
+        }
+
+        var projectitemrows db.Rows
+        projectitemrows, err = Db.ProjectItem.FindAll(nil, p.Id)
+        if err != nil {
+            return
+        }
+        defer projectitemrows.Close()
+        for projectitemrows.Next() {
+            var itemid int64
+            var projectitemid int64
+            err = projectitemrows.Scan(&projectitemid, nil, &itemid)
+            if err != nil {
+                return
+            }
+            var item Item
+            err = Db.Item.Get(itemid).Scan(&item.Id, &item.Key, &item.Value)
+            if err == nil {
+                p.AppendItem(item)
+            } else if err == sql.ErrNoRows {
+                _, err = Db.ProjectItem.Del(projectitemid)
+                if err != nil {
+                    return
+                }
+            } else {
+                return
+            }
+        }
+        err = projectitemrows.Err()
+        if err != nil {
+            return
+        }
+        listproject = append(listproject, p)
+    }
+    err = rows.Err()
+    return
 }
 

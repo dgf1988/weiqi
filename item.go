@@ -27,7 +27,7 @@ func (i *Item) Save() (insertid int64, err error) {
     }
 }
 
-func getItem(id int64) (item *Item, err error) {
+func GetItem(id int64) (item *Item, err error) {
     item = new(Item)
     err = Db.Item.Get(id).Struct(item)
     return
