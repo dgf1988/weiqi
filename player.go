@@ -254,7 +254,7 @@ func GetPlayer(id int64) (player *Player, err error) {
     )
     err = Db.Player.Get(id).Scan(nil, &name, &sex, &country, &rank, &birth)
     if err != nil {
-        return
+        return nil, err
     }
     var textid int64
     var playertextid int64
@@ -266,15 +266,13 @@ func GetPlayer(id int64) (player *Player, err error) {
         } else if err == sql.ErrNoRows {
             _, err = Db.PlayerText.Del(playertextid)
             if err != nil {
-                return
+                return nil, err
             }
         } else {
-            return
+            return nil, err
         }
-    } else if err == sql.ErrNoRows {
-
-    } else {
-        return
+    } else if err != sql.ErrNoRows {
+        return nil, err
     }
     player = new(Player)
     player.Id = id
@@ -284,5 +282,5 @@ func GetPlayer(id int64) (player *Player, err error) {
     player.Rank = formatRank(rank)
     player.Birth = birth
     player.Text = text
-    return
+    return player, nil
 }

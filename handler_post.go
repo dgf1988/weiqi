@@ -19,7 +19,7 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	cutPostTextMany(posts)
 	var indexpages *IndexPages
-	if count, err := Db.Post.Count(nil, nil, nil, constStatusRelease); err != nil {
+	if count, err := Db.Post.CountBy(nil, nil, nil, constStatusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {
@@ -65,7 +65,7 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 
 	var fy *IndexPages
-	if count, err := Db.Post.Count(nil, nil, nil, constStatusRelease); err != nil {
+	if count, err := Db.Post.CountBy(nil, nil, nil, constStatusRelease); err != nil {
 		h.ServerError(w, err)
 		return
 	} else {

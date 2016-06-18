@@ -2,7 +2,7 @@ package weiqi
 
 import (
     "database/sql"
-    "github.com/dgf1988/weiqi/db"
+    "github.com/dgf1988/db"
 )
 
 /*
@@ -112,8 +112,8 @@ func DelProject(id int64) (err error) {
         if err != nil {
             return
         }
-        var rows db.Rows
-        if rows, err = Db.ProjectItem.FindAll(nil, id); err != nil {
+        var rows *db.Rows
+        if rows, err = Db.ProjectItem.FindMany(nil, id); err != nil {
             return
         } else {
             defer rows.Close()
@@ -163,8 +163,8 @@ func GetProject(id int64) (*Project, error ) {
         return nil, err
     }
 
-    var rows db.Rows
-    if rows, err = Db.ProjectItem.FindAll(nil, project.Id); err != nil {
+    var rows *db.Rows
+    if rows, err = Db.ProjectItem.FindMany(nil, project.Id); err != nil {
         return nil, err
     } else {
         defer rows.Close()
@@ -192,7 +192,7 @@ func GetProject(id int64) (*Project, error ) {
 
 func ListProject(take, skip int) (listproject []Project, err error) {
     listproject = make([]Project, 0)
-    var rows db.Rows
+    var rows *db.Rows
     rows, err = Db.Project.List(take, skip)
     if err != nil {
         return
@@ -211,8 +211,8 @@ func ListProject(take, skip int) (listproject []Project, err error) {
             return
         }
 
-        var projectitemrows db.Rows
-        projectitemrows, err = Db.ProjectItem.FindAll(nil, p.Id)
+        var projectitemrows *db.Rows
+        projectitemrows, err = Db.ProjectItem.FindMany(nil, p.Id)
         if err != nil {
             return
         }
