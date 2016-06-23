@@ -3,7 +3,7 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dgf1988/weiqi/h"
+	"github.com/dgf1988/weiqi/mux"
 	"net/http"
 )
 
@@ -13,14 +13,14 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 	var posts []Post
 	var err error
 	if posts, err = listPostByStatusOrderDesc(constStatusRelease, c_postPageSize, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	cutPostTextMany(posts)
 	var indexpages *IndexPages
 	if count, err := Db.Post.CountBy(nil, nil, nil, constStatusRelease); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		var total int = int(count / c_postPageSize)
@@ -32,7 +32,7 @@ func handlePostList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, indexpages, 1), nil)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -60,13 +60,13 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 
 	var current = atoi(args[0])
 	if current <= 0 {
-		h.NotFound(w, "找不到页面")
+		mux.NotFound(w, "找不到页面")
 		return
 	}
 
 	var fy *IndexPages
 	if count, err := Db.Post.CountBy(nil, nil, nil, constStatusRelease); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		var total int = int(count / c_postPageSize)
@@ -74,7 +74,7 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 			total += 1
 		}
 		if current > total {
-			h.NotFound(w, "找不到页面")
+			mux.NotFound(w, "找不到页面")
 			return
 		}
 		fy = newIndexPages(current, total)
@@ -83,14 +83,14 @@ func handlePostListPage(w http.ResponseWriter, r *http.Request, args []string) {
 	var posts []Post
 	var err error
 	if posts, err = listPostByStatusOrderDesc(constStatusRelease, c_postPageSize, (current-1)*c_postPageSize); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	cutPostTextMany(posts)
 	err = postListHtml().Execute(w, postListData(getSessionUser(r), posts, fy, current), nil)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -105,12 +105,12 @@ func handlePostId(w http.ResponseWriter, r *http.Request, args []string) {
 				logError("%s %s html.execute %s", r.Method, r.URL, err.Error())
 			}
 		} else if err == sql.ErrNoRows {
-			h.NotFound(w, "找不到文章")
+			mux.NotFound(w, "找不到文章")
 		} else {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 		}
 	} else {
-		h.NotFound(w, "找不到文章")
+		mux.NotFound(w, "找不到文章")
 	}
 }
 
@@ -140,7 +140,7 @@ func editPostHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 	var user *User
 	if user = getSessionUser(r); user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -156,25 +156,25 @@ func editPostHandler(w http.ResponseWriter, r *http.Request, args []string) {
 		action = "/user/post/update"
 		err := Db.Post.Get(args[0]).Struct(post)
 		if err == sql.ErrNoRows {
-			h.NotFound(w, "找不到文章")
+			mux.NotFound(w, "找不到文章")
 			return
 		}
 		if err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 	}
 
 	var posts = make([]Post, 0)
 	if rows, err := Db.Post.ListDesc(40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		defer rows.Close()
 		for rows.Next() {
 			var post Post
 			if err = rows.Struct(&post); err != nil {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			} else {
 				posts = append(posts, post)
@@ -183,7 +183,7 @@ func editPostHandler(w http.ResponseWriter, r *http.Request, args []string) {
 	}
 	err = userPostEditHtml().Execute(w, userPostEditData(user, action, msg, post, posts), nil)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 }
@@ -212,7 +212,7 @@ func handlePostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -224,12 +224,12 @@ func handlePostAdd(w http.ResponseWriter, r *http.Request, args []string) {
 	if len(p.Title) > 0 && len(p.Text) > 0 {
 		_, err := Db.Post.Add(nil, p.Title, p.Text)
 		if err == nil {
-			h.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
+			mux.SeeOther(w, r, fmt.Sprint("/user/post/?editormsg=", p.Title, "提交成功"))
 		} else {
-			h.SeeOther(w, r, "/user/post/?editormsg="+err.Error())
+			mux.SeeOther(w, r, "/user/post/?editormsg="+err.Error())
 		}
 	} else {
-		h.SeeOther(w, r, "/user/post/?editormsg=标题或内容为空")
+		mux.SeeOther(w, r, "/user/post/?editormsg=标题或内容为空")
 	}
 }
 
@@ -238,7 +238,7 @@ func handlePostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -248,19 +248,19 @@ func handlePostUpdate(w http.ResponseWriter, r *http.Request, args []string) {
 	p.Title = r.FormValue("title")
 	p.Text = r.FormValue("text")
 	if p.Id <= 0 {
-		h.Forbidden(w, "错误的参数")
+		mux.Forbidden(w, "错误的参数")
 		return
 	}
 	if len(p.Title) == 0 || len(p.Text) == 0 {
-		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
+		mux.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=标题或内容为空"))
 		return
 	}
 	_, err := Db.Post.Update(p.Id).Values(nil, p.Title, p.Text)
 	if err != nil {
-		h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
+		mux.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=", err.Error()))
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=提交成功"))
+	mux.SeeOther(w, r, fmt.Sprint("/user/post/", p.Id, "?editormsg=提交成功"))
 }
 
 func handlePostDel(w http.ResponseWriter, r *http.Request, args []string) {
@@ -268,27 +268,27 @@ func handlePostDel(w http.ResponseWriter, r *http.Request, args []string) {
 	//登录验证
 
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	r.ParseForm()
 	var id int64 = atoi64(r.FormValue("id"))
 	if id <= 0 {
-		h.NotFound(w, "找不找文章")
+		mux.NotFound(w, "找不找文章")
 		return
 	}
 	_, err := Db.Post.Del(id)
 	if err != nil {
-		h.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
+		mux.Forbidden(w, fmt.Sprint(id, "删除失败", err.Error()))
 	} else {
-		h.SeeOther(w, r, "/user/post/?editormsg=删除成功")
+		mux.SeeOther(w, r, "/user/post/?editormsg=删除成功")
 	}
 }
 
 func handlePostStatus(w http.ResponseWriter, r *http.Request, args []string) {
 	if getSessionUser(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -297,14 +297,14 @@ func handlePostStatus(w http.ResponseWriter, r *http.Request, args []string) {
 	var status = atoi(r.FormValue("status"))
 
 	if id <= 0 {
-		h.NotFound(w, "找不到文章")
+		mux.NotFound(w, "找不到文章")
 		return
 	}
 
 	if _, err := Db.Post.Update(id).Values(nil, nil, nil, status); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
-	h.SeeOther(w, r, fmt.Sprintf("/user/post/%d?editormsg=更新成功", id))
+	mux.SeeOther(w, r, fmt.Sprintf("/user/post/%d?editormsg=更新成功", id))
 }

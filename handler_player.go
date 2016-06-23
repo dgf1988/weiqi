@@ -3,8 +3,8 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dgf1988/weiqi/h"
 	"net/http"
+	"github.com/dgf1988/weiqi/mux"
 )
 
 //player list
@@ -18,7 +18,7 @@ func player_list_handler(w http.ResponseWriter, r *http.Request, args []string) 
 
 	var players []PlayerTable
 	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	var cn = make([]PlayerTable, 0)
@@ -58,10 +58,10 @@ func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) 
 	var player *Player
 	player, err = GetPlayer(atoi64(args[0]))
 	if err == sql.ErrNoRows {
-		h.NotFound(w, "找不到棋手")
+		mux.NotFound(w, "找不到棋手")
 		return
 	} else if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Head.Title = player.Name
@@ -73,13 +73,13 @@ func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) 
 	if err = Db.Img.Get(nil, player.Name).Struct(&img); err == nil {
 		data.Content["Img"] = img
 	} else if err != sql.ErrNoRows {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	var sgfs []Sgf
 	if sgfs, err = listSgfByNameOrderByTimeDesc(player.Name); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Content["Sgfs"] = sgfs
@@ -94,7 +94,7 @@ func player_info_handler(w http.ResponseWriter, r *http.Request, args []string) 
 func player_manage_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var user = getSessionUser(r)
 	if user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -105,21 +105,21 @@ func player_manage_handler(w http.ResponseWriter, r *http.Request, args []string
 
 	var players = make([]PlayerTable, 0)
 	if rows, err := Db.Player.ListDesc(100, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		defer rows.Close()
 		for rows.Next() {
 			var player PlayerTable
 			if err = rows.Struct(&player); err != nil {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			} else {
 				players = append(players, player)
 			}
 		}
 		if err = rows.Err(); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 		var cn = make([]PlayerTable, 0)
@@ -153,7 +153,7 @@ func player_manage_handler(w http.ResponseWriter, r *http.Request, args []string
 func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	var user = getSessionUser(r)
 	if user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -161,24 +161,24 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 	var player PlayerTable
 	var err error
 	if err = Db.Player.Get(playerid).Struct(&player); err == sql.ErrNoRows {
-		h.NotFound(w, "找不到棋手")
+		mux.NotFound(w, "找不到棋手")
 		return
 	} else if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	if r.Method == POST {
 		//提交修改
 		if err = r.ParseForm(); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 
 		//获取资料
 		var name = r.FormValue("name")
 		if name == "" {
-			h.NotFound(w, "姓名不能为空")
+			mux.NotFound(w, "姓名不能为空")
 			return
 		}
 		var sex = atoi64(r.FormValue("sex"))
@@ -189,7 +189,7 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 
 		//更新棋手资料
 		if _, err = Db.Player.Update(playerid).Values(nil, name, sex, country, rank, birth); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 
@@ -200,11 +200,11 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 			//没有
 			if text != "" {
 				if textid, err = Db.Text.Add(nil, text); err != nil {
-					h.ServerError(w, err)
+					mux.ServerError(w, err)
 					return
 				}
 				if _, err = Db.PlayerText.Add(nil, playerid, textid); err != nil {
-					h.ServerError(w, err)
+					mux.ServerError(w, err)
 					return
 				}
 			}
@@ -212,22 +212,22 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 			//有，更新
 			if text == "" {
 				if _, err = Db.Text.Del(textid); err != nil {
-					h.ServerError(w, err)
+					mux.ServerError(w, err)
 					return
 				}
 				if _, err = Db.PlayerText.Del(textplayerid); err != nil {
-					h.ServerError(w, err)
+					mux.ServerError(w, err)
 					return
 				}
 			} else if _, err = Db.Text.Update(textid).Values(nil, text); err != nil {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			}
 		} else {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
-		h.SeeOther(w, r, fmt.Sprint("/user/player/", playerid))
+		mux.SeeOther(w, r, fmt.Sprint("/user/player/", playerid))
 		return
 	}
 
@@ -247,11 +247,11 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 		} else if err == nil {
 
 		} else {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 	} else {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Content["Text"] = text
@@ -266,7 +266,7 @@ func player_editor_handler(w http.ResponseWriter, r *http.Request, args []string
 func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var user *User
 	if user = getSessionUser(r); user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -285,18 +285,18 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 			var textid int64
 			if err = Db.PlayerText.Get(nil, player.Id).Scan(nil, nil, &textid); err == nil {
 				if err = Db.Text.Get(textid).Struct(text); err != nil && err != sql.ErrNoRows {
-					h.ServerError(w, err)
+					mux.ServerError(w, err)
 					return
 				}
 			} else if err != nil && err != sql.ErrNoRows {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			}
 		} else if err == sql.ErrNoRows {
-			h.NotFound(w, "棋手不存在")
+			mux.NotFound(w, "棋手不存在")
 			return
 		} else {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 	}
@@ -308,22 +308,22 @@ func handlePlayerEdit(w http.ResponseWriter, r *http.Request, p []string) {
 			if err = rows.Struct(&a); err == nil {
 				players = append(players, a)
 			} else {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			}
 		}
 		if err = rows.Err(); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 	} else {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	err := userPlayerEditRender(w, user, action, msg, player, text, players)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -348,19 +348,19 @@ func userPlayerEditRender(w http.ResponseWriter, u *User, action, msg string, pl
 //player add
 func player_add_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	if getSessionUser(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	var err error
 	if err = r.ParseForm(); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	var name = r.FormValue("name")
 	if name == "" {
-		h.NotFound(w, "姓名不能为空")
+		mux.NotFound(w, "姓名不能为空")
 		return
 	}
 
@@ -368,7 +368,7 @@ func player_add_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	if err = Db.Player.Get(nil, name).Scan(&id); err == nil {
 
 	} else if err != sql.ErrNoRows {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		var sex = atoi64(r.FormValue("sex"))
@@ -376,26 +376,26 @@ func player_add_handler(w http.ResponseWriter, r *http.Request, args []string) {
 		var rank = atoi64(r.FormValue("rank"))
 		var birth, _ = parseDate(r.FormValue("birth"))
 		if id, err = Db.Player.Add(nil, name, sex, country, rank, birth); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		} else {
 		}
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/player/", id))
+	mux.SeeOther(w, r, fmt.Sprint("/user/player/", id))
 }
 
 func player_del_handler(w http.ResponseWriter, r *http.Request, p []string) {
 	var err error
 
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	r.ParseForm()
 	playerid := atoi64(r.FormValue("id"))
 	if playerid < 0 {
-		h.NotFound(w, "参数错误")
+		mux.NotFound(w, "参数错误")
 		return
 	}
 
@@ -405,27 +405,27 @@ func player_del_handler(w http.ResponseWriter, r *http.Request, p []string) {
 	if err == nil {
 		_, err = Db.Text.Del(textid)
 		if err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 		_, err = Db.PlayerText.Del(playertextid)
 		if err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 	} else if err != sql.ErrNoRows {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	var n int64
 	n, err = Db.Player.Del(playerid)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	if n == 0 {
-		h.NotFound(w, "找不到棋谱")
+		mux.NotFound(w, "找不到棋谱")
 		return
 	}
-	h.SeeOther(w, r, "/user/player/?editormsg=删除成功")
+	mux.SeeOther(w, r, "/user/player/?editormsg=删除成功")
 }

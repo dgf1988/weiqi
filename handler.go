@@ -1,7 +1,7 @@
 package weiqi
 
 import (
-	"github.com/dgf1988/weiqi/h"
+	"github.com/dgf1988/weiqi/mux"
 	"net/http"
 )
 
@@ -14,21 +14,21 @@ func defaultHandler(w http.ResponseWriter, r *http.Request, args []string) {
 
 	var posts []Post
 	if posts, err = listPostByStatusOrderDesc(constStatusRelease, 40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Content["Posts"] = posts
 
 	var players []PlayerTable
 	if players, err = listPlayerOrderByRankDesc(40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Content["Players"] = players
 
 	var sgfs []Sgf
 	if sgfs, err = listSgfOrderByTimeDesc(40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	data.Content["Sgfs"] = sgfs

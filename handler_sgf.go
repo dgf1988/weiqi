@@ -3,7 +3,7 @@ package weiqi
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dgf1988/weiqi/h"
+	"github.com/dgf1988/weiqi/mux"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ func handleSgfList(w http.ResponseWriter, r *http.Request, p []string) {
 
 	err := renderSgfList(w, getSessionUser(r))
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 }
@@ -45,10 +45,10 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 	var sgf = new(Sgf)
 	var err error
 	if err = Db.Sgf.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
-		h.NotFound(w, "找不到棋谱")
+		mux.NotFound(w, "找不到棋谱")
 		return
 	} else if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
@@ -57,13 +57,13 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 	if err = Db.Player.Get(nil, sgf.Black).Struct(black); err == sql.ErrNoRows {
 		black = nil
 	} else if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 	if err = Db.Player.Get(nil, sgf.White).Struct(white); err == sql.ErrNoRows {
 		white = nil
 	} else if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
@@ -74,7 +74,7 @@ func handleSgfId(w http.ResponseWriter, r *http.Request, p []string) {
 		newHtmlContent("sgfid"),
 	).Execute(w, sgfIDDAta(getSessionUser(r), sgf, black, white), nil)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -94,7 +94,7 @@ func sgfIDDAta(u *User, sgf *Sgf, black, white *PlayerTable) *Data {
 func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var user *User
 	if user = getSessionUser(r); user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -102,7 +102,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var err error
 	var sgfs = make([]Sgf, 0)
 	if rows, err := Db.Sgf.ListDesc(40, 0); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	} else {
 		defer rows.Close()
@@ -111,7 +111,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 			if err = rows.Struct(&sgf); err == nil {
 				sgfs = append(sgfs, sgf)
 			} else {
-				h.ServerError(w, err)
+				mux.ServerError(w, err)
 				return
 			}
 		}
@@ -121,10 +121,10 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	var action string
 	if len(p) > 0 {
 		if err = Db.Sgf.Get(atoi(p[0])).Struct(sgf); err == sql.ErrNoRows {
-			h.NotFound(w, "找不到棋手")
+			mux.NotFound(w, "找不到棋手")
 			return
 		} else if err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 			return
 		}
 		action = "/user/sgf/update"
@@ -133,7 +133,7 @@ func handleSgfEdit(w http.ResponseWriter, r *http.Request, p []string) {
 	}
 
 	if err = userSgfEditHtml().Execute(w, userSgfEditData(user, action, r.FormValue("editormsg"), sgf, sgfs), nil); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -172,53 +172,53 @@ func getSgfFromRequest(r *http.Request) *Sgf {
 
 func handleSgfAdd(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	r.ParseForm()
 	s := getSgfFromRequest(r)
 	if s.Sgf == "" {
-		h.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
+		mux.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
 		return
 	}
 
 	id, err := Db.Sgf.Add(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Sgf)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", id, "?editormsg=添加成功"))
+	mux.SeeOther(w, r, fmt.Sprint("/user/sgf/", id, "?editormsg=添加成功"))
 }
 
 func handleSgfUpdate(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	r.ParseForm()
 	s := getSgfFromRequest(r)
 	if s.Id <= 0 {
-		h.NotFound(w, "sgf id less than 0")
+		mux.NotFound(w, "sgf id less than 0")
 		return
 	}
 	if s.Sgf == "" {
-		h.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
+		mux.SeeOther(w, r, fmt.Sprint("/user/sgf/?editormsg=棋谱不能为空"))
 		return
 	}
 
 	_, err := Db.Sgf.Update(s.Id).Values(nil, s.Time, s.Place, s.Event, s.Black, s.White, s.Rule, s.Result, s.Sgf)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", s.Id, "?editormsg=修改成功"))
+	mux.SeeOther(w, r, fmt.Sprint("/user/sgf/", s.Id, "?editormsg=修改成功"))
 }
 
 func handleSgfDel(w http.ResponseWriter, r *http.Request, p []string) {
 	if getSession(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
@@ -226,40 +226,40 @@ func handleSgfDel(w http.ResponseWriter, r *http.Request, p []string) {
 	strid := r.FormValue("id")
 	id := atoi64(strid)
 	if id <= 0 {
-		h.NotFound(w, "sgf id less than 0")
+		mux.NotFound(w, "sgf id less than 0")
 		return
 	}
 
 	_, err := Db.Sgf.Del(id)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", "?editormsg=删除成功"))
+	mux.SeeOther(w, r, fmt.Sprint("/user/sgf/", "?editormsg=删除成功"))
 }
 
 func sgf_remote_handler(w http.ResponseWriter, r *http.Request, args []string) {
 	if getSessionUser(r) == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	var err error
 	if err = r.ParseForm(); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
 
 	var sgf *Sgf
 	if sgf, err = httpGetSgf(r.FormValue("src"), r.FormValue("charset")); err != nil {
-		h.NotFound(w, err.Error())
+		mux.NotFound(w, err.Error())
 		return
 	}
 
 	var id int64
 	if id, err = Db.Sgf.Add(nil, sgf.Time, sgf.Place, sgf.Event, sgf.Black, sgf.White, sgf.Rule, sgf.Result, sgf.Sgf); err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 		return
 	}
-	h.SeeOther(w, r, fmt.Sprint("/user/sgf/", id))
+	mux.SeeOther(w, r, fmt.Sprint("/user/sgf/", id))
 }

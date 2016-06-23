@@ -2,7 +2,7 @@ package weiqi
 
 import (
 	"fmt"
-	"github.com/dgf1988/weiqi/h"
+	"github.com/dgf1988/weiqi/mux"
 	"net/http"
 )
 
@@ -11,7 +11,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request, p []string) {
 
 	//会话验证
 	if getSession(r) != nil {
-		h.SeeOther(w, r, "/user")
+		mux.SeeOther(w, r, "/user")
 		return
 	}
 
@@ -24,13 +24,13 @@ func handleLogin(w http.ResponseWriter, r *http.Request, p []string) {
 		u, err := loginUser(username, password)
 		if err == nil && u != nil {
 			newSession(u).Add(w)
-			h.SeeOther(w, r, "/user")
+			mux.SeeOther(w, r, "/user")
 			return
 		}
 		if werr, ok := err.(*WeiqiError); ok {
-			h.SeeOther(w, r, fmt.Sprint("/login?loginmsg=", werr.Msg))
+			mux.SeeOther(w, r, fmt.Sprint("/login?loginmsg=", werr.Msg))
 		} else {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 		}
 	} else if r.Method == GET {
 		gcSession()
@@ -39,7 +39,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request, p []string) {
 		registerMsg := r.FormValue("registermsg")
 
 		if err := renderLogin(w, loginMsg, registerMsg); err != nil {
-			h.ServerError(w, err)
+			mux.ServerError(w, err)
 		}
 	}
 }
@@ -60,14 +60,14 @@ func renderLogin(w http.ResponseWriter, loginmsg, registermsg string) error {
 
 func handleLogout(w http.ResponseWriter, r *http.Request, p []string) {
 	clearSession(w, r)
-	h.SeeOther(w, r, "/login")
+	mux.SeeOther(w, r, "/login")
 }
 
 func handleRegister(w http.ResponseWriter, r *http.Request, p []string) {
 
 	//会话验证
 	if getSession(r) != nil {
-		h.SeeOther(w, r, "/user")
+		mux.SeeOther(w, r, "/user")
 		return
 	}
 
@@ -79,13 +79,13 @@ func handleRegister(w http.ResponseWriter, r *http.Request, p []string) {
 
 	_, err := registerUser(username, password, password2, email, r.RemoteAddr)
 	if err == nil {
-		h.SeeOther(w, r, "/login?registermsg=注册成功")
+		mux.SeeOther(w, r, "/login?registermsg=注册成功")
 		return
 	}
 	if werr, ok := err.(*WeiqiError); ok {
-		h.SeeOther(w, r, fmt.Sprint("/login?registermsg=", werr.Msg))
+		mux.SeeOther(w, r, fmt.Sprint("/login?registermsg=", werr.Msg))
 	} else {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
@@ -94,13 +94,13 @@ func handleUser(w http.ResponseWriter, r *http.Request, p []string) {
 	//会话验证
 	var user *User
 	if user = getSessionUser(r); user == nil {
-		h.SeeOther(w, r, "/login")
+		mux.SeeOther(w, r, "/login")
 		return
 	}
 
 	err := renderUser(w, user)
 	if err != nil {
-		h.ServerError(w, err)
+		mux.ServerError(w, err)
 	}
 }
 
